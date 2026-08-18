@@ -3,12 +3,15 @@ Mass Domain Availability Check Script
 
 ## Description
 
-With this script you can check if a domain is available by either specifying a file which contains domain names, or by generating different domain names of various lenghts. You can also specify which TLDs to use. The Script can generate domain names with all combinations of characters (default is a-z) with a specified length. To check the availability it uses the GoDaddy API. The results will be saved to a file, or printed live to the shell.
+With this script you can check if a domain is available by either specifying a file which contains domain names, or by generating different domain names of various lenghts. You can also specify which TLDs to use. The Script can generate domain names with all combinations of characters (default is a-z) with a specified length. By default it checks availability using the free, public RDAP protocol (via IANA's bootstrap registry) - **no API key needed**. If you provide a GoDaddy API Key and Secret it will use the GoDaddy API instead, which also gives you pricing info and bulk lookups. The results will be saved to a file, or printed live to the shell.
 
 ## Features
+- check domain availability for free with no API key needed (via RDAP)
+- optionally use the GoDaddy API (with your own key) for pricing info and bulk lookups
 - check if a single domain is available
 - check if multiple domains in a file are available with specific TLD
 - check if multiple domains in a file are available with multiple TLDs from file
+- also check the plural form of every domain/word (e.g. app -> apps)
 - generate domain names with specific lengths and characters
 - specify in which order the domain names are being checked (asc, desc, random)
 - save available domains to file
@@ -71,8 +74,23 @@ windyweather.net is not available
 ...
 ```
 
+### Check a wordlist plus its plural forms, no API key needed
+```shell
+dcheck --tld "com net" --domainlist domains.txt --plural true --print both
+```
+Output:
+```shell
+No GoDaddy API Key/Secret found - using free public RDAP lookups instead (no key needed, but no pricing or bulk mode)
+Checking 4 domains...
+book.com is not available
+books.com is not available
+book.net is not available
+books.net is available
+...
+```
+
 ## Setup
-Because with multiple different TLDs whois requests are often slow, this Python Programm uses the GoDaddy API to check if a Domain is available. In order to use the programm, you need to get your personal API Key and Secret on [this](https://developer.godaddy.com/keys) page (It's free).
+By default dcheck checks domain availability for free using the public RDAP protocol (via IANA's bootstrap registry) - **no API key or signup required**. RDAP doesn't provide pricing or bulk lookups though, so if you want those, you can optionally get a free GoDaddy API Key and Secret on [this](https://developer.godaddy.com/keys) page and dcheck will use the GoDaddy API instead.
 
 - clone this repo:
 ```shell
@@ -86,8 +104,9 @@ cd dcheck
 ```shell
 python3 setup.py install
 ```
-- dcheck command is now available
-- get your GoDaddy API Key and Secret [here](https://developer.godaddy.com/keys) and either set them as environment variables:
+- dcheck command is now available, e.g. `dcheck --domain example --tld com`
+
+Optional - to enable pricing info and bulk lookups, get a GoDaddy API Key and Secret [here](https://developer.godaddy.com/keys) and either set them as environment variables:
 ```shell
 export APIKEY="YOUR KEY"
 export APISECRET="YOUR SECRET"
@@ -110,8 +129,9 @@ dcheck [options...]
 -o, --order <boolean> If set to true domain list will be reversed [default: false]
 -g, --group <boolean> If set to true for every domain all TLDs are checked instead of all domains per TLD [default: false]
 -r, --random <boolean> If set to true domain will be choosen randomly from domain list [default: false]
--k, --key GoDaddy API Key
--s, --secret GoDaddy API Secret
+-u, --plural <boolean> If set to true also checks the plural form of every domain/word, e.g. app -> apps [default: false]
+-k, --key GoDaddy API Key (optional - enables pricing info and bulk lookups, otherwise free RDAP lookups are used)
+-s, --secret GoDaddy API Secret (optional - enables pricing info and bulk lookups, otherwise free RDAP lookups are used)
 -p, --print Change what is shown
      both - prints both available and not available domains
      only - prints only available domains [default]

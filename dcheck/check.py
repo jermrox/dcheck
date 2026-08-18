@@ -16,6 +16,9 @@ from termcolor import colored
 delay = 1 #Delay between requests (GoDaddy rate limit is 1 per sec)
 errorDelay = 15 #Delay when rate limit is reached
 
+rdapBootstrap = None #Cached IANA RDAP bootstrap registry (tld -> RDAP server)
+rdapBaseCache = {} #Cached tld -> RDAP base url lookups
+
 def checkDomain(domain, apiKey, apiSecret):
     url = "https://api.godaddy.com/v1/domains/available?domain=" + str(domain) + "&checkType=FAST&forTransfer=false"
     payload = {}
@@ -62,8 +65,96 @@ def checkDomainBulk(domains, apiKey, apiSecret):
         print(colored("API Error: " + str(response.json()), 'red'))
         exit(0)
 
-def checkSingleDomain(domain, outFile, apiKey, apiSecret):
+def loadRdapBootstrap():
+    # Loads IANA's public RDAP bootstrap registry (which TLD is served by which RDAP server)
+    # https://data.iana.org/rdap/dns.json - no API key required
+    global rdapBootstrap
+    if rdapBootstrap is None:
+        try:
+            response = requests.get("https://data.iana.org/rdap/dns.json", timeout=15)
+            rdapBootstrap = response.json()
+        except requests.exceptions.RequestException as e:
+            print(colored("Error: Could not reach IANA's RDAP bootstrap registry (" + str(e) + ")", 'red'))
+            exit(0)
+    return rdapBootstrap
+
+def getRdapBaseUrl(tld):
+    tld = tld.lower()
+    if tld in rdapBaseCache:
+        return rdapBaseCache[tld]
+    bootstrap = loadRdapBootstrap()
+    base = None
+    for tlds, urls in bootstrap['services']:
+        if tld in tlds:
+            base = urls[0].rstrip('/')
+            break
+    rdapBaseCache[tld] = base
+    return base
+
+def checkDomainRDAP(domain):
+    # Free/public alternative to the GoDaddy API - no key needed, but no pricing or bulk lookups either
+    tld = domain.rsplit('.', 1)[-1]
+    base = getRdapBaseUrl(tld)
+    if base is None:
+        return {"available": None, "domain": domain, "unsupported": True}
+    try:
+        response = requests.get(base + "/domain/" + domain, headers={'accept': 'application/rdap+json'}, timeout=15)
+    except requests.exceptions.RequestException as e:
+        if mode == 'debug': print(colored("RDAP request failed for " + domain + ": " + str(e), 'red'))
+        return {"available": None, "domain": domain}
+    if response.status_code == 404:
+        return {"available": True, "domain": domain}
+    elif response.status_code == 200:
+        return {"available": False, "domain": domain}
+    elif response.status_code == 429:
+        if mode == 'debug': print(colored("RDAP Error: Too many requests, waiting...", 'red'))
+        time.sleep(errorDelay)
+        return "retry"
+    else:
+        if mode == 'debug': print(colored("RDAP Error: " + str(response.status_code) + " for " + domain, 'red'))
+        return {"available": None, "domain": domain}
+
+def pluralize(word):
+    # Simple English pluralization heuristic, good enough for domain name brainstorming
+    lower = word.lower()
+    if lower.endswith(('s', 'x', 'z', 'ch', 'sh')):
+        return word + 'es'
+    if lower.endswith('y') and len(word) > 1 and lower[-2] not in 'aeiou':
+        return word[:-1] + 'ies'
+    return word + 's'
+
+def pluralizeDomain(domain):
+    if '.' in domain:
+        label, rest = domain.split('.', 1)
+        return pluralize(label) + '.' + rest
+    return pluralize(domain)
+
+def addPlurals(domains):
+    result = list(domains)
+    for d in domains:
+        p = pluralizeDomain(d)
+        if p not in result:
+            result.append(p)
+    return result
+
+def checkSingleDomain(domain, outFile, apiKey, apiSecret, useRdap):
     full = domain
+    if useRdap:
+        res = checkDomainRDAP(full)
+        if res == "retry":
+            res = checkDomainRDAP(full)
+        if res == "retry":
+            if mode == 'debug': print(colored("Still rate limited, skipping " + full, 'red'))
+            return
+        if res.get("unsupported"):
+            print(colored(str(full + " has no public RDAP server (unsupported TLD)"), 'red'))
+        elif res["available"] is None:
+            print(colored(str("Could not determine availability for " + full), 'red'))
+        elif res["available"] is True:
+            print(colored(str(full + " is available"), 'green'))
+        else:
+            print(colored(str(full + " is not available"), 'red'))
+        return
     # Query GoDaddy
     res = checkDomain(full, apiKey, apiSecret)
     if res is "retry":
@@ -83,8 +174,29 @@ def checkSingleDomain(domain, outFile, apiKey, apiSecret):
         else:
             print(colored(str(full + " is not available"), 'red'))
 
-def parseOneDomain(domain, tld, outFile, apiKey, apiSecret):
+def parseOneDomain(domain, tld, outFile, apiKey, apiSecret, useRdap):
     full = str(domain) + "." + str(tld)
+    if useRdap:
+        res = checkDomainRDAP(full)
+        if res == "retry":
+            res = checkDomainRDAP(full)
+        if res == "retry":
+            if mode == 'debug': print(colored("Still rate limited, skipping " + full, 'red'))
+            time.sleep(delay)
+            return
+        if res.get("unsupported"):
+            if mode == "both" or mode == "debug": print(colored(str(full + " has no public RDAP server (unsupported TLD)"), 'red'))
+        elif res["available"] is None:
+            if mode == "both" or mode == "debug": print(colored(str("Could not determine availability for " + full), 'red'))
+        elif res["available"] is True:
+            if mode != "none": print(colored(str(full + " is available"), 'green'))
+            f = open(outFile, 'a')
+            f.write(full + "\n")
+            f.close()
+        else:
+            if mode == "both" or mode == "debug": print(colored(str(full + " is not available"), 'red'))
+        time.sleep(delay)
+        return
     # Query GoDaddy
     res = checkDomain(full, apiKey, apiSecret)
     if res is "retry":
@@ -165,7 +277,7 @@ def parseMulipleDomains(full, outFile, apiKey, apiSecret):
                 if mode == "both" or mode == "debug": print(colored(str(domain['domain'] + " is not available"), 'red'))
         time.sleep(delay)
     
-def run(domains, tlds, outFile, rand, bulk, apiKey, apiSecret):
+def run(domains, tlds, outFile, rand, bulk, apiKey, apiSecret, useRdap):
     if mode == 'debug': print("Out file: " + str(outFile))
     print("Checking " + str(len(domains) * len(tlds)) + " domains...")
     if bulk: timeSec = ((len(domains) * len(tlds)) / 500 ) * 20
@@ -209,11 +321,11 @@ def run(domains, tlds, outFile, rand, bulk, apiKey, apiSecret):
                     domains[index] = domains[size-1]
                     size = size - 1
                     for tld in tlds:
-                        parseOneDomain(domain, tld, outFile, apiKey, apiSecret)
+                        parseOneDomain(domain, tld, outFile, apiKey, apiSecret, useRdap)
             else:
                 for domain in domains:
                     for tld in tlds:
-                        parseOneDomain(domain, tld, outFile, apiKey, apiSecret)
+                        parseOneDomain(domain, tld, outFile, apiKey, apiSecret, useRdap)
     else:
         if mode == 'debug': print("Bulk mode")
         for tld in tlds:
@@ -246,10 +358,10 @@ def run(domains, tlds, outFile, rand, bulk, apiKey, apiSecret):
                         domain = domains[index]
                         domains[index] = domains[size-1]
                         size = size - 1
-                        parseOneDomain(domain, tld, outFile, apiKey, apiSecret)
+                        parseOneDomain(domain, tld, outFile, apiKey, apiSecret, useRdap)
                 else:
                     for domain in domains:
-                        parseOneDomain(domain, tld, outFile, apiKey, apiSecret)
+                        parseOneDomain(domain, tld, outFile, apiKey, apiSecret, useRdap)
     print("done")
 
 def domainListFromFile(file):
@@ -291,9 +403,10 @@ def printHelp():
     print('Version: 1.0')
     print('--------------------------')
     print('*READ BEFORE RUNNING*')
-    print('This Python Programm uses the GoDaddy API to check if a Domain is available.')
-    print('You need to get your personal API Key and Secret on this page: https://developer.godaddy.com/keys')
-    print('and specify them with the --key and --secret argument')
+    print('By default no API key is required - dcheck uses the free public RDAP protocol')
+    print('(via IANA\'s bootstrap registry) to check availability. RDAP has no pricing or bulk lookups though.')
+    print('If you want pricing info and bulk lookups, get a free GoDaddy API Key and Secret here:')
+    print('https://developer.godaddy.com/keys and specify them with the --key and --secret argument')
     print('--------------------------')
     print('By default the script generates permutation of 4 characters (a-z) as domains')
     print('You can also specify a list of domains in a file (one on each line) e.g -d domains.txt')
@@ -310,8 +423,9 @@ def printHelp():
     print('-o, --order <boolean> If set to true domain list will be reversed [default: false]')
     print('-g, --group <boolean> If set to true for every domain all TLDs are checked instead of all domains per TLD [default: false]')
     print('-r, --random <boolean> If set to true domain will be choosen randomly from domain list [default: false]')
-    print('-k, --key GoDaddy API Key')
-    print('-s, --secret GoDaddy API Secret')
+    print('-u, --plural <boolean> If set to true also checks the plural form of every word (e.g. app -> apps) [default: false]')
+    print('-k, --key GoDaddy API Key (optional, enables pricing + bulk lookups)')
+    print('-s, --secret GoDaddy API Secret (optional, enables pricing + bulk lookups)')
     print('-p, --print Change what is shown')
     print('     both - prints both available and not available domains')
     print('     only - prints only available domains [default]')
@@ -337,10 +451,11 @@ def main():
     rand = False
     bulk = False
     group = False
+    plural = False
     domain = ''
     mode = ''
     try:
-        opts, args = getopt.getopt(argv,"t:d:l:n:c:f:r:b:s:k:o:p:m:g:",["tld=","domainlist=","tldlist=", "file=", "characters=", "length=", "random", "bulk", "key=", "secret=", "order", "domain=", "print=", "group"])
+        opts, args = getopt.getopt(argv,"t:d:l:n:c:f:r:b:s:k:o:p:m:g:u:",["tld=","domainlist=","tldlist=", "file=", "characters=", "length=", "random", "bulk", "key=", "secret=", "order", "domain=", "print=", "group", "plural"])
     except getopt.GetoptError:
         printHelp()
         sys.exit(2)
@@ -381,6 +496,8 @@ def main():
             mode = arg
         elif opt in ("-g", "--group"):
             group = arg
+        elif opt in ("-u", "--plural"):
+            plural = arg
         else:
             print(colored("Error: Argument " + str(opt) + " doesn't exist", 'red'))
             printHelp()
@@ -390,17 +507,18 @@ def main():
         mode = "only"
     #print(mode)
 
+    useRdap = False
     if(len(apiKey) == 0 or len(apiSecret) == 0):
-        apiKey = os.getenv('apiKey') 
+        apiKey = os.getenv('apiKey')
         apiSecret = os.getenv('apiSecret')
         if(apiKey == None or apiSecret == None):
-            apiKey = os.getenv('APIKEY') 
+            apiKey = os.getenv('APIKEY')
             apiSecret = os.getenv('APISECRET')
             if(apiKey == None or apiSecret == None):
-                print(colored("Error: You need to specify your GoDaddy API Key and Secret with the --key and --secret argument", 'red'))
-                exit(0)
+                useRdap = True
+                print(colored("No GoDaddy API Key/Secret found - using free public RDAP lookups instead (no key needed, but no pricing or bulk mode)", 'yellow'))
 
-        if mode == 'debug': print("API Key: " + apiKey + " API Secret: " + apiSecret)
+        if mode == 'debug': print("API Key: " + str(apiKey) + " API Secret: " + str(apiSecret))
 
     if outFile is '':
         outFile = 'available.txt'
@@ -409,12 +527,16 @@ def main():
     # Check only one domain
     if domain is not '':
         print(tldArg)
-        if tldArg is not '':
-            for tld in tldArg.split():
-                checkSingleDomain(domain + '.' + tld, outFile, apiKey, apiSecret)
-                time.sleep(delay)
-        else:
-            checkSingleDomain(domain, outFile, apiKey, apiSecret)
+        domainsToCheck = [domain]
+        if plural == "true" or plural == "":
+            domainsToCheck = addPlurals(domainsToCheck)
+        for d in domainsToCheck:
+            if tldArg is not '':
+                for tld in tldArg.split():
+                    checkSingleDomain(d + '.' + tld, outFile, apiKey, apiSecret, useRdap)
+                    time.sleep(delay)
+            else:
+                checkSingleDomain(d, outFile, apiKey, apiSecret, useRdap)
         exit(0)
 
     #Check if one tld specified, if not get tlds from file
@@ -442,6 +564,15 @@ def main():
     else:
         group = False
 
+    if plural == "true" or plural == "":
+        plural = True
+    else:
+        plural = False
+
+    if useRdap and bulk:
+        if mode == 'debug': print("Bulk mode needs a GoDaddy API Key, disabling")
+        bulk = False
+
     print("press ctrl+c at any time to stop")
     #Check if domain file is specified, if not generate domains
     if domainFile == '':
@@ -454,14 +585,17 @@ def main():
         if reverse == 'true' or reverse == '':
             if mode == 'debug': print("Running in reverse")
             domains.reverse()
-        run(domains, tld, outFile, rand, bulk, apiKey, apiSecret)
+        run(domains, tld, outFile, rand, bulk, apiKey, apiSecret, useRdap)
     else:
         if mode == 'debug': print("Loading Domains from file: " + domainFile)
         domains = domainListFromFile(domainFile)
+        if plural:
+            if mode == 'debug': print("Adding plural forms of each domain")
+            domains = addPlurals(domains)
         if reverse == 'true' or reverse == '':
             if mode == 'debug': print("Running in reverse")
             domains.reverse()
-        run(domains, tld, outFile, rand, bulk, apiKey, apiSecret)
+        run(domains, tld, outFile, rand, bulk, apiKey, apiSecret, useRdap)
 
 if __name__ == '__main__':
     main()
