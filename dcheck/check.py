@@ -185,9 +185,9 @@ def parseOneDomain(domain, tld, outFile, apiKey, apiSecret, useRdap):
             time.sleep(delay)
             return
         if res.get("unsupported"):
-            if mode == 'debug': print(colored(str(full + " has no public RDAP server (unsupported TLD)"), 'red'))
+            if mode == "both" or mode == "debug": print(colored(str(full + " has no public RDAP server (unsupported TLD)"), 'red'))
         elif res["available"] is None:
-            if mode == 'debug': print(colored(str("Could not determine availability for " + full), 'red'))
+            if mode == "both" or mode == "debug": print(colored(str("Could not determine availability for " + full), 'red'))
         elif res["available"] is True:
             if mode != "none": print(colored(str(full + " is available"), 'green'))
             f = open(outFile, 'a')
