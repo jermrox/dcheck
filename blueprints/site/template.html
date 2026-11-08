@@ -54,6 +54,7 @@ h1 span { color:var(--accent); }
 .card { text-align:left; background:var(--surface); border:1px solid var(--line); border-radius:3px; padding:12px; cursor:pointer;
   display:grid; gap:10px; min-width:0; transition:border-color .15s, transform .15s; }
 .card:hover { border-color:var(--accent); transform:translateY(-2px); }
+.card .thumb { width:100%; height:240px; object-fit:contain; background:var(--bg); display:block; border-bottom:1px dashed var(--line); padding-bottom:8px; }
 .card svg { width:100%; height:auto; display:block; border-bottom:1px dashed var(--line); padding-bottom:8px; }
 .card h3 { font:600 24px/1 var(--display); text-transform:uppercase; letter-spacing:.02em; margin:0; overflow-wrap:anywhere; }
 .card .m { font:400 12px/1.4 var(--mono); color:var(--mute); font-variant-numeric:tabular-nums; }
@@ -67,6 +68,12 @@ footer { color:var(--mute); font-size:13px; max-width:78ch; }
   display:grid; grid-template-columns:minmax(0,1.35fr) minmax(0,1fr); }
 .stage { position:relative; background:var(--stage); min-height:min(70vh,560px); border-right:1px solid var(--line); touch-action:none; }
 .stage canvas { position:absolute; inset:0; width:100%; height:100%; display:block; cursor:grab; }
+.modes { position:absolute; left:12px; top:12px; z-index:3; display:flex; border:1px solid var(--ink); background:var(--surface); }
+.modes button { background:transparent; border:0; padding:8px 12px; min-height:36px; cursor:pointer; font:500 12px var(--mono); text-transform:uppercase; letter-spacing:.06em; }
+.modes button[aria-pressed=true] { background:var(--accent); color:var(--accent-ink); }
+.bp { position:absolute; inset:0; z-index:2; overflow:auto; background:var(--surface); padding:56px 12px 12px; touch-action:pan-x pan-y pinch-zoom; }
+.bp img { display:block; width:100%; max-width:none; margin:0 auto; cursor:zoom-in; background:#fff; }
+.bp.zoom img { width:220%; cursor:zoom-out; }
 .stage .hint { position:absolute; left:12px; bottom:10px; font:400 11px var(--mono); color:var(--mute); pointer-events:none; }
 .info { padding:18px; display:grid; gap:14px; align-content:start; min-width:0; }
 .info h2 { font:700 clamp(34px,5vw,52px)/.95 var(--display); text-transform:uppercase; margin:0; overflow-wrap:anywhere; }
@@ -88,7 +95,7 @@ footer { color:var(--mute); font-size:13px; max-width:78ch; }
   <header>
     <div>
       <h1>AR Homes <span>Blueprints</span></h1>
-      <p class="lede">Every AR Homes floor plan collected from arhomes.com, with its published specs and a 3D massing study you can turn around. Pick a plan to open its sheet.</p>
+      <p class="lede">Every AR Homes floor plan collected from arhomes.com: the real blueprint, its published specs, and a 3D massing study you can turn around. Pick a plan to open its sheet.</p>
     </div>
     <div class="tblock" aria-label="Sheet information">
       <div><b>Project</b><span>AR Homes plan index</span></div>
@@ -115,12 +122,12 @@ footer { color:var(--mute); font-size:13px; max-width:78ch; }
 
   <section class="grid" id="grid" aria-label="Plans"></section>
 
-  <footer>Floor plans and designs on arhomes.com are copyrighted by AR Homes. This page lists their published specifications and links back to the source for the drawings. The 3D shapes are massing studies built from square footage, stories and garage count, not copies of the real layouts.</footer>
+  <footer>Floor plans and designs are copyrighted by AR Homes and are shown here from arhomes.com for private reference. The 3D shapes are massing studies built from square footage, stories and garage count, not copies of the real layouts.</footer>
 </div>
 
 <div class="sheet" id="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="d-name">
   <div class="panel">
-    <div class="stage" id="stage"><div class="hint">Drag to turn &middot; scroll or pinch to zoom</div></div>
+    <div class="stage" id="stage"><div class="modes" id="modes"><button id="m-bp" type="button" aria-pressed="true">Blueprint</button><button id="m-3d" type="button" aria-pressed="false">3D model</button></div><div class="bp" id="bp"><img id="bp-img" alt=""></div><div class="hint">Drag to turn &middot; scroll or pinch to zoom</div></div>
     <div class="info">
       <div><span class="tag" id="d-tag"></span><h2 id="d-name"></h2></div>
       <div class="specs" id="d-specs"></div>
@@ -186,7 +193,7 @@ function apply() {
   $('#count').textContent = `${view.length} of ${PLANS.length} plans`;
   $('#grid').innerHTML = view.length ? view.map(p => `
     <button class="card" data-slug="${esc(p.slug)}" type="button">
-      ${schem(p)}
+      ${p.img ? `<img class="thumb" src="${esc(p.img)}" loading="lazy" decoding="async" alt="Floor plan of ${esc(p.n)}">` : schem(p)}
       <span class="tag">${p.ls ? 'Luxury Simplified' + (p.city ? ' \u00b7 ' + esc(p.city) : '') : 'Custom'}</span>
       <h3>${esc(p.n)}</h3>
       <span class="m">${fmt(p.s)} SF \u00b7 ${dash(p.b)} BD \u00b7 ${dash(p.ba)} BA \u00b7 ${dash(p.st)} ST</span>
@@ -274,8 +281,9 @@ function openPlan(slug, fromHash) {
   $('#d-specs').innerHTML = [[fmt(p.s), 'Sq ft'], [dash(p.b), 'Bedrooms'], [dash(p.ba), 'Baths'], [dash(p.h), 'Half baths'], [dash(p.st), 'Stories'], [dash(p.g), 'Garage']]
     .map(([v, l]) => `<div><b>${v}</b><small>${l}</small></div>`).join('');
   $('#d-links').innerHTML =
-    (p.pdf ? `<a class="btn" href="${esc(p.pdf)}" target="_blank" rel="noopener">Floor plan PDF</a>` : '') +
-    (p.fp ? `<a class="btn ghost" href="${esc(p.fp)}" target="_blank" rel="noopener">Floor plan image</a>` : '') +
+    (p.img ? `<a class="btn" href="${esc(p.img)}" target="_blank" rel="noopener">Open blueprint</a>` : '') +
+    (p.pdf ? `<a class="btn ghost" href="${esc(p.pdf)}" target="_blank" rel="noopener">Floor plan PDF</a>` : '') +
+    (p.fp ? `<a class="btn ghost" href="${esc(p.fp)}" target="_blank" rel="noopener">Original on arhomes.com</a>` : '') +
     `<a class="btn ghost" href="${esc(p.u)}" target="_blank" rel="noopener">Plan page</a>` +
     (!p.pdf && !p.fp ? '<span class="note">This plan page has no floor plan file.</span>' : '');
   $('#sheet').hidden = false; document.body.style.overflow = 'hidden';
@@ -285,8 +293,17 @@ function openPlan(slug, fromHash) {
   T.tgt.set(0, T.house.userData.h / 2, 0); T.dist = T.house.userData.span * 1.9 + 8; T.yaw = 0.7; T.pitch = 0.42;
   T.auto = !matchMedia('(prefers-reduced-motion: reduce)').matches;
   cancelAnimationFrame(T.raf); loop();
+  const bp = $('#bp'); bp.classList.remove('zoom'); bp.scrollTop = 0;
+  $('#modes').hidden = !p.img;
+  if (p.img) { $('#bp-img').src = p.img; $('#bp-img').alt = 'Floor plan of ' + p.n; }
+  setMode(p.img ? 'bp' : '3d');
   if (!fromHash) { try { history.replaceState(null, '', '#plan-' + slug); } catch (e) {} }
   $('#close').focus();
+}
+function setMode(m) {
+  $('#bp').hidden = m !== 'bp';
+  $('#m-bp').setAttribute('aria-pressed', String(m === 'bp')); $('#m-3d').setAttribute('aria-pressed', String(m === '3d'));
+  document.querySelector('.stage .hint').textContent = m === 'bp' ? 'Click the plan to zoom \u00b7 scroll to pan' : 'Drag to turn \u00b7 scroll or pinch to zoom';
 }
 function closeSheet() {
   $('#sheet').hidden = true; document.body.style.overflow = ''; openSlug = null;
@@ -315,6 +332,9 @@ $('#reset').addEventListener('click', () => {
   apply();
 });
 $('#close').addEventListener('click', closeSheet);
+$('#m-bp').addEventListener('click', () => setMode('bp'));
+$('#m-3d').addEventListener('click', () => setMode('3d'));
+$('#bp-img').addEventListener('click', () => $('#bp').classList.toggle('zoom'));
 $('#prev').addEventListener('click', () => step(-1));
 $('#next').addEventListener('click', () => step(1));
 $('#sheet').addEventListener('click', e => { if (e.target.id === 'sheet') closeSheet(); });
