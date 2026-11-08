@@ -95,7 +95,7 @@ footer { color:var(--mute); font-size:13px; max-width:78ch; }
   <header>
     <div>
       <h1>AR Homes <span>Blueprints</span></h1>
-      <p class="lede">Every AR Homes floor plan collected from arhomes.com: the real blueprint, its published specs, and a 3D massing study you can turn around. Pick a plan to open its sheet.</p>
+      <p class="lede">Every AR Homes floor plan, available home, model home and built home collected from arhomes.com: the real blueprint, its published specs, and a 3D massing study you can turn around. Pick a plan to open its sheet.</p>
     </div>
     <div class="tblock" aria-label="Sheet information">
       <div><b>Project</b><span>AR Homes plan index</span></div>
@@ -109,7 +109,8 @@ footer { color:var(--mute); font-size:13px; max-width:78ch; }
   <section class="bar" aria-label="Filters">
     <div class="f"><label for="q">Search</label><input id="q" type="search" placeholder="Plan name"></div>
     <div class="f"><span class="l">Collection</span>
-      <div class="seg" id="coll"><button data-v="all" aria-pressed="true">All</button><button data-v="custom" aria-pressed="false">Custom</button><button data-v="ls" aria-pressed="false">Luxury Simplified</button></div></div>
+      <div class="seg" id="coll"><button data-v="all" aria-pressed="true">All</button><button data-v="plan" aria-pressed="false">Plans</button><button data-v="ls" aria-pressed="false">Luxury Simplified</button><button data-v="avail" aria-pressed="false">Available homes</button><button data-v="model" aria-pressed="false">Model homes</button><button data-v="built" aria-pressed="false">Built homes</button></div></div>
+    <div class="f"><label for="bld">Builder</label><select id="bld"><option value="">Any</option></select></div>
     <div class="f"><label for="beds">Bedrooms</label><select id="beds"><option value="0">Any</option><option value="3">3+</option><option value="4">4+</option><option value="5">5+</option><option value="6">6+</option></select></div>
     <div class="f"><label for="baths">Bathrooms</label><select id="baths"><option value="0">Any</option><option value="3">3+</option><option value="4">4+</option><option value="5">5+</option></select></div>
     <div class="f"><label for="st">Stories</label><select id="st"><option value="0">Any</option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></div>
@@ -144,9 +145,11 @@ const PLANS = /*DATA*/[];
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt = n => n.toLocaleString('en-US');
+const KIND = { plan:'Plan', ls:'Luxury Simplified', avail:'Available home', model:'Model home', built:'Built home' };
+const label = p => KIND[p.k] + (p.city ? ' \u00b7 ' + p.city : '') + (p.bld ? ' \u00b7 ' + p.bld : '');
 const dash = v => (v == null ? '\u2014' : v);
 
-const S = { q:'', coll:'all', beds:0, baths:0, st:0, min:0, max:0, sort:'name' };
+const S = { q:'', coll:'all', bld:'', beds:0, baths:0, st:0, min:0, max:0, sort:'name' };
 let view = [], openSlug = null;
 
 /* Footprint estimate shared by the card drawing and the 3D model. */
@@ -177,8 +180,8 @@ function schem(p) {
 
 function matches(p) {
   if (S.q && !p.n.toLowerCase().includes(S.q)) return false;
-  if (S.coll === 'ls' && !p.ls) return false;
-  if (S.coll === 'custom' && p.ls) return false;
+  if (S.coll !== 'all' && p.k !== S.coll) return false;
+  if (S.bld && p.bld !== S.bld) return false;
   if (S.beds && (p.b || 0) < S.beds) return false;
   if (S.baths && (p.ba || 0) < S.baths) return false;
   if (S.st && (p.st || 0) !== S.st) return false;
@@ -194,7 +197,7 @@ function apply() {
   $('#grid').innerHTML = view.length ? view.map(p => `
     <button class="card" data-slug="${esc(p.slug)}" type="button">
       ${p.img ? `<img class="thumb" src="${esc(p.img)}" loading="lazy" decoding="async" alt="Floor plan of ${esc(p.n)}">` : schem(p)}
-      <span class="tag">${p.ls ? 'Luxury Simplified' + (p.city ? ' \u00b7 ' + esc(p.city) : '') : 'Custom'}</span>
+      <span class="tag">${esc(label(p))}</span>
       <h3>${esc(p.n)}</h3>
       <span class="m">${fmt(p.s)} SF \u00b7 ${dash(p.b)} BD \u00b7 ${dash(p.ba)} BA \u00b7 ${dash(p.st)} ST</span>
     </button>`).join('') : '<div class="empty">No plans match these filters. Reset them to see all plans.</div>';
@@ -276,7 +279,7 @@ function loop() {
 function openPlan(slug, fromHash) {
   const p = PLANS.find(x => x.slug === slug); if (!p) return;
   openSlug = slug;
-  $('#d-tag').textContent = p.ls ? 'Luxury Simplified' + (p.city ? ' \u00b7 ' + p.city : '') : 'Custom plan';
+  $('#d-tag').textContent = label(p);
   $('#d-name').textContent = p.n;
   $('#d-specs').innerHTML = [[fmt(p.s), 'Sq ft'], [dash(p.b), 'Bedrooms'], [dash(p.ba), 'Baths'], [dash(p.h), 'Half baths'], [dash(p.st), 'Stories'], [dash(p.g), 'Garage']]
     .map(([v, l]) => `<div><b>${v}</b><small>${l}</small></div>`).join('');
@@ -319,6 +322,8 @@ function step(dir) {
 $('#grid').addEventListener('click', e => { const c = e.target.closest('.card'); if (c) openPlan(c.dataset.slug); });
 $('#q').addEventListener('input', e => { S.q = e.target.value.trim().toLowerCase(); apply(); });
 for (const id of ['beds', 'baths', 'st', 'min', 'max']) $('#' + id).addEventListener('change', e => { S[id] = +e.target.value; apply(); });
+$('#bld').addEventListener('change', e => { S.bld = e.target.value; apply(); });
+[...new Set(PLANS.map(p => p.bld).filter(Boolean))].sort().forEach(b => { const o = document.createElement('option'); o.value = b; o.textContent = b; $('#bld').append(o); });
 $('#sort').addEventListener('change', e => { S.sort = e.target.value; apply(); });
 $('#coll').addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return; S.coll = b.dataset.v;
@@ -326,8 +331,8 @@ $('#coll').addEventListener('click', e => {
   apply();
 });
 $('#reset').addEventListener('click', () => {
-  Object.assign(S, { q:'', coll:'all', beds:0, baths:0, st:0, min:0, max:0, sort:'name' });
-  $('#q').value = ''; for (const id of ['beds', 'baths', 'st', 'min', 'max']) $('#' + id).value = '0'; $('#sort').value = 'name';
+  Object.assign(S, { q:'', coll:'all', bld:'', beds:0, baths:0, st:0, min:0, max:0, sort:'name' });
+  $('#q').value = ''; for (const id of ['beds', 'baths', 'st', 'min', 'max']) $('#' + id).value = '0'; $('#sort').value = 'name'; $('#bld').value = '';
   document.querySelectorAll('#coll button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.v === 'all')));
   apply();
 });
@@ -345,7 +350,7 @@ addEventListener('keydown', e => {
 addEventListener('hashchange', () => { const m = location.hash.match(/^#plan-([a-z0-9-]+)$/); if (m) openPlan(m[1], true); else if (!$('#sheet').hidden) closeSheet(); });
 
 const sizes = PLANS.map(p => p.s);
-$('#tb-count').textContent = PLANS.length + ' sheets';
+$('#tb-count').textContent = PLANS.length + ' sheets \u00b7 ' + PLANS.filter(p => p.img).length + ' blueprints';
 $('#tb-range').textContent = sizes.length ? fmt(Math.min(...sizes)) + ' \u2013 ' + fmt(Math.max(...sizes)) + ' SF' : '\u2014';
 apply();
 { const m = location.hash.match(/^#plan-([a-z0-9-]+)$/); if (m) openPlan(m[1], true); }
