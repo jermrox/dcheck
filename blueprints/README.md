@@ -18,3 +18,14 @@ redistributing plan artwork.
 ## Other leads (GitHub / datasets)
 CubiCasa5k, MSD (Modified Swiss Dwellings), MLStructFP, DeepFloorPlan_Pytorch
 (includes a floor-plan -> 3D mesh script) – useful for the later 3D modeling step.
+
+## Viewer (prototype)
+`viewer/index.html` loads `blueprints.json` and builds a 3D massing model per plan
+(footprint from sq ft / stories, windows, garage wing, hip roof) next to the real
+floor-plan image, with WebXR AR/VR buttons (three.js). Serve the `blueprints/`
+folder over HTTPS (WebXR requires it) e.g. `python3 -m http.server` for local dev.
+
+Limitations: massing only – room layout is not yet derived from the floor plan.
+Some Luxury Simplified plans have no `Garages:` field, so garages shows 0 there.
+Next step: vectorize floor-plan images/PDFs (see CubiCasa5k / DeepFloorPlan) to
+extrude real walls and rooms.
