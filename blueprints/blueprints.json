@@ -1,0 +1,777 @@
+{
+  "source": "https://www.arhomes.com",
+  "count": 21,
+  "plans": [
+    {
+      "source_file": "luxury-simplified__columbus__plans__the-burnham.html",
+      "url": "https://www.arhomes.com/luxury-simplified/columbus/plans/the-burnham/",
+      "name": "The Burnham",
+      "sqft": 3671,
+      "bedrooms": 5,
+      "bathrooms": 4,
+      "half_baths": 0,
+      "stories": 2,
+      "garages": 0,
+      "floorplan_pdfs": [
+        "https://www.arhomes.com/wp-content/uploads/2022/06/Burnham1759_WebFP.pdf"
+      ],
+      "floorplan_images": [
+        "https://www.arhomes.com/wp-content/uploads/2022/06/Burnham1759_WebFP-scaled.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2022/06/Burnham1759_WebFP-scaled.jpg.webp"
+      ],
+      "photos": [
+        "https://www.arhomes.com/wp-content/uploads/2020/10/pattern-lightblue-ardeco-left.png",
+        "https://www.arhomes.com/wp-content/uploads/2021/01/WEB-Burnham-1759-Den-REVISED-min.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2021/01/WEB-Burnham-1759-Ext-REVISED-min-e1762808868190.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2021/01/WEB-Burnham-1759-Flex-REVISED-min.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2023/05/WEB-Burnham-1759-Great-Room-2-min-scaled-1.webp",
+        "https://www.arhomes.com/wp-content/uploads/2023/06/WEB-Burnham-1759-Great-Room-1-min-scaled.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2023/06/WEB-Burnham-1759-Kitchen-2-min-scaled.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2023/06/WEB-Burnham-1759-Owners-Suite-min-scaled.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2024/11/FOURTH-ARTICLE_Burnham-1759F-Kitchen-scaled.webp"
+      ],
+      "elevations": [
+        "Burnham - Elevation B"
+      ],
+      "tags": []
+    },
+    {
+      "source_file": "luxury-simplified__columbus__plans__the-creekside.html",
+      "url": "https://www.arhomes.com/luxury-simplified/columbus/plans/the-creekside/",
+      "name": "The Creekside",
+      "sqft": 4913,
+      "bedrooms": 5,
+      "bathrooms": 5,
+      "half_baths": 0,
+      "stories": 3,
+      "garages": 0,
+      "floorplan_pdfs": [
+        "https://www.arhomes.com/wp-content/uploads/2023/02/Creekside1788_WebFP.pdf"
+      ],
+      "floorplan_images": [
+        "https://www.arhomes.com/wp-content/uploads/2023/02/Creekside1788_WebFP.webp"
+      ],
+      "photos": [
+        "https://www.arhomes.com/wp-content/uploads/2020/10/pattern-lightblue-ardeco-left.png",
+        "https://www.arhomes.com/wp-content/uploads/2022/04/Creekside-Rear-Dusk-Sky.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2022/04/Creekside_-2ndfloor-Lounge-area.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2022/04/Creekside_GameRoom02.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2022/04/Creekside_GameRoom03.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2022/04/Creekside_GameRoom04.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2022/04/Creekside_Guest-bedroom-3.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2022/04/Creekside_Guestbedroom-2.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2022/04/Creekside_Gym01.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2022/04/Creekside_Kitchen-1.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2023/06/Creekside_Kitchen-3.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2023/06/IN3.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2023/10/OCTAMEROCK-ARTICLE_Creekside-1788F_Master-Bathroom-scaled.webp",
+        "https://www.arhomes.com/wp-content/uploads/2023/12/HOUZZ-ARTICLE-25-FIREPLACES_Creekside-1788F_Living-Room-From-Above-copy.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/03/Creekside-1788F_Dining-2.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/07/Creekside-1788F_LivingRoom04-copy.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/08/Communities_Hero_Creekside_Lifestyle.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/08/Contact_Hero_Creekside_Lifestyle.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/09/THIRD-ARTICLE_Creekside-1788F_Guestbedroom-1-scaled.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2024/11/MAIN-ARTICLE-_-HEADER_Creekside-1788F_GameRoom01.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/12/Creekside_OutdoorLiving_Optimized.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/11/Creekside_Front-ExteriorDay1-copy-scaled-e1762810146617.webp"
+      ],
+      "elevations": [],
+      "tags": []
+    },
+    {
+      "source_file": "luxury-simplified__columbus__plans__the-envoy.html",
+      "url": "https://www.arhomes.com/luxury-simplified/columbus/plans/the-envoy/",
+      "name": "The Envoy",
+      "sqft": 3598,
+      "bedrooms": 4,
+      "bathrooms": 4,
+      "half_baths": 0,
+      "stories": 2,
+      "garages": 0,
+      "floorplan_pdfs": [],
+      "floorplan_images": [],
+      "photos": [
+        "https://www.arhomes.com/wp-content/uploads/2020/10/pattern-lightblue-ardeco-left.png",
+        "https://www.arhomes.com/wp-content/uploads/2023/11/Envoy_1896F_Elev_A-copy.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2023/11/Envoy_1896F_Elev_A-copy.webp",
+        "https://www.arhomes.com/wp-content/uploads/2023/11/Envoy__Back-Exterior-copy.webp",
+        "https://www.arhomes.com/wp-content/uploads/2023/11/Envoy__Den-copy.webp",
+        "https://www.arhomes.com/wp-content/uploads/2023/11/Envoy__Dining-copy.webp",
+        "https://www.arhomes.com/wp-content/uploads/2023/11/Envoy__GR-copy.webp",
+        "https://www.arhomes.com/wp-content/uploads/2023/11/Envoy__Kitchen-copy.webp",
+        "https://www.arhomes.com/wp-content/uploads/2023/11/Envoy__OBath-2-copy.webp",
+        "https://www.arhomes.com/wp-content/uploads/2023/11/Envoy__OBed-copy.webp",
+        "https://www.arhomes.com/wp-content/uploads/2023/11/Envoy__ODK-copy.webp",
+        "https://www.arhomes.com/wp-content/uploads/2023/11/Envoy__ODL-copy.webp"
+      ],
+      "elevations": [],
+      "tags": []
+    },
+    {
+      "source_file": "luxury-simplified__columbus__plans__the-greyson.html",
+      "url": "https://www.arhomes.com/luxury-simplified/columbus/plans/the-greyson/",
+      "name": "The Greyson",
+      "sqft": 3255,
+      "bedrooms": 4,
+      "bathrooms": 3,
+      "half_baths": 0,
+      "stories": 2,
+      "garages": 0,
+      "floorplan_pdfs": [
+        "https://www.arhomes.com/wp-content/uploads/2024/02/Greyson1785_WebFP.pdf"
+      ],
+      "floorplan_images": [
+        "https://www.arhomes.com/wp-content/uploads/2024/02/Greyson1785_WebFP-copy-scaled.webp"
+      ],
+      "photos": [
+        "https://www.arhomes.com/wp-content/uploads/2024/02/Greyson_1785F_Elev_B-lowres.webp"
+      ],
+      "elevations": [
+        "Greyson \u2013 Elevation B"
+      ],
+      "tags": []
+    },
+    {
+      "source_file": "luxury-simplified__columbus__plans__the-havenwood.html",
+      "url": "https://www.arhomes.com/luxury-simplified/columbus/plans/the-havenwood/",
+      "name": "The Havenwood",
+      "sqft": 3607,
+      "bedrooms": 4,
+      "bathrooms": 3,
+      "half_baths": 0,
+      "stories": 2,
+      "garages": 0,
+      "floorplan_pdfs": [
+        "https://www.arhomes.com/wp-content/uploads/2025/07/Havenwood1983_WebFP.pdf"
+      ],
+      "floorplan_images": [
+        "https://www.arhomes.com/wp-content/uploads/2025/07/Havenwood1983_WebFP.webp"
+      ],
+      "photos": [
+        "https://www.arhomes.com/wp-content/uploads/2020/10/pattern-lightblue-ardeco-left.png",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1983F-Havenwood-A-2S1F_Club-Room-Wet-Bar.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1983F-Havenwood-A-2S1F_Club-Room.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1983F-Havenwood-A-2S1F_Den-01.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1983F-Havenwood-A-2S1F_Dining-and-Kitchen.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1983F-Havenwood-A-2S1F_Exterior-Daytime.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1983F-Havenwood-A-2S1F_Flex-Room-Gym.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1983F-Havenwood-A-2S1F_Foyer-to-GR.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1983F-Havenwood-A-2S1F_Great-Room.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1983F-Havenwood-A-2S1F_Kitchen.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1983F-Havenwood-A-2S1F_ODL-ODK.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1983F-Havenwood-A-2S1F_Owners-Bath-01.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1983F-Havenwood-A-2S1F_Owners-Suite-01.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1983F-Havenwood-A-2S1F_Pool-Area.webp"
+      ],
+      "elevations": [
+        "Havenwood - Elevation A"
+      ],
+      "tags": []
+    },
+    {
+      "source_file": "luxury-simplified__columbus__plans__the-hyde-park.html",
+      "url": "https://www.arhomes.com/luxury-simplified/columbus/plans/the-hyde-park/",
+      "name": "The Hyde Park",
+      "sqft": 5082,
+      "bedrooms": 5,
+      "bathrooms": 5,
+      "half_baths": 0,
+      "stories": 2,
+      "garages": 0,
+      "floorplan_pdfs": [
+        "https://www.arhomes.com/wp-content/uploads/2021/02/HydePark1560_WebFP.pdf"
+      ],
+      "floorplan_images": [
+        "https://www.arhomes.com/wp-content/uploads/2021/02/HydePark1560_WebFP-scaled.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2021/02/HydePark1560_WebFP-scaled.jpg.webp"
+      ],
+      "photos": [
+        "https://www.arhomes.com/wp-content/uploads/2020/03/HydePark_1560F_Den-scaled.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2020/03/HydePark_1560F_Foyer-scaled.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2020/03/HydePark_1560F_GreatRoom1-scaled.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2020/03/HydePark_1560F_MasterBath-scaled.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2020/03/HydePark_1560F_MasterSuite-scaled.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2020/03/HydePark_1560F_RecRoom-scaled.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2020/03/HydePark_1560F_elev_B_web.jpg"
+      ],
+      "elevations": [
+        "Hyde Park \u2013 Elevation B"
+      ],
+      "tags": []
+    },
+    {
+      "source_file": "luxury-simplified__columbus__plans__the-newport.html",
+      "url": "https://www.arhomes.com/luxury-simplified/columbus/plans/the-newport/",
+      "name": "The Newport",
+      "sqft": 5198,
+      "bedrooms": 4,
+      "bathrooms": 4,
+      "half_baths": 0,
+      "stories": 3,
+      "garages": 0,
+      "floorplan_pdfs": [
+        "https://www.arhomes.com/wp-content/uploads/2021/02/Newport1700_WebFP.pdf"
+      ],
+      "floorplan_images": [
+        "https://www.arhomes.com/wp-content/uploads/2021/02/Newport1700_WebFP-1-scaled.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2021/02/Newport1700_WebFP-1-scaled.jpg.webp"
+      ],
+      "photos": [
+        "https://www.arhomes.com/wp-content/uploads/2020/10/pattern-lightblue-ardeco-left.png",
+        "https://www.arhomes.com/wp-content/uploads/2021/01/Newport-1700-Dining.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2021/01/Newport-1700-Kitchen.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2021/01/Newport-1700-Living.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2021/01/Newport-Porch.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2021/01/Newport1700_Twilight.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2021/02/Newport1700_LivingRoom1.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2022/09/Newport-Dining-Stairs.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2023/05/Newport1700-v3_OwnersSuite_Detail-copy.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/11/Newport_Front-Day-2-copy-e1762810115701.webp"
+      ],
+      "elevations": [],
+      "tags": []
+    },
+    {
+      "source_file": "luxury-simplified__columbus__plans__the-ridgefield.html",
+      "url": "https://www.arhomes.com/luxury-simplified/columbus/plans/the-ridgefield/",
+      "name": "The Ridgefield",
+      "sqft": 3585,
+      "bedrooms": 3,
+      "bathrooms": 4,
+      "half_baths": 0,
+      "stories": 2,
+      "garages": 0,
+      "floorplan_pdfs": [
+        "https://www.arhomes.com/wp-content/uploads/2025/07/Ridgefield1985_WebFP.pdf"
+      ],
+      "floorplan_images": [
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1985F-Ridgefield-A-2S1F_Great-Room-FP.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1985F-Ridgefield-A-2S1F_Outdoor-FP.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/Ridgefield1985_WebFP.webp"
+      ],
+      "photos": [
+        "https://www.arhomes.com/wp-content/uploads/2020/10/pattern-lightblue-ardeco-left.png",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1985F-Ridgefield-A-2S1F_Club-Room-01.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1985F-Ridgefield-A-2S1F_Club-Room-02.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1985F-Ridgefield-A-2S1F_Den-01.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1985F-Ridgefield-A-2S1F_Den-02.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1985F-Ridgefield-A-2S1F_Dining-Room.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1985F-Ridgefield-A-2S1F_Front-Exterior.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1985F-Ridgefield-A-2S1F_Great-Room-01.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1985F-Ridgefield-A-2S1F_Great-Room-02.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1985F-Ridgefield-A-2S1F_Kitchen.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1985F-Ridgefield-A-2S1F_ODK-and-Dining.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1985F-Ridgefield-A-2S1F_ODL.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1985F-Ridgefield-A-2S1F_Owners-Bath-01.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1985F-Ridgefield-A-2S1F_Owners-Bath-02.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1985F-Ridgefield-A-2S1F_Owners-Bath-Shower.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1985F-Ridgefield-A-2S1F_Owners-Suite-01.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1985F-Ridgefield-A-2S1F_Owners-Suite-02.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1985F-Ridgefield-A-2S1F_Pool.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1985F-Ridgefield-A-2S1F_Rear-Exterior.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1985F-Ridgefield-A-2S1F_Stairwell-1st-Floor.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1985F-Ridgefield-A-2S1F_Wet-Bar.webp"
+      ],
+      "elevations": [],
+      "tags": []
+    },
+    {
+      "source_file": "luxury-simplified__columbus__plans__the-stratford.html",
+      "url": "https://www.arhomes.com/luxury-simplified/columbus/plans/the-stratford/",
+      "name": "The Stratford",
+      "sqft": 4017,
+      "bedrooms": 5,
+      "bathrooms": 4,
+      "half_baths": 0,
+      "stories": 2,
+      "garages": 3,
+      "floorplan_pdfs": [
+        "https://www.arhomes.com/wp-content/uploads/2025/07/Stratford1986_WebFP.pdf"
+      ],
+      "floorplan_images": [
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1986F-Stratford-A-3F_GR-FP-to-Kitchen.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1986F-Stratford-A-3F_GR-FP.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/Stratford1986_WebFP.webp"
+      ],
+      "photos": [
+        "https://www.arhomes.com/wp-content/uploads/2020/10/pattern-lightblue-ardeco-left.png",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1986F-Stratford-A-3F_Back-Exterior-Day.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1986F-Stratford-A-3F_Club-Room-01.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1986F-Stratford-A-3F_Club-Room-02.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1986F-Stratford-A-3F_Club-Room-Wet-Bar.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1986F-Stratford-A-3F_Den.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1986F-Stratford-A-3F_Dining-Bar.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1986F-Stratford-A-3F_Dining.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1986F-Stratford-A-3F_Foyer-to-GR.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1986F-Stratford-A-3F_Front-Exterior-Daytime.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1986F-Stratford-A-3F_Kitchen.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1986F-Stratford-A-3F_ODK.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1986F-Stratford-A-3F_ODL.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1986F-Stratford-A-3F_Owners-Bath.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1986F-Stratford-A-3F_Owners-Suite.webp"
+      ],
+      "elevations": [
+        "Stratford - Elevation A"
+      ],
+      "tags": []
+    },
+    {
+      "source_file": "luxury-simplified__columbus__plans__the-ventura.html",
+      "url": "https://www.arhomes.com/luxury-simplified/columbus/plans/the-ventura/",
+      "name": "The Ventura",
+      "sqft": 4909,
+      "bedrooms": 4,
+      "bathrooms": 4,
+      "half_baths": 0,
+      "stories": 3,
+      "garages": 0,
+      "floorplan_pdfs": [
+        "https://www.arhomes.com/wp-content/uploads/2022/07/Ventura1812_ModelWebFP.pdf"
+      ],
+      "floorplan_images": [
+        "https://www.arhomes.com/wp-content/uploads/2022/07/Ventura1812_ModelWebFP-min.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2022/07/Ventura1812_ModelWebFP-min.jpg.webp"
+      ],
+      "photos": [
+        "https://www.arhomes.com/wp-content/uploads/2020/10/pattern-lightblue-ardeco-left.png",
+        "https://www.arhomes.com/wp-content/uploads/2022/07/Ventura-Bedroom-2-min.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2022/07/Ventura-Dining-2-min.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2022/07/Ventura-FamilyRoom-min.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2022/07/Ventura-Gym-min.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2022/07/Ventura-Model_EXTBackDusk01-min.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2022/07/Ventura-Model_LivingRoom01-min.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2022/07/Ventura-Model_LivingRoom02-min.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2022/07/Ventura-Model_MasterBathroom01-min.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2022/07/Ventura-Model_MasterBedroom01-min.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2022/07/Ventura-Model_Office01-min.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2022/07/Ventura-Model_SittingArea02-min.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2022/07/Ventura-Model_SittingArea03-min.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2022/07/Ventura-OwnersCloset-min.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2024/01/Ventura-Virtual-Golf-Room-copy.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/02/Ventura-1812F-Kitchen.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/03/25-KITCHEN-ISLANDS_Ventura-1812F-Model_Kitchen01-copy.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/03/Ventura-1812F-Dining-1.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/11/Ventura-Front-Day-2-Sky-copy.webp"
+      ],
+      "elevations": [],
+      "tags": []
+    },
+    {
+      "source_file": "luxury-simplified__columbus__plans__the-winfield.html",
+      "url": "https://www.arhomes.com/luxury-simplified/columbus/plans/the-winfield/",
+      "name": "The Winfield",
+      "sqft": 3385,
+      "bedrooms": 4,
+      "bathrooms": 3,
+      "half_baths": 0,
+      "stories": 2,
+      "garages": 0,
+      "floorplan_pdfs": [
+        "https://www.arhomes.com/wp-content/uploads/2025/07/Winfield1984_WebFP.pdf"
+      ],
+      "floorplan_images": [
+        "https://www.arhomes.com/wp-content/uploads/2025/07/Winfield1984_WebFP.webp"
+      ],
+      "photos": [
+        "https://www.arhomes.com/wp-content/uploads/2020/10/pattern-lightblue-ardeco-left.png",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1984F-Winfield-A-3M_Back-Exterior.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1984F-Winfield-A-3M_Club-Room-2.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1984F-Winfield-A-3M_Club-Room.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1984F-Winfield-A-3M_Club-Wet-Bar.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1984F-Winfield-A-3M_Den.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1984F-Winfield-A-3M_Front-Exterior-Daytime.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1984F-Winfield-A-3M_GR-Kitchen.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1984F-Winfield-A-3M_GR.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1984F-Winfield-A-3M_Kitchen-Dining.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1984F-Winfield-A-3M_Kitchen.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1984F-Winfield-A-3M_ODK.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1984F-Winfield-A-3M_Owners-Bath.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1984F-Winfield-A-3M_Owners-Suite.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/07/1984F-Winfield-A-3M_Pool.webp"
+      ],
+      "elevations": [
+        "Winfield - Elevation A"
+      ],
+      "tags": []
+    },
+    {
+      "source_file": "luxury-simplified__dallas__plans__brazos.html",
+      "url": "https://www.arhomes.com/luxury-simplified/dallas/plans/brazos/",
+      "name": "Brazos",
+      "sqft": 3662,
+      "bedrooms": 4,
+      "bathrooms": 4,
+      "half_baths": 0,
+      "stories": 1,
+      "garages": 3,
+      "floorplan_pdfs": [
+        "https://www.arhomes.com/wp-content/uploads/2024/01/Brazos1926_WebFP.pdf"
+      ],
+      "floorplan_images": [
+        "https://www.arhomes.com/wp-content/uploads/2024/01/Brazos1926_WebFP-scaled.webp"
+      ],
+      "photos": [
+        "https://www.arhomes.com/wp-content/uploads/2020/10/pattern-lightblue-ardeco-left.png",
+        "https://www.arhomes.com/wp-content/uploads/2024/01/Brazos_1926F_Elev_A.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/01/Brazos_Back-Exterior.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/01/Brazos_GR.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/01/Brazos_Kitchen.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/01/Brazos_ODL.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/01/Brazos_Owners-Bath.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/01/Brazos_Owners-Suite.webp"
+      ],
+      "elevations": [
+        "Brazos - Elevation A"
+      ],
+      "tags": []
+    },
+    {
+      "source_file": "luxury-simplified__dallas__plans__brookhaven.html",
+      "url": "https://www.arhomes.com/luxury-simplified/dallas/plans/brookhaven/",
+      "name": "Brookhaven",
+      "sqft": 6181,
+      "bedrooms": 5,
+      "bathrooms": 5,
+      "half_baths": 0,
+      "stories": 2,
+      "garages": 0,
+      "floorplan_pdfs": [
+        "https://www.arhomes.com/wp-content/uploads/2020/06/Brookhaven1634_WebFP.pdf"
+      ],
+      "floorplan_images": [
+        "https://www.arhomes.com/wp-content/uploads/2020/06/Brookhaven1634_WebFP.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2020/06/Brookhaven1634_WebFP.jpg.webp"
+      ],
+      "photos": [
+        "https://www.arhomes.com/wp-content/uploads/2020/01/BC107-Ernst-Group-Home-Single-Image-Brookhaven1634-Kitchen.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2020/01/Brookhaven1634_Twilight_96-min.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2020/01/Brookhaven1634_Twilight_96-min.jpg.webp",
+        "https://www.arhomes.com/wp-content/uploads/2020/02/Brookhaven1634_Fitness-scaled.jpeg",
+        "https://www.arhomes.com/wp-content/uploads/2020/02/Brookhaven1634_GreatRoom1.jpeg",
+        "https://www.arhomes.com/wp-content/uploads/2020/02/Brookhaven1634_MasterSuite.jpeg",
+        "https://www.arhomes.com/wp-content/uploads/2020/10/pattern-lightblue-ardeco-left.png",
+        "https://www.arhomes.com/wp-content/uploads/2021/01/BC107-Ernst-Group-Gallery-Brookhaven1634-FoyerStairs.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2021/01/BC107-Ernst-Group-Gallery-Brookhaven1634.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2021/01/BC107-Ernst-Group-Home-Carousel-Brookhaven1634-Retreat.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2021/01/BC107-Ernst-Group-Home-Carousel-Brookhaven1634-WetBar.jpg",
+        "https://www.arhomes.com/wp-content/uploads/2021/01/BC107-Ernst-Group-Home-Masonry-Brookhaven1634-MasterBath.jpg"
+      ],
+      "elevations": [],
+      "tags": []
+    },
+    {
+      "source_file": "luxury-simplified__dallas__plans__chamblee.html",
+      "url": "https://www.arhomes.com/luxury-simplified/dallas/plans/chamblee/",
+      "name": "Chamblee",
+      "sqft": 4282,
+      "bedrooms": 5,
+      "bathrooms": 4,
+      "half_baths": 0,
+      "stories": 2,
+      "garages": 0,
+      "floorplan_pdfs": [
+        "https://www.arhomes.com/wp-content/uploads/2024/01/Chamblee1927_WebFP.pdf"
+      ],
+      "floorplan_images": [
+        "https://www.arhomes.com/wp-content/uploads/2024/01/Chamblee1927_WebFP-scaled.webp"
+      ],
+      "photos": [
+        "https://www.arhomes.com/wp-content/uploads/2020/10/pattern-lightblue-ardeco-left.png",
+        "https://www.arhomes.com/wp-content/uploads/2023/12/Chamblee_Bonus-2.webp",
+        "https://www.arhomes.com/wp-content/uploads/2023/12/Chamblee_Bonus.webp",
+        "https://www.arhomes.com/wp-content/uploads/2023/12/Chamblee_GR-Foyer.webp",
+        "https://www.arhomes.com/wp-content/uploads/2023/12/Chamblee_Kitchen-2.webp",
+        "https://www.arhomes.com/wp-content/uploads/2023/12/Chamblee_Kitchen.webp",
+        "https://www.arhomes.com/wp-content/uploads/2023/12/Chamblee_ODK.webp",
+        "https://www.arhomes.com/wp-content/uploads/2023/12/Chamblee_Owners-Bath.webp",
+        "https://www.arhomes.com/wp-content/uploads/2023/12/Chamblee_Owners-Shower.webp",
+        "https://www.arhomes.com/wp-content/uploads/2023/12/Chamblee_Owners-Suite.webp",
+        "https://www.arhomes.com/wp-content/uploads/2023/12/Chamblee_Utility-Arrival.webp",
+        "https://www.arhomes.com/wp-content/uploads/2023/12/Chamblee_Utility.webp",
+        "https://www.arhomes.com/wp-content/uploads/2023/12/Chamblee_Wet-Bar.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/01/Chamblee_1927F_Elev_A.webp",
+        "https://www.arhomes.com/wp-content/uploads/2026/04/1927F-Chamblee-A-02_Casual-Dining-Cabinets.webp",
+        "https://www.arhomes.com/wp-content/uploads/2026/04/1927F-Chamblee-A-02_Dining-1.webp",
+        "https://www.arhomes.com/wp-content/uploads/2026/04/1927F-Chamblee-A-02_Dining-and-Kitchen-1.webp",
+        "https://www.arhomes.com/wp-content/uploads/2026/04/1927F-Chamblee-A-02_Foyer-1.webp",
+        "https://www.arhomes.com/wp-content/uploads/2026/04/1927F-Chamblee-A-02_Foyer-2.webp",
+        "https://www.arhomes.com/wp-content/uploads/2026/04/1927F-Chamblee-A-02_Foyer-to-GR.webp",
+        "https://www.arhomes.com/wp-content/uploads/2026/04/1927F-Chamblee-A-02_ODL.webp",
+        "https://www.arhomes.com/wp-content/uploads/2026/04/1927F-Chamblee-A-02_Pool-Area-1.webp",
+        "https://www.arhomes.com/wp-content/uploads/2026/04/1927F-Chamblee-A-02_Pool-Area-2.webp",
+        "https://www.arhomes.com/wp-content/uploads/2026/04/1927F-Chamblee-A-02_Pool-Fireplace.webp",
+        "https://www.arhomes.com/wp-content/uploads/2026/04/1927F-Chamblee-A-02_Pool-Sun-Shelf.webp"
+      ],
+      "elevations": [
+        "Chamblee - Elevation A"
+      ],
+      "tags": []
+    },
+    {
+      "source_file": "luxury-simplified__dallas__plans__crestwind.html",
+      "url": "https://www.arhomes.com/luxury-simplified/dallas/plans/crestwind/",
+      "name": "Crestwind",
+      "sqft": 4334,
+      "bedrooms": 4,
+      "bathrooms": 4,
+      "half_baths": 0,
+      "stories": 2,
+      "garages": 0,
+      "floorplan_pdfs": [
+        "https://www.arhomes.com/wp-content/uploads/2025/11/Crestwind1998_WebFP.pdf"
+      ],
+      "floorplan_images": [
+        "https://www.arhomes.com/wp-content/uploads/2025/11/Crestwind1998_WebFP.webp"
+      ],
+      "photos": [
+        "https://www.arhomes.com/wp-content/uploads/2020/10/pattern-lightblue-ardeco-left.png",
+        "https://www.arhomes.com/wp-content/uploads/2025/11/1998F-Crestwind-B-3M_Bonus-Room-1-scaled.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/11/1998F-Crestwind-B-3M_Bonus-Room-2-scaled.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/11/1998F-Crestwind-B-3M_Den-scaled.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/11/1998F-Crestwind-B-3M_Dining-scaled.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/11/1998F-Crestwind-B-3M_Exterior-Front-Daytime-scaled.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/11/1998F-Crestwind-B-3M_Foyer-to-GR-scaled.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/11/1998F-Crestwind-B-3M_GR-1-scaled.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/11/1998F-Crestwind-B-3M_GR-2-scaled.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/11/1998F-Crestwind-B-3M_GR-to-Main-scaled.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/11/1998F-Crestwind-B-3M_Kitchen-scaled.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/11/1998F-Crestwind-B-3M_Loft-1-scaled.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/11/1998F-Crestwind-B-3M_Loft-3-scaled.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/11/1998F-Crestwind-B-3M_Loft-4-scaled.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/11/1998F-Crestwind-B-3M_ODK-scaled.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/11/1998F-Crestwind-B-3M_ODL-scaled.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/11/1998F-Crestwind-B-3M_Owners-Bath-2-scaled.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/11/1998F-Crestwind-B-3M_Owners-Bath-3-scaled.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/11/1998F-Crestwind-B-3M_Owners-Suite-1-scaled.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/11/1998F-Crestwind-B-3M_Owners-Suite-3-scaled.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/11/1998F-Crestwind-B-3M_Rear-1-scaled.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/11/1998F-Crestwind-B-3M_Rear-2-scaled.webp"
+      ],
+      "elevations": [
+        "Crestwind 1998 - Elevation B"
+      ],
+      "tags": []
+    },
+    {
+      "source_file": "luxury-simplified__dallas__plans__edgewater.html",
+      "url": "https://www.arhomes.com/luxury-simplified/dallas/plans/edgewater/",
+      "name": "Edgewater",
+      "sqft": 5174,
+      "bedrooms": 5,
+      "bathrooms": 5,
+      "half_baths": 0,
+      "stories": 2,
+      "garages": 0,
+      "floorplan_pdfs": [
+        "https://www.arhomes.com/wp-content/uploads/2025/01/Edgewater1956_WebFP.pdf"
+      ],
+      "floorplan_images": [
+        "https://www.arhomes.com/wp-content/uploads/2025/01/Edgewater1956_WebFP.webp"
+      ],
+      "photos": [
+        "https://www.arhomes.com/wp-content/uploads/2020/10/pattern-lightblue-ardeco-left.png",
+        "https://www.arhomes.com/wp-content/uploads/2025/01/Edgewater_1956F_Elev_A.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/01/Edgewater_Back-Exterior.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/01/Edgewater_Bonus-2.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/01/Edgewater_Den.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/01/Edgewater_Foyer.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/01/Edgewater_GR.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/01/Edgewater_Kitchen.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/01/Edgewater_ODK.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/01/Edgewater_ODL.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/01/Edgewater_Owners-Bath.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/01/Edgewater_Owners-Suite.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/01/Edgewater_Pool.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/01/Edgewater_Utility.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/01/Edgewater_Wine-Room-Casual-Dining-2.webp"
+      ],
+      "elevations": [
+        "Edgewater - Elevation A"
+      ],
+      "tags": []
+    },
+    {
+      "source_file": "luxury-simplified__dallas__plans__mariner.html",
+      "url": "https://www.arhomes.com/luxury-simplified/dallas/plans/mariner/",
+      "name": "Mariner",
+      "sqft": 3784,
+      "bedrooms": 4,
+      "bathrooms": 4,
+      "half_baths": 0,
+      "stories": 2,
+      "garages": 0,
+      "floorplan_pdfs": [
+        "https://www.arhomes.com/wp-content/uploads/2025/12/Mariner1997_WebFP.pdf"
+      ],
+      "floorplan_images": [
+        "https://www.arhomes.com/wp-content/uploads/2025/12/Mariner1997_WebFP-scaled.webp"
+      ],
+      "photos": [
+        "https://www.arhomes.com/wp-content/uploads/2025/12/Mariner_1997F_Elev_A.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/12/Mariner_Den.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/12/Mariner_Flex.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/12/Mariner_Foyer.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/12/Mariner_GR-2.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/12/Mariner_GR.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/12/Mariner_Kitchen-2.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/12/Mariner_Kitchen-Dining.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/12/Mariner_Kitchen.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/12/Mariner_ODK.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/12/Mariner_Owners-Bath-3.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/12/Mariner_Owners-Suite.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/12/Mariner_Pantry.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/12/Mariner_Pool.webp",
+        "https://www.arhomes.com/wp-content/uploads/2025/12/Mariner_Rear.webp"
+      ],
+      "elevations": [
+        "Mariner - Elevation A"
+      ],
+      "tags": []
+    },
+    {
+      "source_file": "luxury-simplified__dallas__plans__parkview.html",
+      "url": "https://www.arhomes.com/luxury-simplified/dallas/plans/parkview/",
+      "name": "Parkview",
+      "sqft": 4249,
+      "bedrooms": 4,
+      "bathrooms": 4,
+      "half_baths": 0,
+      "stories": 2,
+      "garages": 0,
+      "floorplan_pdfs": [
+        "https://www.arhomes.com/wp-content/uploads/2024/11/Parkview1944_WebFP.pdf"
+      ],
+      "floorplan_images": [
+        "https://www.arhomes.com/wp-content/uploads/2024/11/Parkview1944_WebFP.webp"
+      ],
+      "photos": [
+        "https://www.arhomes.com/wp-content/uploads/2020/10/pattern-lightblue-ardeco-left.png",
+        "https://www.arhomes.com/wp-content/uploads/2024/11/Parkview_1944F_Elev_B.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/11/Parkview_Back.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/11/Parkview_Bonus-2-1.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/11/Parkview_Bonus.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/11/Parkview_Den.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/11/Parkview_Dining-Wet-Bar.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/11/Parkview_GR-Kitchen.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/11/Parkview_GR.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/11/Parkview_Kitchen.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/11/Parkview_ODF-2.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/11/Parkview_ODF.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/11/Parkview_ODK.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/11/Parkview_Owners-Bath-2.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/11/Parkview_Owners-Bath.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/11/Parkview_Owners-Suite.webp"
+      ],
+      "elevations": [
+        "Parkview - Elevation B"
+      ],
+      "tags": []
+    },
+    {
+      "source_file": "luxury-simplified__dallas__plans__sabine.html",
+      "url": "https://www.arhomes.com/luxury-simplified/dallas/plans/sabine/",
+      "name": "Sabine",
+      "sqft": 4595,
+      "bedrooms": 4,
+      "bathrooms": 4,
+      "half_baths": 0,
+      "stories": 2,
+      "garages": 0,
+      "floorplan_pdfs": [
+        "https://www.arhomes.com/wp-content/uploads/2024/02/Sabine1928_WebFP.pdf"
+      ],
+      "floorplan_images": [
+        "https://www.arhomes.com/wp-content/uploads/2024/02/Sabine1928_WebFP.webp"
+      ],
+      "photos": [
+        "https://www.arhomes.com/wp-content/uploads/2020/10/pattern-lightblue-ardeco-left.png",
+        "https://www.arhomes.com/wp-content/uploads/2024/02/Sabine_1927F_Elev_A.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/02/Sabine_Den.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/02/Sabine_Dining.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/02/Sabine_Foyer-GR.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/02/Sabine_Kitchen.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/02/Sabine_Owners-Shower.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/02/Sabine_Owners-Suite.webp"
+      ],
+      "elevations": [
+        "Sabine - Elevation A"
+      ],
+      "tags": []
+    },
+    {
+      "source_file": "luxury-simplified__dallas__plans__santiago.html",
+      "url": "https://www.arhomes.com/luxury-simplified/dallas/plans/santiago/",
+      "name": "Santiago",
+      "sqft": 5244,
+      "bedrooms": 5,
+      "bathrooms": 5,
+      "half_baths": 0,
+      "stories": 2,
+      "garages": 0,
+      "floorplan_pdfs": [
+        "https://www.arhomes.com/wp-content/uploads/2024/02/Santiago1929_WebFP.pdf"
+      ],
+      "floorplan_images": [
+        "https://www.arhomes.com/wp-content/uploads/2024/02/Santiago1929_WebFP-1-scaled.webp"
+      ],
+      "photos": [
+        "https://www.arhomes.com/wp-content/uploads/2020/10/pattern-lightblue-ardeco-left.png",
+        "https://www.arhomes.com/wp-content/uploads/2024/02/1929-Santiago-Bonus.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/02/1929-Santiago-Dining-Kitchen.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/02/1929-Santiago-Great-Room.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/02/1929-Santiago-ODFP.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/02/1929-Santiago-ODK.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/02/1929-Santiago-Owners-Bath.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/02/1929-Santiago-Owners-Suite.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/02/1929F-Santiago-2M1F-A-01-Exterior-Front-Day-scaled.webp",
+        "https://www.arhomes.com/wp-content/uploads/2024/02/1929F-Santiago-2M1F-A-01-Exterior-Front-Evening-copy-2.webp"
+      ],
+      "elevations": [
+        "Santiago - Elevation A - Modern"
+      ],
+      "tags": []
+    },
+    {
+      "source_file": "luxury-simplified__dallas__plans__serene.html",
+      "url": "https://www.arhomes.com/luxury-simplified/dallas/plans/serene/",
+      "name": "Serene",
+      "sqft": 5410,
+      "bedrooms": 5,
+      "bathrooms": 5,
+      "half_baths": 0,
+      "stories": 2,
+      "garages": 0,
+      "floorplan_pdfs": [
+        "https://www.arhomes.com/wp-content/uploads/2026/05/Serene2018_WebFP.pdf"
+      ],
+      "floorplan_images": [
+        "https://www.arhomes.com/wp-content/uploads/2026/05/Serene2018_WebFP-scaled.webp"
+      ],
+      "photos": [
+        "https://www.arhomes.com/wp-content/uploads/2020/10/pattern-lightblue-ardeco-left.png",
+        "https://www.arhomes.com/wp-content/uploads/2026/05/2018F-Serene_Bonus-3.webp",
+        "https://www.arhomes.com/wp-content/uploads/2026/05/2018F-Serene_Bonus.webp",
+        "https://www.arhomes.com/wp-content/uploads/2026/05/2018F-Serene_Den-2.webp",
+        "https://www.arhomes.com/wp-content/uploads/2026/05/2018F-Serene_Den.webp",
+        "https://www.arhomes.com/wp-content/uploads/2026/05/2018F-Serene_Dining-Wine-Room.webp",
+        "https://www.arhomes.com/wp-content/uploads/2026/05/2018F-Serene_GR.webp",
+        "https://www.arhomes.com/wp-content/uploads/2026/05/2018F-Serene_GRKitchen.webp",
+        "https://www.arhomes.com/wp-content/uploads/2026/05/2018F-Serene_Kitchen-2.webp",
+        "https://www.arhomes.com/wp-content/uploads/2026/05/2018F-Serene_Kitchen-Foyer.webp",
+        "https://www.arhomes.com/wp-content/uploads/2026/05/2018F-Serene_Kitchen.webp",
+        "https://www.arhomes.com/wp-content/uploads/2026/05/2018F-Serene_ODFP.webp",
+        "https://www.arhomes.com/wp-content/uploads/2026/05/2018F-Serene_ODK.webp",
+        "https://www.arhomes.com/wp-content/uploads/2026/05/2018F-Serene_Owners-Bath.webp",
+        "https://www.arhomes.com/wp-content/uploads/2026/05/2018F-Serene_Owners-Shower.webp",
+        "https://www.arhomes.com/wp-content/uploads/2026/05/2018F-Serene_Owners-Suite.webp",
+        "https://www.arhomes.com/wp-content/uploads/2026/05/2018F-Serene_Pool.webp",
+        "https://www.arhomes.com/wp-content/uploads/2026/05/2018F-Serene_Rear.webp",
+        "https://www.arhomes.com/wp-content/uploads/2026/05/Serene_2018F_Elev_A.webp"
+      ],
+      "elevations": [
+        "Serene - Elevation A"
+      ],
+      "tags": []
+    }
+  ]
+}
