@@ -1,0 +1,332 @@
+<title>AR Homes Blueprints</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a drafting-sheet index. Title block top right, filter strip, grid of plan cards,
+   and a full-screen detail sheet with a 3D massing study beside the plan data. */
+:root {
+  --bg:#EDF1F3; --surface:#F8FAFB; --ink:#10202C; --mute:#566673; --line:#C5D0D8; --grid:#DCE4E9;
+  --accent:#1F4FD8; --accent-ink:#FFFFFF; --stage:#DCE6EC; --ground:#C9D6DE; --scrim:rgba(16,32,44,.55);
+  --display:'Barlow Condensed','Arial Narrow',sans-serif; --body:'Barlow',system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg:#0A2342; --surface:#0F2E55; --ink:#E6F0FF; --mute:#8FAAC9; --line:#2A4D7C; --grid:#123559;
+  --accent:#7DD3FC; --accent-ink:#06223F; --stage:#08203B; --ground:#0D2B4D; --scrim:rgba(3,12,26,.7); color-scheme:dark; } }
+:root[data-theme="dark"] {
+  --bg:#0A2342; --surface:#0F2E55; --ink:#E6F0FF; --mute:#8FAAC9; --line:#2A4D7C; --grid:#123559;
+  --accent:#7DD3FC; --accent-ink:#06223F; --stage:#08203B; --ground:#0D2B4D; --scrim:rgba(3,12,26,.7); color-scheme:dark; }
+
+* { box-sizing:border-box; }
+[hidden] { display:none !important; }
+body { background-color:var(--bg); color:var(--ink); font:400 15px/1.45 var(--body);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:28px 28px; padding-block:24px 56px;
+  padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px)); }
+.page { max-width:1280px; margin:0 auto; display:grid; gap:20px; }
+button,select,input { font:inherit; color:inherit; }
+:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+
+header { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:20px 32px; align-items:end; }
+h1 { font:700 clamp(40px,7vw,84px)/.9 var(--display); text-transform:uppercase; letter-spacing:.01em; margin:0; text-wrap:balance; }
+h1 span { color:var(--accent); }
+.lede { max-width:56ch; color:var(--mute); margin:12px 0 0; }
+.tblock { border:1.5px solid var(--ink); background:var(--surface); font:400 11px/1.3 var(--mono); min-width:250px; }
+.tblock div { display:grid; grid-template-columns:84px 1fr; border-top:1px solid var(--line); }
+.tblock div:first-child { border-top:0; }
+.tblock b { font-weight:500; padding:6px 8px; color:var(--mute); text-transform:uppercase; letter-spacing:.06em; border-right:1px solid var(--line); }
+.tblock span { padding:6px 8px; overflow-wrap:anywhere; }
+@media (max-width:760px){ header{grid-template-columns:minmax(0,1fr);} .tblock{min-width:0;} }
+
+.bar { display:flex; flex-wrap:wrap; gap:10px; align-items:end; border:1px solid var(--line); background:var(--surface); padding:12px; }
+.f { display:grid; gap:4px; min-width:0; }
+.f label,.f .l { font:500 10px/1 var(--mono); text-transform:uppercase; letter-spacing:.08em; color:var(--mute); }
+.f input,.f select { background:var(--bg); border:1px solid var(--line); padding:8px 10px; min-height:38px; border-radius:2px; max-width:100%; }
+.f input[type=search]{ width:220px; }
+.seg { display:flex; border:1px solid var(--line); border-radius:2px; overflow:hidden; }
+.seg button { background:var(--bg); border:0; border-right:1px solid var(--line); padding:8px 12px; min-height:38px; cursor:pointer; }
+.seg button:last-child { border-right:0; }
+.seg button[aria-pressed=true] { background:var(--accent); color:var(--accent-ink); }
+.count { margin-left:auto; font:500 12px var(--mono); color:var(--mute); align-self:center; }
+.reset { background:none; border:1px solid var(--line); min-height:38px; padding:8px 12px; border-radius:2px; cursor:pointer; }
+
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:14px; }
+.card { text-align:left; background:var(--surface); border:1px solid var(--line); border-radius:3px; padding:12px; cursor:pointer;
+  display:grid; gap:10px; min-width:0; transition:border-color .15s, transform .15s; }
+.card:hover { border-color:var(--accent); transform:translateY(-2px); }
+.card svg { width:100%; height:auto; display:block; border-bottom:1px dashed var(--line); padding-bottom:8px; }
+.card h3 { font:600 24px/1 var(--display); text-transform:uppercase; letter-spacing:.02em; margin:0; overflow-wrap:anywhere; }
+.card .m { font:400 12px/1.4 var(--mono); color:var(--mute); font-variant-numeric:tabular-nums; }
+.tag { font:500 10px var(--mono); letter-spacing:.08em; text-transform:uppercase; color:var(--accent); }
+.empty { grid-column:1/-1; border:1px dashed var(--line); background:var(--surface); padding:36px 16px; text-align:center; color:var(--mute); }
+footer { color:var(--mute); font-size:13px; max-width:78ch; }
+
+.sheet { position:fixed; inset:0; z-index:20; background:var(--scrim); display:grid; place-items:center;
+  padding:max(12px,env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) max(12px,env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px)); }
+.panel { background:var(--bg); border:1.5px solid var(--ink); width:min(1120px,100%); max-height:100%; overflow:auto;
+  display:grid; grid-template-columns:minmax(0,1.35fr) minmax(0,1fr); }
+.stage { position:relative; background:var(--stage); min-height:min(70vh,560px); border-right:1px solid var(--line); touch-action:none; }
+.stage canvas { position:absolute; inset:0; width:100%; height:100%; display:block; cursor:grab; }
+.stage .hint { position:absolute; left:12px; bottom:10px; font:400 11px var(--mono); color:var(--mute); pointer-events:none; }
+.info { padding:18px; display:grid; gap:14px; align-content:start; min-width:0; }
+.info h2 { font:700 clamp(34px,5vw,52px)/.95 var(--display); text-transform:uppercase; margin:0; overflow-wrap:anywhere; }
+.specs { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); border:1px solid var(--line); background:var(--surface); }
+.specs div { padding:8px 10px; border-right:1px solid var(--line); border-bottom:1px solid var(--line); }
+.specs div:nth-child(3n) { border-right:0; } .specs div:nth-last-child(-n+3) { border-bottom:0; }
+.specs b { display:block; font:400 20px/1.1 var(--mono); font-variant-numeric:tabular-nums; }
+.specs small { font:500 10px var(--mono); text-transform:uppercase; letter-spacing:.08em; color:var(--mute); }
+.links, .nav { display:flex; flex-wrap:wrap; gap:8px; }
+.btn { display:inline-flex; align-items:center; min-height:40px; padding:8px 14px; border:1px solid var(--accent); background:var(--accent);
+  color:var(--accent-ink); text-decoration:none; font-weight:500; border-radius:2px; cursor:pointer; }
+.btn.ghost { background:transparent; color:var(--accent); }
+.note { font-size:13px; color:var(--mute); margin:0; }
+@media (max-width:820px){ .panel{ grid-template-columns:minmax(0,1fr);} .stage{ min-height:46vh; border-right:0; border-bottom:1px solid var(--line);} }
+@media (prefers-reduced-motion: reduce){ .card{transition:none;} .card:hover{transform:none;} }
+</style>
+
+<div class="page">
+  <header>
+    <div>
+      <h1>AR Homes <span>Blueprints</span></h1>
+      <p class="lede">Every AR Homes floor plan collected from arhomes.com, with its published specs and a 3D massing study you can turn around. Pick a plan to open its sheet.</p>
+    </div>
+    <div class="tblock" aria-label="Sheet information">
+      <div><b>Project</b><span>AR Homes plan index</span></div>
+      <div><b>Source</b><span>arhomes.com</span></div>
+      <div><b>Plans</b><span id="tb-count"></span></div>
+      <div><b>Range</b><span id="tb-range"></span></div>
+      <div><b>Rev</b><span>__DATE__</span></div>
+    </div>
+  </header>
+
+  <section class="bar" aria-label="Filters">
+    <div class="f"><label for="q">Search</label><input id="q" type="search" placeholder="Plan name"></div>
+    <div class="f"><span class="l">Collection</span>
+      <div class="seg" id="coll"><button data-v="all" aria-pressed="true">All</button><button data-v="custom" aria-pressed="false">Custom</button><button data-v="ls" aria-pressed="false">Luxury Simplified</button></div></div>
+    <div class="f"><label for="beds">Bedrooms</label><select id="beds"><option value="0">Any</option><option value="3">3+</option><option value="4">4+</option><option value="5">5+</option><option value="6">6+</option></select></div>
+    <div class="f"><label for="baths">Bathrooms</label><select id="baths"><option value="0">Any</option><option value="3">3+</option><option value="4">4+</option><option value="5">5+</option></select></div>
+    <div class="f"><label for="st">Stories</label><select id="st"><option value="0">Any</option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></div>
+    <div class="f"><label for="min">Min sq ft</label><select id="min"><option value="0">Any</option><option>2000</option><option>3000</option><option>4000</option><option>5000</option></select></div>
+    <div class="f"><label for="max">Max sq ft</label><select id="max"><option value="0">Any</option><option>3000</option><option>4000</option><option>5000</option><option>6000</option></select></div>
+    <div class="f"><label for="sort">Sort</label><select id="sort"><option value="name">Name</option><option value="sa">Size, small first</option><option value="sd">Size, large first</option></select></div>
+    <button class="reset" id="reset" type="button">Reset</button>
+    <div class="count" id="count" aria-live="polite"></div>
+  </section>
+
+  <section class="grid" id="grid" aria-label="Plans"></section>
+
+  <footer>Floor plans and designs on arhomes.com are copyrighted by AR Homes. This page lists their published specifications and links back to the source for the drawings. The 3D shapes are massing studies built from square footage, stories and garage count, not copies of the real layouts.</footer>
+</div>
+
+<div class="sheet" id="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="d-name">
+  <div class="panel">
+    <div class="stage" id="stage"><div class="hint">Drag to turn &middot; scroll or pinch to zoom</div></div>
+    <div class="info">
+      <div><span class="tag" id="d-tag"></span><h2 id="d-name"></h2></div>
+      <div class="specs" id="d-specs"></div>
+      <div class="links" id="d-links"></div>
+      <p class="note">The model is a massing study: footprint from published square footage, one slab per story, garage bays at 10.5 ft each. Room layout is not modeled yet.</p>
+      <div class="nav"><button class="btn ghost" id="prev" type="button">Previous</button><button class="btn ghost" id="next" type="button">Next</button><button class="btn" id="close" type="button">Close</button></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const PLANS = /*DATA*/[];
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = n => n.toLocaleString('en-US');
+const dash = v => (v == null ? '\u2014' : v);
+
+const S = { q:'', coll:'all', beds:0, baths:0, st:0, min:0, max:0, sort:'name' };
+let view = [], openSlug = null;
+
+/* Footprint estimate shared by the card drawing and the 3D model. */
+function footprint(p) {
+  const area = (p.s / Math.max(1, p.st || 1));
+  const w = Math.sqrt(area * 1.45), d = area / w;
+  const gw = (p.g || 0) * 10.5, gd = 22;
+  return { w, d, gw, gd };
+}
+function schem(p) {
+  const f = footprint(p), W = f.w + f.gw, H = Math.max(f.d, f.gd);
+  const k = Math.min(150 / W, 78 / H), x0 = 45, y0 = 42;
+  const w = f.w * k, d = f.d * k, gw = f.gw * k, gd = f.gd * k;
+  const top = y0 - 12, rx = x0 + w + gw + 12;
+  return `<svg viewBox="0 0 240 142" role="img" aria-label="Footprint sketch of ${esc(p.n)}" fill="none" stroke="var(--ink)" stroke-width="1.4">
+    <rect x="${x0}" y="${y0}" width="${w}" height="${d}" fill="var(--bg)"/>
+    ${gw ? `<rect x="${x0 + w}" y="${y0 + d - gd}" width="${gw}" height="${gd}" fill="var(--bg)" stroke-dasharray="4 2"/>` : ''}
+    <g stroke="var(--accent)" stroke-width="1">
+      <line x1="${x0}" y1="${top}" x2="${x0 + w + gw}" y2="${top}"/><line x1="${x0}" y1="${top - 3}" x2="${x0}" y2="${top + 3}"/><line x1="${x0 + w + gw}" y1="${top - 3}" x2="${x0 + w + gw}" y2="${top + 3}"/>
+      <line x1="${rx}" y1="${y0}" x2="${rx}" y2="${y0 + d}"/><line x1="${rx - 3}" y1="${y0}" x2="${rx + 3}" y2="${y0}"/><line x1="${rx - 3}" y1="${y0 + d}" x2="${rx + 3}" y2="${y0 + d}"/>
+    </g>
+    <g fill="var(--mute)" stroke="none" font-family="IBM Plex Mono, monospace" font-size="8.5">
+      <text x="${x0 + (w + gw) / 2}" y="${top - 4}" text-anchor="middle">${Math.round(W)}'</text>
+      <text x="${rx + 6}" y="${y0 + d / 2 + 3}">${Math.round(f.d)}'</text>
+      <text x="${x0}" y="136">${p.st || 1} STORY \u00b7 EST. FOOTPRINT</text>
+    </g></svg>`;
+}
+
+function matches(p) {
+  if (S.q && !p.n.toLowerCase().includes(S.q)) return false;
+  if (S.coll === 'ls' && !p.ls) return false;
+  if (S.coll === 'custom' && p.ls) return false;
+  if (S.beds && (p.b || 0) < S.beds) return false;
+  if (S.baths && (p.ba || 0) < S.baths) return false;
+  if (S.st && (p.st || 0) !== S.st) return false;
+  if (S.min && p.s < S.min) return false;
+  if (S.max && p.s > S.max) return false;
+  return true;
+}
+function apply() {
+  view = PLANS.filter(matches);
+  const by = { name:(a, b) => a.n.localeCompare(b.n), sa:(a, b) => a.s - b.s, sd:(a, b) => b.s - a.s };
+  view.sort(by[S.sort]);
+  $('#count').textContent = `${view.length} of ${PLANS.length} plans`;
+  $('#grid').innerHTML = view.length ? view.map(p => `
+    <button class="card" data-slug="${esc(p.slug)}" type="button">
+      ${schem(p)}
+      <span class="tag">${p.ls ? 'Luxury Simplified' + (p.city ? ' \u00b7 ' + esc(p.city) : '') : 'Custom'}</span>
+      <h3>${esc(p.n)}</h3>
+      <span class="m">${fmt(p.s)} SF \u00b7 ${dash(p.b)} BD \u00b7 ${dash(p.ba)} BA \u00b7 ${dash(p.st)} ST</span>
+    </button>`).join('') : '<div class="empty">No plans match these filters. Reset them to see all plans.</div>';
+}
+
+/* ---------- 3D massing study (three.js r128) ---------- */
+let T = null;
+function cssColor(name) { return new THREE.Color(getComputedStyle(document.documentElement).getPropertyValue(name).trim()); }
+function initThree() {
+  const el = $('#stage'), r = new THREE.WebGLRenderer({ antialias:true });
+  r.setPixelRatio(Math.min(devicePixelRatio, 2)); el.prepend(r.domElement);
+  const scene = new THREE.Scene(), cam = new THREE.PerspectiveCamera(42, 1, 0.5, 600);
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x556677, 0.55));
+  const sun = new THREE.DirectionalLight(0xffffff, 0.5); sun.position.set(30, 50, 20); scene.add(sun);
+  const ground = new THREE.Mesh(new THREE.CircleGeometry(90, 48), new THREE.MeshLambertMaterial());
+  ground.rotation.x = -Math.PI / 2; scene.add(ground);
+  const gridH = new THREE.GridHelper(120, 40); gridH.position.y = 0.02; scene.add(gridH);
+  T = { r, scene, cam, ground, gridH, house:null, yaw:0.7, pitch:0.42, dist:40, tgt:new THREE.Vector3(0, 4, 0), auto:true, raf:0, ptrs:new Map(), pinch:0 };
+  const cv = r.domElement;
+  cv.addEventListener('pointerdown', e => { cv.setPointerCapture(e.pointerId); T.ptrs.set(e.pointerId, e); T.auto = false; cv.style.cursor = 'grabbing'; });
+  cv.addEventListener('pointerup', e => { T.ptrs.delete(e.pointerId); T.pinch = 0; cv.style.cursor = 'grab'; });
+  cv.addEventListener('pointercancel', e => { T.ptrs.delete(e.pointerId); T.pinch = 0; });
+  cv.addEventListener('pointermove', e => {
+    if (!T.ptrs.has(e.pointerId)) return;
+    const prev = T.ptrs.get(e.pointerId); T.ptrs.set(e.pointerId, e);
+    if (T.ptrs.size === 2) {
+      const [a, b] = [...T.ptrs.values()], d = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+      if (T.pinch) T.dist = Math.min(160, Math.max(14, T.dist * (T.pinch / d)));
+      T.pinch = d; return;
+    }
+    T.yaw -= (e.clientX - prev.clientX) * 0.008;
+    T.pitch = Math.min(1.45, Math.max(0.05, T.pitch + (e.clientY - prev.clientY) * 0.006));
+  });
+  cv.addEventListener('wheel', e => { e.preventDefault(); T.dist = Math.min(160, Math.max(14, T.dist * (1 + e.deltaY * 0.001))); }, { passive:false });
+  new ResizeObserver(() => { const b = el.getBoundingClientRect(); if (!b.width) return; r.setSize(b.width, b.height, false); cam.aspect = b.width / b.height; cam.updateProjectionMatrix(); }).observe(el);
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', recolor);
+  new MutationObserver(recolor).observe(document.documentElement, { attributes:true, attributeFilter:['data-theme'] });
+  recolor();
+}
+function recolor() {
+  if (!T) return;
+  T.r.setClearColor(cssColor('--stage')); T.ground.material.color = cssColor('--ground');
+  T.gridH.material.color = cssColor('--line'); T.gridH.material.transparent = true; T.gridH.material.opacity = 0.5;
+}
+function buildHouse(p) {
+  const g = new THREE.Group(), FT = 0.3048, SH = 9 * FT, st = Math.max(1, p.st || 1), f = footprint(p);
+  const w = f.w * FT, d = f.d * FT, gw = f.gw * FT, gd = f.gd * FT;
+  const wall = new THREE.MeshLambertMaterial({ color:0xe8e4da }), roof = new THREE.MeshLambertMaterial({ color:0x46505c });
+  const glass = new THREE.MeshLambertMaterial({ color:0x6fa8cf }), door = new THREE.MeshLambertMaterial({ color:0xb8bec6 });
+  for (let s = 0; s < st; s++) {
+    const b = new THREE.Mesh(new THREE.BoxGeometry(w, SH - 0.06, d), wall); b.position.set(w / 2, s * SH + SH / 2, 0); g.add(b);
+    const n = Math.max(3, Math.round(w / 2.4));
+    for (let i = 0; i < n; i++) {
+      const win = new THREE.Mesh(new THREE.BoxGeometry(0.95, 1.3, 0.08), glass);
+      win.position.set((i + .5) * (w / n), s * SH + SH * .56, d / 2 + .04); g.add(win);
+    }
+  }
+  const cone = new THREE.Mesh(new THREE.ConeGeometry(1, 1, 4), roof); cone.rotation.y = Math.PI / 4;
+  const rg = new THREE.Group(); rg.add(cone); const rh = Math.min(w, d) * .28;
+  rg.scale.set((w + 1.2) / Math.SQRT2, rh, (d + 1.2) / Math.SQRT2); rg.position.set(w / 2, st * SH + rh / 2, 0); g.add(rg);
+  if (p.g) {
+    const ga = new THREE.Mesh(new THREE.BoxGeometry(gw, SH, gd), wall); ga.position.set(w + gw / 2, SH / 2, d / 2 - gd / 2); g.add(ga);
+    const gr = new THREE.Mesh(new THREE.BoxGeometry(gw + .6, .3, gd + .6), roof); gr.position.set(w + gw / 2, SH + .15, d / 2 - gd / 2); g.add(gr);
+    for (let i = 0; i < p.g; i++) { const dr = new THREE.Mesh(new THREE.BoxGeometry(2.6, 2.2, .08), door); dr.position.set(w + 1.6 + i * 3.2, 1.1, d / 2 + .04); g.add(dr); }
+  }
+  g.position.x = -(w + gw) / 2; g.userData.h = st * SH + rh; g.userData.span = Math.max(w + gw, d);
+  return g;
+}
+function loop() {
+  if (!T) return;
+  T.raf = requestAnimationFrame(loop);
+  if (T.auto) T.yaw += 0.004;
+  const c = Math.cos(T.pitch) * T.dist;
+  T.cam.position.set(T.tgt.x + Math.sin(T.yaw) * c, T.tgt.y + Math.sin(T.pitch) * T.dist, T.tgt.z + Math.cos(T.yaw) * c);
+  T.cam.lookAt(T.tgt); T.r.render(T.scene, T.cam);
+}
+
+/* ---------- Detail sheet ---------- */
+function openPlan(slug, fromHash) {
+  const p = PLANS.find(x => x.slug === slug); if (!p) return;
+  openSlug = slug;
+  $('#d-tag').textContent = p.ls ? 'Luxury Simplified' + (p.city ? ' \u00b7 ' + p.city : '') : 'Custom plan';
+  $('#d-name').textContent = p.n;
+  $('#d-specs').innerHTML = [[fmt(p.s), 'Sq ft'], [dash(p.b), 'Bedrooms'], [dash(p.ba), 'Baths'], [dash(p.h), 'Half baths'], [dash(p.st), 'Stories'], [dash(p.g), 'Garage']]
+    .map(([v, l]) => `<div><b>${v}</b><small>${l}</small></div>`).join('');
+  $('#d-links').innerHTML =
+    (p.pdf ? `<a class="btn" href="${esc(p.pdf)}" target="_blank" rel="noopener">Floor plan PDF</a>` : '') +
+    (p.fp ? `<a class="btn ghost" href="${esc(p.fp)}" target="_blank" rel="noopener">Floor plan image</a>` : '') +
+    `<a class="btn ghost" href="${esc(p.u)}" target="_blank" rel="noopener">Plan page</a>` +
+    (!p.pdf && !p.fp ? '<span class="note">This plan page has no floor plan file.</span>' : '');
+  $('#sheet').hidden = false; document.body.style.overflow = 'hidden';
+  if (!T) initThree();
+  if (T.house) T.scene.remove(T.house);
+  T.house = buildHouse(p); T.scene.add(T.house);
+  T.tgt.set(0, T.house.userData.h / 2, 0); T.dist = T.house.userData.span * 1.9 + 8; T.yaw = 0.7; T.pitch = 0.42;
+  T.auto = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  cancelAnimationFrame(T.raf); loop();
+  if (!fromHash) { try { history.replaceState(null, '', '#plan-' + slug); } catch (e) {} }
+  $('#close').focus();
+}
+function closeSheet() {
+  $('#sheet').hidden = true; document.body.style.overflow = ''; openSlug = null;
+  if (T) cancelAnimationFrame(T.raf);
+  try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+}
+function step(dir) {
+  const list = view.length ? view : PLANS, i = list.findIndex(p => p.slug === openSlug);
+  openPlan(list[(i + dir + list.length) % list.length].slug);
+}
+
+/* ---------- Wiring ---------- */
+$('#grid').addEventListener('click', e => { const c = e.target.closest('.card'); if (c) openPlan(c.dataset.slug); });
+$('#q').addEventListener('input', e => { S.q = e.target.value.trim().toLowerCase(); apply(); });
+for (const id of ['beds', 'baths', 'st', 'min', 'max']) $('#' + id).addEventListener('change', e => { S[id] = +e.target.value; apply(); });
+$('#sort').addEventListener('change', e => { S.sort = e.target.value; apply(); });
+$('#coll').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return; S.coll = b.dataset.v;
+  document.querySelectorAll('#coll button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+  apply();
+});
+$('#reset').addEventListener('click', () => {
+  Object.assign(S, { q:'', coll:'all', beds:0, baths:0, st:0, min:0, max:0, sort:'name' });
+  $('#q').value = ''; for (const id of ['beds', 'baths', 'st', 'min', 'max']) $('#' + id).value = '0'; $('#sort').value = 'name';
+  document.querySelectorAll('#coll button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.v === 'all')));
+  apply();
+});
+$('#close').addEventListener('click', closeSheet);
+$('#prev').addEventListener('click', () => step(-1));
+$('#next').addEventListener('click', () => step(1));
+$('#sheet').addEventListener('click', e => { if (e.target.id === 'sheet') closeSheet(); });
+addEventListener('keydown', e => {
+  if ($('#sheet').hidden) return;
+  if (e.key === 'Escape') closeSheet(); else if (e.key === 'ArrowLeft') step(-1); else if (e.key === 'ArrowRight') step(1);
+});
+addEventListener('hashchange', () => { const m = location.hash.match(/^#plan-([a-z0-9-]+)$/); if (m) openPlan(m[1], true); else if (!$('#sheet').hidden) closeSheet(); });
+
+const sizes = PLANS.map(p => p.s);
+$('#tb-count').textContent = PLANS.length + ' sheets';
+$('#tb-range').textContent = sizes.length ? fmt(Math.min(...sizes)) + ' \u2013 ' + fmt(Math.max(...sizes)) + ' SF' : '\u2014';
+apply();
+{ const m = location.hash.match(/^#plan-([a-z0-9-]+)$/); if (m) openPlan(m[1], true); }
+</script>
