@@ -102,7 +102,7 @@ footer { color:var(--mute); font-size:13px; max-width:78ch; }
       <div><b>Source</b><span>arhomes.com</span></div>
       <div><b>Plans</b><span id="tb-count"></span></div>
       <div><b>Range</b><span id="tb-range"></span></div>
-      <div><b>Rev</b><span>NOV 08 2026</span></div>
+      <div><b>Rev</b><span>NOV 09 2026</span></div>
     </div>
   </header>
 
@@ -209,12 +209,19 @@ function cssColor(name) { return new THREE.Color(getComputedStyle(document.docum
 function initThree() {
   const el = $('#stage'), r = new THREE.WebGLRenderer({ antialias:true });
   r.setPixelRatio(Math.min(devicePixelRatio, 2)); el.prepend(r.domElement);
-  const scene = new THREE.Scene(), cam = new THREE.PerspectiveCamera(42, 1, 0.5, 600);
-  scene.add(new THREE.HemisphereLight(0xffffff, 0x556677, 0.55));
-  const sun = new THREE.DirectionalLight(0xffffff, 0.5); sun.position.set(30, 50, 20); scene.add(sun);
-  const ground = new THREE.Mesh(new THREE.CircleGeometry(90, 48), new THREE.MeshLambertMaterial());
-  ground.rotation.x = -Math.PI / 2; scene.add(ground);
-  const gridH = new THREE.GridHelper(120, 40); gridH.position.y = 0.02; scene.add(gridH);
+  const scene = new THREE.Scene(), cam = new THREE.PerspectiveCamera(42, 1, 0.5, 700);
+  r.shadowMap.enabled = true; r.shadowMap.type = THREE.PCFSoftShadowMap;
+  r.toneMapping = THREE.ACESFilmicToneMapping; r.toneMappingExposure = 1.05; r.outputEncoding = THREE.sRGBEncoding;
+  const sky = document.createElement('canvas'); sky.width = 4; sky.height = 256; const sg = sky.getContext('2d');
+  const gr = sg.createLinearGradient(0, 0, 0, 256); gr.addColorStop(0, '#6fa8e0'); gr.addColorStop(.6, '#bcd9f0'); gr.addColorStop(1, '#eaf3fa');
+  sg.fillStyle = gr; sg.fillRect(0, 0, 4, 256); scene.background = new THREE.CanvasTexture(sky);
+  scene.fog = new THREE.Fog(0xdceaf5, 140, 420);
+  scene.add(new THREE.HemisphereLight(0xdfeeff, 0x6b7a55, 0.75));
+  const sun = new THREE.DirectionalLight(0xfff1dc, 1.25); sun.position.set(55, 85, 40); sun.castShadow = true;
+  sun.shadow.mapSize.set(2048, 2048); Object.assign(sun.shadow.camera, { left:-70, right:70, top:70, bottom:-70, near:10, far:260 }); sun.shadow.bias = -0.0004;
+  scene.add(sun);
+  const ground = new THREE.Mesh(new THREE.CircleGeometry(160, 64), new THREE.MeshStandardMaterial({ map: tex('grass', 36, 36), roughness: 1 }));
+  ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground); const gridH = null;
   T = { r, scene, cam, ground, gridH, house:null, yaw:0.7, pitch:0.42, dist:40, tgt:new THREE.Vector3(0, 4, 0), auto:true, raf:0, ptrs:new Map(), pinch:0 };
   const cv = r.domElement;
   cv.addEventListener('pointerdown', e => { cv.setPointerCapture(e.pointerId); T.ptrs.set(e.pointerId, e); T.auto = false; cv.style.cursor = 'grabbing'; });
@@ -237,32 +244,94 @@ function initThree() {
   new MutationObserver(recolor).observe(document.documentElement, { attributes:true, attributeFilter:['data-theme'] });
   recolor();
 }
-function recolor() {
-  if (!T) return;
-  T.r.setClearColor(cssColor('--stage')); T.ground.material.color = cssColor('--ground');
-  T.gridH.material.color = cssColor('--line'); T.gridH.material.transparent = true; T.gridH.material.opacity = 0.5;
+function recolor() {}
+/* Procedural textures (canvas) so the page needs no image files. */
+const TEX = {};
+function tex(kind, rx, ry, base) {
+  const key = kind + (base || '');
+  if (!TEX[key]) {
+    const c = document.createElement('canvas'); c.width = c.height = 256; const g = c.getContext('2d');
+    const noise = (n, a) => { for (let i = 0; i < n; i++) { g.fillStyle = `rgba(${Math.random() < .5 ? '0,0,0' : '255,255,255'},${Math.random() * a})`; g.fillRect(Math.random() * 256, Math.random() * 256, 1 + Math.random() * 2, 1 + Math.random() * 2); } };
+    if (kind === 'grass') { g.fillStyle = '#5b7f3a'; g.fillRect(0, 0, 256, 256); for (let i = 0; i < 1800; i++) { g.fillStyle = `hsl(${85 + Math.random() * 30},${35 + Math.random() * 25}%,${28 + Math.random() * 18}%)`; g.fillRect(Math.random() * 256, Math.random() * 256, 2, 4); } }
+    else if (kind === 'siding') { g.fillStyle = base; g.fillRect(0, 0, 256, 256); for (let y = 0; y < 256; y += 16) { g.fillStyle = 'rgba(0,0,0,.22)'; g.fillRect(0, y, 256, 2); g.fillStyle = 'rgba(255,255,255,.22)'; g.fillRect(0, y + 2, 256, 2); } noise(600, .06); }
+    else if (kind === 'stucco') { g.fillStyle = base; g.fillRect(0, 0, 256, 256); noise(5000, .10); }
+    else if (kind === 'shingle') { g.fillStyle = base; g.fillRect(0, 0, 256, 256); for (let y = 0; y < 256; y += 16) for (let x = (y / 16 % 2) * 12; x < 256; x += 24) { g.fillStyle = `rgba(0,0,0,${.08 + Math.random() * .16})`; g.fillRect(x, y, 23, 15); g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(x, y + 14, 24, 2); g.fillRect(x + 23, y, 1, 15); } noise(900, .08); }
+    else if (kind === 'brick') { g.fillStyle = '#8a4a36'; g.fillRect(0, 0, 256, 256); for (let y = 0; y < 256; y += 16) for (let x = (y / 16 % 2) * 16; x < 256; x += 32) { g.fillStyle = `hsl(${12 + Math.random() * 8},${40 + Math.random() * 15}%,${30 + Math.random() * 12}%)`; g.fillRect(x + 1, y + 1, 30, 14); } }
+    else if (kind === 'garage') { g.fillStyle = '#f2f1ec'; g.fillRect(0, 0, 256, 256); for (let y = 0; y < 256; y += 64) { g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = 3; g.strokeRect(6, y + 6, 244, 52); g.fillStyle = 'rgba(0,0,0,.06)'; g.fillRect(10, y + 10, 236, 44); } }
+    else if (kind === 'drive') { g.fillStyle = '#9b9a96'; g.fillRect(0, 0, 256, 256); noise(3000, .12); }
+    const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8; t.encoding = THREE.sRGBEncoding; TEX[key] = t;
+  }
+  const t = TEX[key].clone(); t.needsUpdate = true; t.repeat.set(rx, ry); return t;
+}
+const hashOf = str => [...str].reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 7) >>> 0;
+const WALLS = ['#efe9dc', '#d9d2c0', '#c9c1ae', '#e6dfd1', '#b9c4cc', '#d8cdb8', '#cfc6b6'];
+const ROOFS = ['#7a7e84', '#8a6f5c', '#6d7b85', '#9a8068', '#5f656b'];
+const DOORS = ['#2c4a6b', '#7a2e2a', '#2f5a45', '#1f1f1f', '#8a6a3a'];
+
+function hipRoof(w, d, h, mat) {            // proper hip roof: ridge along the long side, overhang included
+  const hw = w / 2, hd = d / 2, rl = Math.max(0.6, hw - hd * 0.9);
+  const V = [[-hw, 0, -hd], [hw, 0, -hd], [hw, 0, hd], [-hw, 0, hd], [-rl, h, 0], [rl, h, 0]];
+  const F = [[0, 1, 5, 4], [3, 4, 5, 2], [0, 4, 3], [1, 2, 5]];
+  const pos = [], uv = [];
+  const tri = (a, b, c) => { for (const i of [a, b, c]) { pos.push(...V[i]); uv.push(V[i][0] / 8, V[i][2] / 8 + V[i][1] / 6); } };
+  for (const f of F) { if (f.length === 4) { tri(f[0], f[1], f[2]); tri(f[0], f[2], f[3]); } else tri(f[0], f[1], f[2]); }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); g.computeVertexNormals();
+  return new THREE.Mesh(g, mat);
 }
 function buildHouse(p) {
-  const g = new THREE.Group(), FT = 0.3048, SH = 9 * FT, st = Math.max(1, p.st || 1), f = footprint(p);
-  const w = f.w * FT, d = f.d * FT, gw = f.gw * FT, gd = f.gd * FT;
-  const wall = new THREE.MeshLambertMaterial({ color:0xe8e4da }), roof = new THREE.MeshLambertMaterial({ color:0x46505c });
-  const glass = new THREE.MeshLambertMaterial({ color:0x6fa8cf }), door = new THREE.MeshLambertMaterial({ color:0xb8bec6 });
+  const g = new THREE.Group(), FT = 0.3048, SH = 9 * FT, st = Math.max(1, p.st || 1), f = footprint(p), hs = hashOf(p.slug || p.n);
+  const w = f.w * FT, d = f.d * FT, gw = f.gw * FT, gd = f.gd * FT, OV = 1.6;
+  const wc = WALLS[hs % WALLS.length], useSiding = (hs >>> 3) % 2 === 0, rc = ROOFS[(hs >>> 5) % ROOFS.length], dc = DOORS[(hs >>> 7) % DOORS.length];
+  const wallM = new THREE.MeshStandardMaterial({ map: tex(useSiding ? 'siding' : 'stucco', Math.max(2, w / 6), SH / 6, wc), roughness: .9 });
+  const wallSide = new THREE.MeshStandardMaterial({ map: tex(useSiding ? 'siding' : 'stucco', Math.max(2, d / 6), SH / 6, wc), roughness: .9 });
+  const mats = [wallSide, wallSide, wallM, wallM, wallM, wallM];
+  const trim = new THREE.MeshStandardMaterial({ color: 0xf6f4ef, roughness: .6 }), roofM = new THREE.MeshLambertMaterial({ map: tex('shingle', 1, 1, rc), side: THREE.DoubleSide });
+  const glass = new THREE.MeshPhongMaterial({ color: 0x9cc3dd, specular: 0xffffff, shininess: 120, transparent: true, opacity: .6 });
+  const doorM = new THREE.MeshStandardMaterial({ color: dc, roughness: .5 }), garM = new THREE.MeshStandardMaterial({ map: tex('garage', 1, 1), roughness: .6 });
+  const add = (m) => { g.add(m); return m; };
   for (let s = 0; s < st; s++) {
-    const b = new THREE.Mesh(new THREE.BoxGeometry(w, SH - 0.06, d), wall); b.position.set(w / 2, s * SH + SH / 2, 0); g.add(b);
-    const n = Math.max(3, Math.round(w / 2.4));
-    for (let i = 0; i < n; i++) {
-      const win = new THREE.Mesh(new THREE.BoxGeometry(0.95, 1.3, 0.08), glass);
-      win.position.set((i + .5) * (w / n), s * SH + SH * .56, d / 2 + .04); g.add(win);
+    const b = add(new THREE.Mesh(new THREE.BoxGeometry(w, SH, d), mats)); b.position.set(w / 2, s * SH + SH / 2, 0);
+    if (s < st - 1) { const band = add(new THREE.Mesh(new THREE.BoxGeometry(w + .3, .35, d + .3), trim)); band.position.set(w / 2, (s + 1) * SH, 0); }
+    const n = Math.max(3, Math.round(w / 2.7));
+    for (let i = 0; i < n; i++) {                       // windows on front and back: frame, glass, mullions
+      for (const side of [1, -1]) {
+        const x = (i + .5) * (w / n), y = s * SH + SH * .58, z = side * (d / 2 + .05);
+        if (s === 0 && side === 1 && Math.abs(x - w / 2) < 1.6) continue;      // leave room for the front door
+        const fr = add(new THREE.Mesh(new THREE.BoxGeometry(1.15, 1.6, .14), trim)); fr.position.set(x, y, z);
+        const gl = add(new THREE.Mesh(new THREE.BoxGeometry(.92, 1.38, .16), glass)); gl.position.set(x, y, z + side * .02);
+        const mv = add(new THREE.Mesh(new THREE.BoxGeometry(.05, 1.38, .18), trim)); mv.position.set(x, y, z + side * .03);
+        const mh = add(new THREE.Mesh(new THREE.BoxGeometry(.92, .05, .18), trim)); mh.position.set(x, y, z + side * .03);
+      }
     }
   }
-  const cone = new THREE.Mesh(new THREE.ConeGeometry(1, 1, 4), roof); cone.rotation.y = Math.PI / 4;
-  const rg = new THREE.Group(); rg.add(cone); const rh = Math.min(w, d) * .28;
-  rg.scale.set((w + 1.2) / Math.SQRT2, rh, (d + 1.2) / Math.SQRT2); rg.position.set(w / 2, st * SH + rh / 2, 0); g.add(rg);
-  if (p.g) {
-    const ga = new THREE.Mesh(new THREE.BoxGeometry(gw, SH, gd), wall); ga.position.set(w + gw / 2, SH / 2, d / 2 - gd / 2); g.add(ga);
-    const gr = new THREE.Mesh(new THREE.BoxGeometry(gw + .6, .3, gd + .6), roof); gr.position.set(w + gw / 2, SH + .15, d / 2 - gd / 2); g.add(gr);
-    for (let i = 0; i < p.g; i++) { const dr = new THREE.Mesh(new THREE.BoxGeometry(2.6, 2.2, .08), door); dr.position.set(w + 1.6 + i * 3.2, 1.1, d / 2 + .04); g.add(dr); }
+  const rh = Math.min(w, d) * .3, roof = hipRoof(w + OV * 2, d + OV * 2, rh, roofM); roof.position.set(w / 2, st * SH, 0); add(roof);
+  const ch = add(new THREE.Mesh(new THREE.BoxGeometry(1.3, rh + 2, 1.3), new THREE.MeshStandardMaterial({ map: tex('brick', 1, 2), roughness: 1 })));
+  ch.position.set(w * .2, st * SH + rh * .55, -d * .12);
+  // entry: door, columns, small porch roof
+  const dr = add(new THREE.Mesh(new THREE.BoxGeometry(1.05, 2.15, .12), doorM)); dr.position.set(w / 2, 1.08, d / 2 + .07);
+  const pr = add(new THREE.Mesh(new THREE.BoxGeometry(4.4, .25, 2.4), trim)); pr.position.set(w / 2, 2.75, d / 2 + 1.2);
+  for (const dx of [-1.9, 1.9]) { const col = add(new THREE.Mesh(new THREE.CylinderGeometry(.14, .16, 2.75, 12), trim)); col.position.set(w / 2 + dx, 1.38, d / 2 + 2.2); }
+  const step = add(new THREE.Mesh(new THREE.BoxGeometry(4.6, .2, 2.6), new THREE.MeshStandardMaterial({ map: tex('drive', 2, 1), roughness: 1 }))); step.position.set(w / 2, .1, d / 2 + 1.3);
+  if (p.g) {                                           // attached garage + doors + driveway
+    const gx = w + gw / 2, gz = d / 2 - gd / 2;
+    const ga = add(new THREE.Mesh(new THREE.BoxGeometry(gw, SH, gd), mats)); ga.position.set(gx, SH / 2, gz);
+    const gro = hipRoof(gw + OV * 2 - .4, gd + OV * 2 - .4, Math.min(gw, gd) * .26, roofM); gro.position.set(gx, SH, gz); add(gro);
+    for (let i = 0; i < p.g; i++) { const gd1 = add(new THREE.Mesh(new THREE.BoxGeometry(2.6, 2.2, .1), garM)); gd1.position.set(w + 1.6 + i * 3.2, 1.1, d / 2 + .06); }
+    const dv = add(new THREE.Mesh(new THREE.BoxGeometry(gw, .08, 22), new THREE.MeshStandardMaterial({ map: tex('drive', gw / 5, 4), roughness: 1 }))); dv.position.set(gx, .04, d / 2 + 11);
   }
+  const wk = add(new THREE.Mesh(new THREE.BoxGeometry(2.2, .06, 20), new THREE.MeshStandardMaterial({ map: tex('drive', 1, 5), roughness: 1 }))); wk.position.set(w / 2, .03, d / 2 + 12.5);
+  // shrubs + trees (placed deterministically from the plan name)
+  let seed = hs; const rnd = () => (seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296;
+  for (let i = 0; i < 7; i++) {
+    const ang = rnd() * Math.PI * 2, rad = Math.max(w, d) * .9 + 8 + rnd() * 20, x = w / 2 + Math.cos(ang) * rad, z = Math.sin(ang) * rad * .8;
+    if (z > d / 2 && Math.abs(x - w / 2) < 9) continue;
+    const tr = add(new THREE.Mesh(new THREE.CylinderGeometry(.35, .5, 5, 8), new THREE.MeshStandardMaterial({ color: 0x5a4330, roughness: 1 }))); tr.position.set(x, 2.5, z);
+    const hue = Math.round(95 + rnd() * 30), fo = new THREE.MeshStandardMaterial({ color: new THREE.Color(`hsl(${hue},45%,${Math.round(26 + rnd() * 10)}%)`), roughness: 1 });
+    for (let k = 0; k < 3; k++) { const cn = add(new THREE.Mesh(new THREE.ConeGeometry(3.4 - k * .8, 5, 10), fo)); cn.position.set(x, 6 + k * 2.6, z); }
+  }
+  for (let i = 0; i < 9; i++) { const sh = add(new THREE.Mesh(new THREE.SphereGeometry(.8 + rnd() * .5, 10, 8), new THREE.MeshStandardMaterial({ color: new THREE.Color(`hsl(${Math.round(100 + rnd() * 20)},40%,${Math.round(28 + rnd() * 8)}%)`), roughness: 1 })));
+    sh.position.set(.5 + rnd() * w, .6, d / 2 + 1 + rnd() * .8); if (Math.abs(sh.position.x - w / 2) < 3.2) sh.position.x += 5; }
+  g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = o.material !== roofM; } });
   g.position.x = -(w + gw) / 2; g.userData.h = st * SH + rh; g.userData.span = Math.max(w + gw, d);
   return g;
 }
@@ -293,7 +362,7 @@ function openPlan(slug, fromHash) {
   if (!T) initThree();
   if (T.house) T.scene.remove(T.house);
   T.house = buildHouse(p); T.scene.add(T.house);
-  T.tgt.set(0, T.house.userData.h / 2, 0); T.dist = T.house.userData.span * 1.9 + 8; T.yaw = 0.7; T.pitch = 0.42;
+  T.tgt.set(0, T.house.userData.h / 2, 0); T.dist = T.house.userData.span * 2.1 + 12; T.yaw = 0.7; T.pitch = 0.42;
   T.auto = !matchMedia('(prefers-reduced-motion: reduce)').matches;
   cancelAnimationFrame(T.raf); loop();
   const bp = $('#bp'); bp.classList.remove('zoom'); bp.scrollTop = 0;
