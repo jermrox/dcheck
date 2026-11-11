@@ -29,13 +29,13 @@ def parse_part(t):
     f = int(m.group(1)) + (inch / 12 if inch <= 11 else 0.5)      # misread inches -> middle of the foot
     return f if 5 <= f <= 45 else None
 
-def trace(path, area_ft2=None):
+def trace(path, area_ft2=None, ksz=5):
     global _ocr
     img = cv2.imread(path)
     if img is None: return None
     g = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY); H, W = g.shape
     k = W / 1700.0                                              # sheets come in a few sizes; kernels follow
-    walls = cv2.morphologyEx((g < 90).astype(np.uint8), cv2.MORPH_OPEN, K(round(5 * k), round(5 * k)))
+    walls = cv2.morphologyEx((g < 90).astype(np.uint8), cv2.MORPH_OPEN, K(round(ksz * k), round(ksz * k)))
     walls[: int(H * 0.11), int(W * 0.76):] = 0                  # AR Homes logo, top right
     walls[int(H * 0.80):, :] = 0                                # title block / spec table strip
 
@@ -140,6 +140,8 @@ def trace(path, area_ft2=None):
     if abs(scale / prov - 1) > 0.25: hr, vr, polys, openings = extract(1 / scale)
     ppf = 1 / scale
 
+    if ksz == 5 and len(hr) + len(vr) < 45:                      # big home drawn small: walls are thin, retry finer
+        return trace(path, area_ft2, ksz=3)
     model = {"size": [W, H], "s": round(scale, 5), "conf": len(cand), "src": src, "w": [list(r) for r in hr + vr], "p": polys, "o": openings}
     if DEBUG:
         dbg = img.copy()
