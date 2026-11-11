@@ -95,14 +95,14 @@ footer { color:var(--mute); font-size:13px; max-width:78ch; }
   <header>
     <div>
       <h1>AR Homes <span>Blueprints</span></h1>
-      <p class="lede">Every AR Homes floor plan, available home, model home and built home collected from arhomes.com: the real blueprint, its published specs, and a 3D massing study you can turn around. Pick a plan to open its sheet.</p>
+      <p class="lede">Every AR Homes floor plan, available home, model home and built home collected from arhomes.com: the real blueprint, its published specs, walls traced into 3D from the drawing, and an exterior massing model. Pick a plan to open its sheet.</p>
     </div>
     <div class="tblock" aria-label="Sheet information">
       <div><b>Project</b><span>AR Homes plan index</span></div>
       <div><b>Source</b><span>arhomes.com</span></div>
       <div><b>Plans</b><span id="tb-count"></span></div>
       <div><b>Range</b><span id="tb-range"></span></div>
-      <div><b>Rev</b><span>NOV 09 2026</span></div>
+      <div><b>Rev</b><span>NOV 11 2026</span></div>
     </div>
   </header>
 
@@ -128,12 +128,12 @@ footer { color:var(--mute); font-size:13px; max-width:78ch; }
 
 <div class="sheet" id="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="d-name">
   <div class="panel">
-    <div class="stage" id="stage"><div class="modes" id="modes"><button id="m-bp" type="button" aria-pressed="true">Blueprint</button><button id="m-3d" type="button" aria-pressed="false">3D model</button></div><div class="bp" id="bp"><img id="bp-img" alt=""></div><div class="hint">Drag to turn &middot; scroll or pinch to zoom</div></div>
+    <div class="stage" id="stage"><div class="modes" id="modes"><button id="m-bp" type="button" aria-pressed="true">Blueprint</button><button id="m-w" type="button" aria-pressed="false">Walls 3D</button><button id="m-3d" type="button" aria-pressed="false">Exterior</button></div><div class="bp" id="bp"><img id="bp-img" alt=""></div><div class="hint">Drag to turn &middot; scroll or pinch to zoom</div></div>
     <div class="info">
       <div><span class="tag" id="d-tag"></span><h2 id="d-name"></h2></div>
       <div class="specs" id="d-specs"></div>
       <div class="links" id="d-links"></div>
-      <p class="note">The model is a massing study: footprint from published square footage, one slab per story, garage bays at 10.5 ft each. Room layout is not modeled yet.</p>
+      <p class="note" id="d-note"></p>
       <div class="nav"><button class="btn ghost" id="prev" type="button">Previous</button><button class="btn ghost" id="next" type="button">Next</button><button class="btn" id="close" type="button">Close</button></div>
     </div>
   </div>
@@ -361,7 +361,7 @@ function openPlan(slug, fromHash) {
   $('#sheet').hidden = false; document.body.style.overflow = 'hidden';
   if (!T) initThree();
   if (T.house) T.scene.remove(T.house);
-  T.house = buildHouse(p); T.scene.add(T.house);
+  curPlan = p; T.house = buildHouse(p); T.scene.add(T.house);
   T.tgt.set(0, T.house.userData.h / 2, 0); T.dist = T.house.userData.span * 2.1 + 12; T.yaw = 0.7; T.pitch = 0.42;
   T.auto = !matchMedia('(prefers-reduced-motion: reduce)').matches;
   cancelAnimationFrame(T.raf); loop();
@@ -372,13 +372,54 @@ function openPlan(slug, fromHash) {
   if (!fromHash) { try { history.replaceState(null, '', '#plan-' + slug); } catch (e) {} }
   $('#close').focus();
 }
-function setMode(m) {
+/* ---------- traced interior walls (models.json, built by blueprints/model/trace_all.py) ---------- */
+let modelsP = null, curPlan = null;
+const loadModels = () => modelsP || (modelsP = fetch('models.json').then(r => r.ok ? r.json() : {}).catch(() => ({})));
+const modelKey = p => p.img ? p.img.replace(/^fp\//, '').replace(/\.[a-z]+$/, '') : null;
+function buildWalls(p, m) {
+  const g = new THREE.Group(), s = m.s * 0.3048, [W, H] = m.size, cx = W * s / 2, cz = H * s / 2, HT = 2.74;
+  const t = new THREE.TextureLoader().load(p.img); t.anisotropy = 8; t.encoding = THREE.sRGBEncoding;
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(W * s, H * s), new THREE.MeshBasicMaterial({ map: t, toneMapped: false }));
+  floor.rotation.x = -Math.PI / 2; floor.position.y = 0.03; g.add(floor);
+  const wallM = new THREE.MeshStandardMaterial({ color: 0xf4f1ea, roughness: .9 }), glass = new THREE.MeshPhongMaterial({ color: 0x8fc0e6, transparent: true, opacity: .45, shininess: 100 });
+  const box = (x, y, w, h, z0, z1, mat) => { const b = new THREE.Mesh(new THREE.BoxGeometry(w * s, z1 - z0, h * s), mat);
+    b.position.set((x + w / 2) * s - cx, (z0 + z1) / 2, (y + h / 2) * s - cz); b.castShadow = mat === wallM; g.add(b); };
+  for (const [x, y, w, h] of m.w) box(x, y, w, h, 0, HT, wallM);
+  for (const pl of m.p || []) {
+    const sh = new THREE.Shape(); for (let i = 0; i < pl.length; i += 2) sh[i ? 'lineTo' : 'moveTo'](pl[i] * s - cx, -(pl[i + 1] * s - cz));
+    const eg = new THREE.ExtrudeGeometry(sh, { depth: HT, bevelEnabled: false }); eg.rotateX(-Math.PI / 2);
+    const mm = new THREE.Mesh(eg, wallM); mm.castShadow = true; g.add(mm);
+  }
+  for (const [x, y, w, h, k] of m.o || []) {
+    if (k === 0) { box(x, y, w, h, 0, .9, wallM); box(x, y, w, h, 2.1, HT, wallM); box(x, y, w, h, .9, 2.1, glass); }
+    else box(x, y, w, h, 2.05, HT, wallM);
+  }
+  g.userData.span = Math.max(W, H) * s;
+  return g;
+}
+const SRC = { rooms: 'several printed room sizes that agree', room: 'one printed room size', area: 'published square footage against the traced outline', default: 'a typical sheet scale (not measured)' };
+async function setMode(m) {
   $('#bp').hidden = m !== 'bp';
-  $('#m-bp').setAttribute('aria-pressed', String(m === 'bp')); $('#m-3d').setAttribute('aria-pressed', String(m === '3d'));
+  for (const [id, v] of [['m-bp', 'bp'], ['m-w', 'w'], ['m-3d', '3d']]) $('#' + id).setAttribute('aria-pressed', String(m === v));
   document.querySelector('.stage .hint').textContent = m === 'bp' ? 'Click the plan to zoom \u00b7 scroll to pan' : 'Drag to turn \u00b7 scroll or pinch to zoom';
+  const note = $('#d-note'), p = curPlan; if (!T || !p) return;
+  if (T.wallsG) { T.scene.remove(T.wallsG); T.wallsG = null; }
+  T.house.visible = m !== 'w'; T.ground.visible = m !== 'w';
+  if (m === 'w') {
+    note.textContent = 'Loading traced walls...';
+    const mdl = (await loadModels())[modelKey(p)];
+    if (curPlan !== p) return;
+    if (!mdl) { note.textContent = 'No traced walls for this plan yet.'; T.house.visible = T.ground.visible = true; return; }
+    T.wallsG = buildWalls(p, mdl); T.scene.add(T.wallsG);
+    T.tgt.set(0, 1, 0); T.dist = T.wallsG.userData.span * 1.3; T.pitch = 1.0; T.yaw = 0.5; T.auto = false;
+    note.textContent = `Walls, windows and door openings were traced automatically from this blueprint (${mdl.w.length} wall pieces, ${mdl.o.length} openings), 9 ft tall, standing on the drawing. The trace is unchecked: some walls can be missing or extra. Scale ${(1 / mdl.s).toFixed(1)} px per foot, from ${SRC[mdl.src] || 'an estimate'}; treat sizes as approximate.`;
+  } else {
+    T.tgt.set(0, T.house.userData.h / 2, 0); T.dist = T.house.userData.span * 2.1 + 12; T.pitch = 0.42;
+    note.textContent = 'Exterior is a massing study: footprint from published square footage, one level per story, garage bays at 10.5 ft each. It is not the real elevation.';
+  }
 }
 function closeSheet() {
-  $('#sheet').hidden = true; document.body.style.overflow = ''; openSlug = null;
+  $('#sheet').hidden = true; document.body.style.overflow = ''; openSlug = null; curPlan = null;
   if (T) cancelAnimationFrame(T.raf);
   try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
 }
@@ -408,6 +449,7 @@ $('#reset').addEventListener('click', () => {
 $('#close').addEventListener('click', closeSheet);
 $('#m-bp').addEventListener('click', () => setMode('bp'));
 $('#m-3d').addEventListener('click', () => setMode('3d'));
+$('#m-w').addEventListener('click', () => setMode('w'));
 $('#bp-img').addEventListener('click', () => $('#bp').classList.toggle('zoom'));
 $('#prev').addEventListener('click', () => step(-1));
 $('#next').addEventListener('click', () => step(1));
