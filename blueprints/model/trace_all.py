@@ -35,23 +35,37 @@ def trace(path, area_ft2=None, ksz=5):
     if img is None: return None
     g = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY); H, W = g.shape
     k = W / 1700.0                                              # sheets come in a few sizes; kernels follow
-    walls = cv2.morphologyEx((g < 90).astype(np.uint8), cv2.MORPH_OPEN, K(round(ksz * k), round(ksz * k)))
+    dark = (g < 90).astype(np.uint8)
+    walls = cv2.morphologyEx(dark, cv2.MORPH_OPEN, K(round(ksz * k), round(ksz * k)))
+    thin0 = cv2.morphologyEx(dark, cv2.MORPH_OPEN, K(round(3 * k), round(3 * k)))
+    if ksz == 5 and walls.sum() < 0.42 * thin0.sum(): return trace(path, area_ft2, ksz=3)   # big home drawn small
+    if ksz == 5:                                                # thinner walls: keep 3px strokes only where they run long and straight
+        thin = cv2.morphologyEx(dark, cv2.MORPH_OPEN, K(round(3 * k), round(3 * k)))
+        walls |= cv2.morphologyEx(thin, cv2.MORPH_OPEN, K(round(46 * k), 1)) | cv2.morphologyEx(thin, cv2.MORPH_OPEN, K(1, round(46 * k)))
     walls[: int(H * 0.11), int(W * 0.76):] = 0                  # AR Homes logo, top right
     walls[int(H * 0.80):, :] = 0                                # title block / spec table strip
 
-    # --- scale from printed room dimensions (OCR) ---
-    if _ocr is None:
-        from rapidocr_onnxruntime import RapidOCR
-        _ocr = RapidOCR()
-    big = cv2.resize(img, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)      # small print reads better at 2x
-    res, _ = _ocr(big)
-    dims = []
-    for b, t, c in (res or []):
-        b = [[q[0] / 2, q[1] / 2] for q in b]
+    # --- printed dimensions (OCR at 2x, cached per sheet) ---
+    cache = os.path.join(out_dir, "ocr", os.path.splitext(os.path.basename(path))[0] + ".json")
+    if os.path.exists(cache): texts = json.load(open(cache))
+    else:
+        if _ocr is None:
+            from rapidocr_onnxruntime import RapidOCR
+            _ocr = RapidOCR()
+        big = cv2.resize(img, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
+        res, _ = _ocr(big)
+        texts = [[t, int(np.mean([q[0] for q in b_]) / 2), int(np.mean([q[1] for q in b_]) / 2)] for b_, t, c in (res or [])]
+        os.makedirs(os.path.dirname(cache), exist_ok=True); json.dump(texts, open(cache, "w"))
+    dims, overall = [], []
+    for t, x, y in texts:
         s_ = t.replace(' ', '').replace('-', '').replace('×', 'x').replace('X', 'x')
         if s_.count('x') == 1:
             pa, pb = (parse_part(q) for q in s_.split('x'))
-            if pa and pb: dims.append((int(np.mean([p[0] for p in b])), int(np.mean([p[1] for p in b])), pa, pb))
+            if pa and pb: dims.append((x, y, pa, pb))
+        elif y < H * 0.80:
+            m_ = re.match(r"^(\d{2,3})'?(\d{1,2})?\"?$", s_)       # lone label such as 59'8": an overall width or depth
+            if m_ and 20 <= int(m_.group(1)) <= 220 and (not m_.group(2) or int(m_.group(2)) <= 11):
+                overall.append(int(m_.group(1)) + (int(m_.group(2)) / 12 if m_.group(2) else 0))
     def ray(x, y, dx, dy, lim=int(900 * k)):
         for n in range(4, lim):
             xx, yy = x + dx * n, y + dy * n
@@ -133,7 +147,42 @@ def trace(path, area_ft2=None, ksz=5):
         cs, _ = cv2.findContours(dl, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         fill = sum(cv2.contourArea(c) for c in cs if cv2.contourArea(c) > 20000 * k * k)
         if fill > 0: area_scale = float(np.sqrt(area_ft2 / fill)) / 1.12       # 1.12: calibration vs room-verified sheets
-    if len(cand) >= 2: scale, src = float(np.median(cand)), 'rooms'
+    # votes: every printed room side and every overall label proposes a ft-per-px value; agreement wins
+    hyps = []                                                      # (value, source id, weight)
+    for i, (x, y, A, B) in enumerate(dims):
+        sx, sy = span(x, y, 0), span(x, y, 1)
+        if sx and sy:
+            for u, v in ((A, B), (B, A)):
+                if abs(u / sx - v / sy) / (u / sx) < 0.07: hyps.append(((u / sx + v / sy) / 2, ('r', i), 2)); break
+            else:
+                for f in (A, B): hyps += [(f / sx, ('r', i), .5), (f / sy, ('r', i), .5)]
+        elif sx or sy:
+            for f in (A, B): hyps.append((f / (sx or sy), ('r', i), .5))
+    if overall:
+        mk2 = np.zeros((H, W), np.uint8)
+        for x, y, w, h in hr + vr: mk2[y:y + h, x:x + w] = 1
+        pad = round(26 * k); dl2 = cv2.dilate(mk2, K(2 * pad, 2 * pad))
+        cs2, _ = cv2.findContours(dl2, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        ext = [d for c in cs2 if cv2.contourArea(c) > 20000 * k * k for d in (cv2.boundingRect(c)[2] - 2 * pad, cv2.boundingRect(c)[3] - 2 * pad)]
+        for j, f in enumerate(overall):
+            for e in ext:
+                if e > 60: hyps.append((f / e, ('o', j), 1))
+    hyps = [h for h in hyps if 1 / 40 < h[0] < 1 / 4]
+    best = (0, None, False); weak = (0, None)
+    for c, _, _ in hyps:
+        sup = {}
+        for v, sid, wt in hyps:
+            if abs(v - c) / c < 0.05: sup[sid] = max(sup.get(sid, 0), wt)
+        score = sum(sup.values())
+        ok = (not area_scale) or 0.62 < c / area_scale < 1.6
+        if ok and score > weak[0]: weak = (score, float(np.median([v for v, sid, wt in hyps if abs(v - c) / c < 0.05])))
+        if ok and (2 in sup.values(), score) > (best[2], best[0]):
+            best = (score, float(np.median([v for v, sid, wt in hyps if abs(v - c) / c < 0.05 and wt == max(sup.values())])), 2 in sup.values())
+    votes = best[0]
+    if votes >= 3 and best[2]: scale, src = best[1], 'verified'                 # three or more independent dimensions agree
+    elif len(cand) >= 2: scale, src = float(np.median(cand)), 'rooms'
+    elif weak[0] >= 3 and area_scale and abs(weak[1] / area_scale - 1) < 0.12: scale, src, votes = weak[1], 'rooms', weak[0]
+    elif votes >= 2 and best[1] and best[2]: scale, src = best[1], 'room'
     elif cand and (not area_scale or 0.7 < cand[0] / area_scale < 1.3): scale, src = cand[0], 'room'
     elif area_scale: scale, src = area_scale, 'area'
     else: scale, src = default, 'default'
@@ -142,7 +191,7 @@ def trace(path, area_ft2=None, ksz=5):
 
     if ksz == 5 and len(hr) + len(vr) < 45:                      # big home drawn small: walls are thin, retry finer
         return trace(path, area_ft2, ksz=3)
-    model = {"size": [W, H], "s": round(scale, 5), "conf": len(cand), "src": src, "w": [list(r) for r in hr + vr], "p": polys, "o": openings}
+    model = {"size": [W, H], "s": round(scale, 5), "conf": int(votes), "src": src, "chk": (round(fill * scale * scale / (1.2544 * area_ft2), 2) if area_ft2 and area_scale else None), "w": [list(r) for r in hr + vr], "p": polys, "o": openings}
     if DEBUG:
         dbg = img.copy()
         for x, y, w, h in hr + vr: cv2.rectangle(dbg, (x, y), (x + w, y + h), (40, 40, 220), -1)
