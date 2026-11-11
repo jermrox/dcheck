@@ -1,0 +1,32 @@
+{
+  "base": "pembrooke-ii",
+  "px_per_ft": 10.39,
+  "confidence": "high",
+  "measurements": [
+    {"room": "Garage 2", "printed": "14'-9\" x 20'-5\"", "width_px": 154, "height_px": 211.5, "ppf_w": 10.44, "ppf_h": 10.36, "how": "rulers"},
+    {"room": "Garage 1", "printed": "22'-1\" x 25'-3\"", "width_px": 227.7, "height_px": 262.5, "ppf_w": 10.31, "ppf_h": 10.40, "how": "rulers"},
+    {"room": "Bedroom 2", "printed": "16'-4\" x 13'-4\"", "width_px": 170, "height_px": 138.5, "ppf_w": 10.41, "ppf_h": 10.39, "how": "rulers"},
+    {"room": "Bedroom 3", "printed": "13'-0\" x 12'-8\"", "width_px": 134, "height_px": 132.5, "ppf_w": 10.31, "ppf_h": 10.46, "how": "rulers"},
+    {"room": "Bedroom 4 (lower level)", "printed": "14'-2\" x 14'-11\"", "width_px": 147.5, "height_px": 155, "ppf_w": 10.41, "ppf_h": 10.39, "how": "rulers"},
+    {"room": "Den", "printed": "19'-5\" x 14'-1\"", "width_px": 201, "height_px": 146, "ppf_w": 10.35, "ppf_h": 10.37, "how": "span"},
+    {"room": "Overall depth dimension string", "printed": "81'-6\"", "width_px": null, "height_px": 848, "ppf_w": null, "ppf_h": 10.40, "how": "rulers"}
+  ],
+  "spread_pct": 1.4,
+  "tracer_px_per_ft": 10.36,
+  "missing_walls": [
+    [644, 562, 10, 145],
+    [563, 660, 12, 190],
+    [514, 1068, 12, 190],
+    [1133, 1384, 100, 10],
+    [1667, 1356, 185, 8],
+    [1667, 1356, 8, 150],
+    [80, 750, 65, 8]
+  ],
+  "extra_walls": [
+    [391, 846, 24, 12],
+    [1442, 1508, 26, 14],
+    [263, 1133, 22, 26],
+    [364, 1133, 22, 26]
+  ],
+  "notes": "Scale measured independently from printed room sizes, not from the tracer: 6 rectangular rooms (5 first floor, 1 lower level) plus the 81'-6\" edge dimension all fall in 10.31-10.46 px/ft, so the tracer's 10.36 is confirmed within 0.3% and is NOT wrong on this evidence; the disagreement with published square footage must come from elsewhere (e.g. footprint/area computation, the sheet's sq ft including full-height masonry walls, or both levels being summed). Both levels are drawn at the same scale (Bedroom 4 agrees). span was unreliable (hit wrong/far walls for Garage 2, Garage 1, Bedroom 2 width, Bedroom 3 height, Owner's Suite), so most sizes were read from zoom-3/4 crop rulers, about +/-1.5 px per edge. Garage 1 depth is taken to the deeper left part of its jogged front wall (262.5 px); to the shallower right part it is about 253 px (10.0 px/ft). Wall rectangles are approximate, read from the overview; missing = Bedroom 2 west wall, Bath 2/pantry west wall, Garage 1 west wall lower part, Bedroom 4 south wall, Exercise Room north and west walls, Owner's Suite south wall west part; extra = wet bar and wet bar 2 counter blocks, two entry porch columns (lower confidence)."
+}

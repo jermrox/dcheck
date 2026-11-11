@@ -1,0 +1,41 @@
+{
+  "base": "envoy",
+  "px_per_ft": 12.0,
+  "confidence": "medium",
+  "measurements": [
+    {"room": "Owner's Suite (1st floor)", "printed": "14'-7\" x 19'-2\"", "width_px": 173, "height_px": 227,
+     "ppf_w": 11.86, "ppf_h": 11.84, "how": "span | rulers"},
+    {"room": "Bedroom 2 (1st floor)", "printed": "14'-6\" x 12'-0\"", "width_px": 174, "height_px": 144,
+     "ppf_w": 12.0, "ppf_h": 12.0, "how": "rulers"},
+    {"room": "Garage (1st floor)", "printed": "21'-11\" x 31'-10\"", "width_px": 264, "height_px": 382,
+     "ppf_w": 12.04, "ppf_h": 12.0, "how": "rulers"},
+    {"room": "Overall width, 1st floor dimension string", "printed": "60'-8\"", "width_px": 730, "height_px": null,
+     "ppf_w": 12.04, "ppf_h": null, "how": "rulers"},
+    {"room": "Unfinished Attic (2nd floor)", "printed": "17'-4\" x 21'-7\"", "width_px": 244, "height_px": 305,
+     "ppf_w": 14.08, "ppf_h": 14.13, "how": "span | rulers"},
+    {"room": "Bedroom 4 (2nd floor)", "printed": "12'-9\" x 13'-8\"", "width_px": 180, "height_px": 193,
+     "ppf_w": 14.12, "ppf_h": 14.12, "how": "span | rulers"},
+    {"room": "Bedroom 3 (2nd floor)", "printed": "12'-0\" x 14'-11\"", "width_px": 169, "height_px": 210,
+     "ppf_w": 14.08, "ppf_h": 14.08, "how": "rulers"},
+    {"room": "Overall width, 2nd floor dimension string", "printed": "43'-7\"", "width_px": 615, "height_px": null,
+     "ppf_w": 14.11, "ppf_h": null, "how": "rulers"}
+  ],
+  "spread_pct": 1.7,
+  "tracer_px_per_ft": 12.36,
+  "missing_walls": [
+    [252, 603, 188, 10],
+    [240, 836, 110, 12],
+    [660, 718, 270, 10],
+    [660, 950, 210, 8],
+    [374, 1000, 8, 170],
+    [437, 1000, 8, 95],
+    [757, 1034, 203, 8],
+    [850, 1190, 110, 8],
+    [1457, 1195, 130, 8],
+    [1480, 1140, 8, 60]
+  ],
+  "extra_walls": [
+    [537, 1043, 78, 8]
+  ],
+  "notes": "TWO LEVELS AT DIFFERENT SCALES. px_per_ft 12.0 and spread_pct 1.7 apply to the FIRST FLOOR only (left plan, x < 1000): 4 good measurements, 11.84-12.04. The SECOND FLOOR (right plan, x > 1230) is drawn larger at 14.1 px/ft: 4 good measurements, 14.08-14.13, spread 0.4%. A single scale cannot fit the sheet; using 12.0 on the second floor makes it about 17% too big in each direction. Confidence is set to medium for that reason even though each floor on its own would rate high. Tracer value 12.36 is 3% high for the first floor and 12% low for the second. Garage depth 382 px is measured to the garage-door recess at the bottom (zoom-2 crop, +-2 px); to the main bottom wall it is 359 px (11.3 px/ft), so only the recess reading matches. Bedroom 3 height 210 px is measured into the bay window at the bottom; to the main wall it is 186 px, and span gave 230 px because it hit the closet's far wall. Den (printed 14'-1\" x 12'-6\") rejected: width 167.5 px gives 11.89 but height 166 px gives 13.3, the printed depth does not match the wall-to-wall depth. Wall rectangles were read from a 2x enlargement of the overview and are approximate (+-5 px); several missing ones include window or door stretches (owner's suite top, kitchen top). The one extra wall is the line between the two stair flights and is uncertain (may be a real low wall). Pool, pool deck and porch have no red, which is correct."
+}
