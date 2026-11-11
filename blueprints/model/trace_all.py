@@ -191,7 +191,7 @@ def trace(path, area_ft2=None, ksz=5):
 
     if ksz == 5 and len(hr) + len(vr) < 45:                      # big home drawn small: walls are thin, retry finer
         return trace(path, area_ft2, ksz=3)
-    model = {"size": [W, H], "s": round(scale, 5), "conf": int(votes), "src": src, "chk": (round(fill * scale * scale / (1.2544 * area_ft2), 2) if area_ft2 and area_scale else None), "w": [list(r) for r in hr + vr], "p": polys, "o": openings}
+    model = {"size": [W, H], "s": round(scale, 5), "conf": int(votes), "src": src, "chk": (round(fill * scale * scale * 1.2544 / area_ft2, 2) if area_ft2 and area_scale and src != 'area' else None), "w": [list(r) for r in hr + vr], "p": polys, "o": openings}
     if DEBUG:
         dbg = img.copy()
         for x, y, w, h in hr + vr: cv2.rectangle(dbg, (x, y), (x + w, y + h), (40, 40, 220), -1)

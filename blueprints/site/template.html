@@ -397,7 +397,7 @@ function buildWalls(p, m) {
   g.userData.span = Math.max(W, H) * s;
   return g;
 }
-const SRC = { verified: 'VERIFIED SCALE: three or more printed dimensions on the sheet agree', rooms: 'GOOD SCALE: several printed dimensions agree', room: 'FAIR SCALE: one printed room size', area: 'ESTIMATED SCALE: published square footage against the traced outline', default: 'UNMEASURED SCALE: typical sheet value' };
+const SRC = { verified: 'VERIFIED SCALE: three or more printed dimensions on the sheet agree', rooms: 'GOOD SCALE: several printed dimensions agree', room: 'FAIR SCALE: one printed room size', conflict: 'SCALE NEEDS CHECKING: the printed dimensions and the published square footage disagree', area: 'ESTIMATED SCALE: published square footage against the traced outline', default: 'UNMEASURED SCALE: typical sheet value' };
 async function setMode(m) {
   $('#bp').hidden = m !== 'bp';
   for (const [id, v] of [['m-bp', 'bp'], ['m-w', 'w'], ['m-3d', '3d']]) $('#' + id).setAttribute('aria-pressed', String(m === v));
