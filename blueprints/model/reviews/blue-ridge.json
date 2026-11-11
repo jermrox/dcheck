@@ -1,0 +1,39 @@
+{
+  "base": "blue-ridge",
+  "px_per_ft": 11.57,
+  "confidence": "high",
+  "measurements": [
+    {"room": "Media Room (lower)", "printed": "21' x 14'-1\"", "width_px": 243, "height_px": 161,
+     "ppf_w": 11.57, "ppf_h": 11.43, "how": "span"},
+    {"room": "Bedroom 4 (lower)", "printed": "12'-9\" x 12'-11\"", "width_px": 148, "height_px": 150,
+     "ppf_w": 11.61, "ppf_h": 11.61, "how": "rulers"},
+    {"room": "Den (main)", "printed": "13'-7\" x 16'-5\"", "width_px": 157, "height_px": 190,
+     "ppf_w": 11.56, "ppf_h": 11.57, "how": "rulers"},
+    {"room": "Club Room (lower)", "printed": "25'-8\" x 20'-5\"", "width_px": 296, "height_px": 237,
+     "ppf_w": 11.53, "ppf_h": 11.61, "how": "span"}
+  ],
+  "spread_pct": 1.6,
+  "tracer_px_per_ft": 9.22,
+  "missing_walls": [
+    [190, 1040, 340, 470],
+    [960, 1400, 390, 390],
+    [460, 360, 230, 320],
+    [1100, 640, 380, 390],
+    [755, 980, 175, 140],
+    [880, 220, 180, 160],
+    [980, 1350, 130, 170],
+    [852, 1378, 10, 150]
+  ],
+  "extra_walls": [
+    [355, 505, 65, 230],
+    [215, 1230, 35, 150],
+    [328, 400, 22, 75],
+    [435, 725, 95, 25],
+    [515, 685, 75, 25],
+    [870, 120, 30, 28],
+    [740, 882, 28, 28],
+    [828, 1292, 17, 23],
+    [558, 1470, 27, 30]
+  ],
+  "notes": "Two levels on one sheet (lower level top, main level bottom) drawn at the same scale: lower-level rooms and the main-level Den all give 11.4-11.6 px/ft. Tracer's area-based 9.22 px/ft is about 20% too low. Bedroom 4 span height (175) ran through the closet to the bath wall, so its 150 px height was read off the crop rulers to the closet front; Den span had no traced right wall, so both sides read off rulers. Club Room is open on the right toward the sitting bay but the Bedroom 4 wall bounds it and both sides agree. Great Room (18'-8\" x 18'-9\") skipped as open-plan; Bedrooms 2/3, Master Suite and Garage skipped because those wings are rotated. Overall 100'-1\" x 78'-4\" is printed bottom right without extension lines, so its extent is unclear and it was not used (main-level footprint is roughly 1150 px wide in the overview, consistent with 11.5 px/ft). Wall check: the rotated west wings on both levels (lower bedrooms 2/3 + baths/elevator, main master suite/bath) and both angled garages are almost entirely untraced or replaced by red filled blobs; both curved bays (lower sitting bay, casual dining) and the Den east wall are missing. Wall rectangles are estimated from the overview to about +/-10 px. Extras are filled wedges beside the angled exterior walls, two porch columns, the kitchen range and a stair blob."
+}

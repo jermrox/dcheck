@@ -1,0 +1,39 @@
+{
+  "base": "newport",
+  "px_per_ft": 10.77,
+  "confidence": "high",
+  "measurements": [
+    {"room": "Owner's Suite", "printed": "17'-1\" x 19'-9\"", "width_px": 183, "height_px": 213,
+     "ppf_w": 10.71, "ppf_h": 10.78, "how": "span (width), rulers (height, incl. sitting bay; span up hit no wall at the bay window)"},
+    {"room": "Den", "printed": "14'-6\" x 16'-11\"", "width_px": 157, "height_px": 182,
+     "ppf_w": 10.83, "ppf_h": 10.76, "how": "rulers (width; span ran through untraced left wall), span (height, confirmed on crop)"},
+    {"room": "Bedroom 4", "printed": "14'-7\" x 12'-7\"", "width_px": 156.5, "height_px": 135,
+     "ppf_w": 10.73, "ppf_h": 10.73, "how": "rulers (width; span right hit nothing), span (height)"},
+    {"room": "Bedroom 3", "printed": "15'-4\" x 12'-2\"", "width_px": 164, "height_px": 131,
+     "ppf_w": 10.70, "ppf_h": 10.77, "how": "rulers (span width 166 agrees; span height ran through to other rooms)"},
+    {"room": "Bedroom 5", "printed": "14'-1\" x 14'-7\"", "width_px": 152.5, "height_px": 157,
+     "ppf_w": 10.83, "ppf_h": 10.77, "how": "rulers (width is to the closet front, 14'-7\" is the vertical side; span height 155 agrees, span width 179 includes closet)"},
+    {"room": "Exercise Room", "printed": "15'-10\" x 20'-2\"", "width_px": 171, "height_px": 217.7,
+     "ppf_w": 10.80, "ppf_h": 10.79, "how": "span (width), rulers (height incl. top bay; span height ran through to bath)"},
+    {"room": "Overall first floor (sheet edge strings)", "printed": "87'-8\" x 123'-2\"", "width_px": 943.5, "height_px": 1325.5,
+     "ppf_w": 10.76, "ppf_h": 10.76, "how": "rulers (extension lines x 102.5-1046, y 92-1417.5)"}
+  ],
+  "spread_pct": 1.2,
+  "tracer_px_per_ft": 11.91,
+  "missing_walls": [
+    [645, 900, 12, 88],
+    [350, 962, 12, 78],
+    [867, 318, 9, 87],
+    [797, 400, 8, 120],
+    [810, 522, 8, 125],
+    [812, 643, 90, 8],
+    [408, 525, 18, 140],
+    [1640, 785, 8, 150],
+    [785, 1338, 48, 12],
+    [318, 1345, 45, 12]
+  ],
+  "extra_walls": [
+    [793, 570, 16, 50]
+  ],
+  "notes": "All 14 side measurements fall in 10.70-10.83 px/ft (median 10.77); the tracer's area-based 11.91 is about 10.6% too high. All three levels are drawn at the same scale (rooms on each level and the first-floor overall strings agree). Printed sizes were clearly readable in zoom-4 crops. Wall check was done on the overview overlay plus raw crops, so wall rectangles are approximate (+/- ~5 px) and the list is not exhaustive: many first-floor interior partitions (owner's bath, pantry/closet block, den and foyer west walls) have little or no red. The extra at the kitchen is the range/cooktop on the east kitchen wall, judged from the overview only. Also traced but arguably not house walls: four porch posts (approx 16 px squares at (213,243), (408,243), (408,320), (598,320)), the entry porch post near (538,1020), and the Bedroom 5 window well top/bottom edges around [1055,1522,48,80]. Garage door openings are untraced (correctly open)."
+}

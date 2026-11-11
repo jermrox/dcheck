@@ -1,0 +1,39 @@
+{
+  "base": "arezzo",
+  "px_per_ft": 12.42,
+  "confidence": "high",
+  "measurements": [
+    {"room": "Bonus Room", "printed": "14'-7\" x 17'-7\"", "width_px": 181, "height_px": 218,
+     "ppf_w": 12.41, "ppf_h": 12.40, "how": "span (width) | rulers (height: north wall inner face y=293 to closet/bath wall line y=511; span had no traced north wall)"},
+    {"room": "Bedroom 3", "printed": "12'-3\" x 15'-4\"", "width_px": 155, "height_px": 188,
+     "ppf_w": 12.65, "ppf_h": 12.26, "how": "span"},
+    {"room": "Bedroom 2", "printed": "12'-3\" x 13'-4\"", "width_px": 153, "height_px": 165,
+     "ppf_w": 12.49, "ppf_h": 12.38, "how": "span"},
+    {"room": "Den", "printed": "12'-3\" x 17'-7\"", "width_px": 151, "height_px": 218,
+     "ppf_w": 12.33, "ppf_h": 12.40, "how": "span (width) | rulers (height: powder-room wall y=978 to south wall inner face y=1196; span ran 584 px through the untraced den/foyer partition)"},
+    {"room": "Garage", "printed": "22'-3\" x 31'-11\"", "width_px": 277, "height_px": 397,
+     "ppf_w": 12.45, "ppf_h": 12.44, "how": "span"},
+    {"room": "Owner's Suite", "printed": "18'-1\" x 17'-10\"", "width_px": 225, "height_px": 221,
+     "ppf_w": 12.44, "ppf_h": 12.39, "how": "span (width) | rulers (height: bay window wall inner face y=379 to south wall y=600; printed depth includes the bay)"},
+    {"room": "Overall footprint", "printed": "80'-0\" x 112'-8\"", "width_px": 994, "height_px": 1400,
+     "ppf_w": 12.43, "ppf_h": 12.43, "how": "rulers (outer wall faces x=331..1325, y=285..1685; no dimension lines drawn, extent assumed to be the enclosed house without pool deck or wing walls)"}
+  ],
+  "spread_pct": 3.1,
+  "tracer_px_per_ft": 17.16,
+  "missing_walls": [
+    [525, 594, 145, 8],
+    [667, 602, 8, 100],
+    [670, 695, 190, 8],
+    [850, 610, 10, 90],
+    [860, 595, 180, 12],
+    [882, 1018, 130, 8],
+    [1316, 690, 10, 190],
+    [1180, 878, 138, 8],
+    [355, 283, 148, 10],
+    [1135, 372, 145, 8]
+  ],
+  "extra_walls": [
+    [1060, 472, 26, 72]
+  ],
+  "notes": "Tracer scale 17.16 px/ft (marked 'verified') is about 38% too high; all 14 side measurements from 6 rooms plus the overall 80' x 112'-8\" footprint agree on 12.3-12.6 px/ft. Printed sizes were all legible in zoom-4 crops. Den and Owner's Suite are not plain rectangles (powder-room notch, window bay); their depth pairing was chosen by which wall makes both sides agree. Missing walls 1-5 are the sliding-glass wall ring around the Lanai (Casual Dining north, Lanai sides and south, Great Room west and north) which has no red and no opening, leaving the model open to the outside; 6 is the Foyer/Entry front-door wall (tracer instead put cased openings at the porch columns and porch edge y~1200); 7-8 are the Owner's Bath east window wall and its south wall to the closet; 9-10 are the Bonus Room north and Owner's Suite bay window walls (neither wall nor window traced). Also untraced: thin Den/Foyer partition with door (x 1016-1098, y 935-1015). The only extra is the optional outdoor fireplace on the Lanai. Opening-type errors not listed as walls: a 'window' on the interior Utility north wall (x 467-530, y 1081-1088, actually cabinets against a solid wall) and a 'window' on the Utility/Arrival wall (x 564-570, y 1090-1167, actually a pocket door)."
+}

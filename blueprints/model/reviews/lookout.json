@@ -1,0 +1,29 @@
+{
+  "base": "lookout",
+  "px_per_ft": 15.47,
+  "confidence": "high",
+  "measurements": [
+    {"room": "Owner's Suite", "printed": "18'-7\" x 15'-3\"", "width_px": 287, "height_px": 237, "ppf_w": 15.44, "ppf_h": 15.54, "how": "rulers"},
+    {"room": "Den", "printed": "12'-1\" x 16'-6\"", "width_px": 191, "height_px": 255, "ppf_w": 15.81, "ppf_h": 15.45, "how": "span"},
+    {"room": "Bedroom 3", "printed": "14'-2\" x 11'-9\"", "width_px": 183, "height_px": 219, "ppf_w": 15.57, "ppf_h": 15.46, "how": "rulers"},
+    {"room": "VIP Suite", "printed": "17'-9\" x 15'-9\"", "width_px": 274, "height_px": 244, "ppf_w": 15.44, "ppf_h": 15.49, "how": "rulers"},
+    {"room": "Bedroom 2", "printed": "12'-6\" x 12'-6\"", "width_px": 194, "height_px": 192, "ppf_w": 15.52, "ppf_h": 15.36, "how": "span"},
+    {"room": "Overall dimension strings", "printed": "63'-10\" x 106'-10\"", "width_px": 986, "height_px": 1653, "ppf_w": 15.45, "ppf_h": 15.47, "how": "rulers"}
+  ],
+  "spread_pct": 2.9,
+  "tracer_px_per_ft": 14.59,
+  "missing_walls": [
+    [410, 143, 195, 10],
+    [685, 388, 500, 10],
+    [1188, 395, 10, 110],
+    [342, 470, 10, 200],
+    [322, 675, 10, 172],
+    [325, 842, 185, 10],
+    [1625, 795, 8, 140],
+    [1790, 1495, 8, 150],
+    [420, 1183, 115, 8],
+    [535, 945, 8, 90]
+  ],
+  "extra_walls": [],
+  "notes": "Tracer scale (14.59, from area) is about 6% low; all 12 side measurements fall in 15.36-15.81 px/ft. Bedroom 3 prints its size as depth x width (14'-2\" is the vertical side), the other rooms as width x depth. Both floors are drawn at the same scale. Owner's Suite height and the Bedroom 3 and VIP Suite sizes were read off crop rulers (about +/-2 px) because span hit no wall or a wall edge offset. Missing-wall rectangles are approximate (about +/-10 px) and several are glazed runs (Owner's Suite top windows, Great Room porch sliders, VIP Suite east windows, Owner's closet bay) that have neither wall nor window in the trace. No clearly false red walls found; the range-wall line in the kitchen was checked and is a real wall. Garage size (35'-3\" x 22'-9\") not used: the room is L-shaped with open door sides."
+}
