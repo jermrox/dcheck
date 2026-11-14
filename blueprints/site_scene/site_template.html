@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>__TITLE__</title>
+<style>
+  html,body{margin:0;height:100%;background:#cfe0ee;font:14px system-ui,sans-serif;color:#13202c;overflow:hidden}
+  canvas{display:block;width:100%;height:100%;touch-action:none}
+  #hud{position:absolute;left:12px;top:12px;background:rgba(255,255,255,.92);border:1px solid #9fb2c2;padding:10px 12px;max-width:340px;border-radius:4px}
+  #hud h1{font-size:16px;margin:0 0 4px} #hud p{margin:4px 0;font-size:12px;color:#3c4b58}
+  #hud button{font:inherit;font-size:12px;margin:6px 6px 0 0;padding:6px 10px;border:1px solid #2a5b8a;background:#fff;color:#2a5b8a;border-radius:3px;cursor:pointer}
+  #hud button.on{background:#2a5b8a;color:#fff}
+</style></head><body>
+<div id="hud"><h1>__TITLE__</h1>
+<p>Surveyor's plot plan on the ground at true scale (1" = 60'); first-floor walls placed by fitting the traced plan to the plot's house outline. North is up the plot.</p>
+<p>Drag to orbit, scroll or pinch to zoom.</p>
+<button id="b-top">Top</button><button id="b-3d" class="on">3D</button><button id="b-walls" class="on">Walls</button></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const D = /*DATA*/null;
+const r = new THREE.WebGLRenderer({ antialias: true }); r.setPixelRatio(Math.min(devicePixelRatio, 2)); document.body.append(r.domElement);
+r.shadowMap.enabled = true; r.outputEncoding = THREE.sRGBEncoding;
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0xcfe0ee);
+const cam = new THREE.PerspectiveCamera(45, 1, 1, 4000);
+scene.add(new THREE.HemisphereLight(0xffffff, 0x8a8f7a, 0.85));
+const sun = new THREE.DirectionalLight(0xffffff, 0.75); sun.position.set(-120, 260, -60); sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048); Object.assign(sun.shadow.camera, { left: -150, right: 150, top: 150, bottom: -150, far: 800 }); scene.add(sun);
+const G = D.ground, tex = new THREE.TextureLoader().load(G.src, () => (window.__ready = 1)); tex.anisotropy = 8; tex.encoding = THREE.sRGBEncoding;
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(G.w, G.h), new THREE.MeshLambertMaterial({ map: tex }));
+ground.rotation.x = -Math.PI / 2; ground.position.set(G.x + G.w / 2, 0, G.z + G.h / 2); ground.receiveShadow = true; scene.add(ground);
+const center = new THREE.Vector3(); let n = 0;
+for (const [p0, p1] of D.walls) { center.x += p0[0] + p1[0]; center.z += p0[1] + p1[1]; n += 2; }
+center.divideScalar(n || 1);
+// floors per room (spec finish colours)
+for (const rm of D.rooms) {
+  const sh = new THREE.Shape(rm.pts.map(p => new THREE.Vector2(p[0], -p[1])));
+  const g = new THREE.ShapeGeometry(sh); g.rotateX(-Math.PI / 2);
+  const m = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ color: rm.col })); m.position.y = 0.06; m.receiveShadow = true; scene.add(m);
+}
+// walls with door/window openings (feet; 10 ft first-floor walls)
+const H = 10, T = 0.5, wallM = new THREE.MeshLambertMaterial({ color: 0xf3efe7 }), glassM = new THREE.MeshLambertMaterial({ color: 0x8fc0e6, transparent: true, opacity: .45 });
+const wallG = new THREE.Group(); scene.add(wallG);
+function piece(p0, p1, f0, f1, y0, y1, mat) {
+  const x0 = p0[0] + (p1[0] - p0[0]) * f0, z0 = p0[1] + (p1[1] - p0[1]) * f0, x1 = p0[0] + (p1[0] - p0[0]) * f1, z1 = p0[1] + (p1[1] - p0[1]) * f1;
+  const len = Math.hypot(x1 - x0, z1 - z0); if (len < 0.05 || y1 <= y0) return;
+  const b = new THREE.Mesh(new THREE.BoxGeometry(len, y1 - y0, mat === glassM ? 0.08 : T), mat);
+  b.position.set((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2); b.rotation.y = Math.atan2(-(z1 - z0), x1 - x0); b.castShadow = mat === wallM; wallG.add(b);
+}
+for (const [p0, p1, ops] of D.walls) {
+  let f = 0; ops.sort((a, b) => a[0] - b[0]);
+  for (const [a, b, t] of ops) {
+    piece(p0, p1, f, a, 0, H, wallM);
+    if (t === 'window') { piece(p0, p1, a, b, 0, 3, wallM); piece(p0, p1, a, b, 7, H, wallM); piece(p0, p1, a, b, 3, 7, glassM); }
+    else piece(p0, p1, a, b, t === 'door' ? 7 : 8, H, wallM);
+    f = b;
+  }
+  piece(p0, p1, f, 1, 0, H, wallM);
+}
+if (D.pool) {   // coping + water
+  const sh = new THREE.Shape(D.pool.map(p => new THREE.Vector2(p[0], -p[1]))); const g = new THREE.ShapeGeometry(sh); g.rotateX(-Math.PI / 2);
+  const cop = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ color: 0xd9d4c7 })); cop.position.y = 0.12; scene.add(cop);
+  const c = D.pool.reduce((s, p) => [s[0] + p[0] / 4, s[1] + p[1] / 4], [0, 0]);
+  const inner = D.pool.map(p => { const dx = p[0] - c[0], dz = p[1] - c[1], k = 1 - 1.2 / Math.hypot(dx, dz); return [c[0] + dx * k, c[1] + dz * k]; });
+  const sh2 = new THREE.Shape(inner.map(p => new THREE.Vector2(p[0], -p[1]))); const g2 = new THREE.ShapeGeometry(sh2); g2.rotateX(-Math.PI / 2);
+  const water = new THREE.Mesh(g2, new THREE.MeshPhongMaterial({ color: 0x3aa0d8, shininess: 90, transparent: true, opacity: .9 })); water.position.y = 0.16; scene.add(water);
+}
+let yaw = 0.6, pitch = 0.75, dist = 230, ptrs = new Map(), pinch = 0;
+const cv = r.domElement;
+cv.addEventListener('pointerdown', e => { cv.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, e); });
+cv.addEventListener('pointerup', e => { ptrs.delete(e.pointerId); pinch = 0; });
+cv.addEventListener('pointermove', e => {
+  if (!ptrs.has(e.pointerId)) return; const pv = ptrs.get(e.pointerId); ptrs.set(e.pointerId, e);
+  if (ptrs.size === 2) { const [a, b] = [...ptrs.values()], d = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY); if (pinch) dist = Math.min(900, Math.max(30, dist * pinch / d)); pinch = d; return; }
+  yaw -= (e.clientX - pv.clientX) * 0.006; pitch = Math.min(1.55, Math.max(0.1, pitch + (e.clientY - pv.clientY) * 0.005));
+});
+cv.addEventListener('wheel', e => { e.preventDefault(); dist = Math.min(900, Math.max(30, dist * (1 + e.deltaY * 0.001))); }, { passive: false });
+const btn = id => document.getElementById(id);
+btn('b-top').onclick = () => { pitch = 1.55; yaw = 0; btn('b-top').classList.add('on'); btn('b-3d').classList.remove('on'); };
+btn('b-3d').onclick = () => { pitch = 0.75; yaw = 0.6; btn('b-3d').classList.add('on'); btn('b-top').classList.remove('on'); };
+btn('b-walls').onclick = () => { wallG.visible = !wallG.visible; btn('b-walls').classList.toggle('on', wallG.visible); };
+function resize() { r.setSize(innerWidth, innerHeight); cam.aspect = innerWidth / innerHeight; cam.updateProjectionMatrix(); }
+addEventListener('resize', resize); resize();
+(function loop() {
+  requestAnimationFrame(loop);
+  const c = Math.cos(pitch) * dist; cam.position.set(center.x + Math.sin(yaw) * c, Math.sin(pitch) * dist, center.z + Math.cos(yaw) * c);
+  cam.lookAt(center.x, 0, center.z); r.render(scene, cam);
+})();
+</script></body></html>
