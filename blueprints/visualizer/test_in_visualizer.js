@@ -15,17 +15,18 @@ const fs = require('fs'), path = require('path');
     p.on('pageerror', e => errs.push(String(e.message).slice(0, 200)));
     p.on('console', m => { if (m.type() === 'error' && !/favicon|ERR_|net::/.test(m.text())) errs.push(m.text().slice(0, 200)); });
     await p.goto(url); await p.waitForTimeout(1500);
-    await p.evaluate(([plan, id]) => {
+    await p.evaluate(([plan, id, design]) => {
       localStorage.setItem('interior-studio-plan-' + id, JSON.stringify(plan));
       localStorage.setItem('interior-studio-projects-v1', JSON.stringify([{ id, name: plan.name, sub: plan.sub }]));
       localStorage.setItem('interior-studio-active-v1', JSON.stringify(id));
-    }, [plan, id]);
+      if (design) localStorage.setItem('interior-studio-design-' + id, JSON.stringify(design));
+    }, [plan, id, home.design]);
     await p.reload(); await p.waitForTimeout(5000);
     const r = await p.evaluate(`(() => {
       const items = state.items || [];
       const clashes = items.map(it => ({ name: it.name, room: (typeof roomAt === 'function' ? roomAt(it.x, it.z) : null), hits: collisions(it) })).filter(x => x.hits.length);
       return { open: PLAN && PLAN.id, name: PLAN && PLAN.name, rooms: PLAN.rooms.length, walls: PLAN.walls.length, items: items.length,
-               clashing: clashes.length, clashes: clashes.slice(0, 8).map(c => c.name + ' in ' + c.room + ' hits ' + c.hits.join(', ')) };
+               clashing: clashes.length, floors: Object.fromEntries(PLAN.rooms.map(r => [r.name, (state.finishes[r.id] || {}).floor])), clashes: clashes.slice(0, 8).map(c => c.name + ' in ' + c.room + ' hits ' + c.hits.join(', ')) };
     })()`);
     const slug = path.basename(f).replace('.home.json', '');
     await p.screenshot({ path: path.join(out, slug + '-3d.png') });
