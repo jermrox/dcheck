@@ -43,10 +43,10 @@ ul.ways{margin:0;padding-left:18px} ul.ways li{margin:6px 0}
 svg text{fill:var(--sub);font-size:11px}
 </style></head><body>
 <header><div><h1>Obsidian 1899F · Money plan</h1><p>Build price, VA and other loan options, and what to do with the current house (sell, rent, or keep), all in one place. Everything recalculates as you type and stays on this device.</p></div>
-<nav><a href="../lot2-site.html">Lot 3D</a><a href="../../interactive_interior_visualizer.html">Designer</a><a href="../ar/index.html">AR</a></nav></header>
+<nav><a href="family.html">Family plan</a><a href="../lot2-site.html">Lot 3D</a><a href="../../interactive_interior_visualizer.html">Designer</a><a href="../ar/index.html">AR</a></nav></header>
 <main>
 <aside>
-  <div class="card"><h2>Your numbers</h2><p class="note">Blue defaults are estimates from public data (sources at the bottom). Replace them with your builder contract, LES and statements.</p>
+  <div class="card"><h2>Your numbers</h2><p class="note">Defaults are public estimates for Shinleaf Homesite 2 (sources at the bottom). Replace them with your builder contract, LES and statements.</p>
   <details open><summary>New home</summary><div id="g-new"></div></details>
   <details open><summary>Service &amp; income</summary><div id="g-mil"></div></details>
   <details open><summary>Current house</summary><div id="g-old"></div></details>
@@ -93,6 +93,7 @@ const GROUPS = {
     F('bas', 'BAS (monthly)', 460),
     F('other', 'Other income (spouse, VA comp)', 0),
     F('debts', 'Monthly debts (cars, cards, loans)', 900),
+    F('childcare', 'Childcare (monthly)', (() => { try { return JSON.parse(localStorage.getItem('obsidian-family-monthly') || '{}').monthly || 0; } catch (e) { return 0; } })(), { hint: 'from the family plan; VA counts it' }),
     F('family', 'Family size', 4, { unit: 'ppl' }),
     F('fico', 'Credit score', 740),
   ],
@@ -201,7 +202,8 @@ function scenario(kind) {
   s.piti = s.pi + s.tax + s.ins + s.pmi + s.hoa;
   // VA-style underwriting: 75% of lease rent offsets the old payment when you keep it
   const rentCredit = keep ? V.orent * 0.75 - V.opiti : 0;
-  const debts = V.debts + Math.max(0, -rentCredit), inc = income + Math.max(0, rentCredit);
+  const debts = V.debts + V.childcare + Math.max(0, -rentCredit), inc = income + Math.max(0, rentCredit);
+  s.needInc = (s.piti + debts) / 0.41 - Math.max(0, rentCredit);
   s.dti = (s.piti + debts) / inc;
   const taxes = (V.pay + (V.status === 'active' ? 0 : 0)) * FACTS.tax_withhold_pct;   // BAH/BAS and VA comp are tax-free
   s.residual = inc - taxes - s.piti - debts - FACTS.sqft * 0.14;
@@ -233,14 +235,17 @@ const PATHS = [
 let chosen = 'sell';
 function render() {
   const S = Object.fromEntries(PATHS.map(([k]) => [k, scenario(k)]));
-  const best = PATHS.map(p => p[0]).filter(k => S[k].passes).sort((a, b) => S[b].nw.at(-1) - S[a].nw.at(-1))[0] || 'sell';
+  const passing = PATHS.map(p => p[0]).filter(k => S[k].passes);
+  const best = (passing.length ? passing : PATHS.map(p => p[0])).sort((a, b) => S[b].nw.at(-1) - S[a].nw.at(-1))[0];
+  const qualifies = passing.length > 0;
   const s = S[chosen];
   // KPIs
   document.getElementById('kpis').innerHTML = [
     ['All-in cost', $(s.cost), 'house, lot, options, pool, site'],
-    ['Best path', PATHS.find(p => p[0] === best)[1], `${$(S[best].nw.at(-1))} net worth in ${V.horizon} yrs`],
+    [qualifies ? 'Best path' : 'Highest net worth (not yet qualifying)', PATHS.find(p => p[0] === best)[1], qualifies ? `${$(S[best].nw.at(-1))} net worth in ${V.horizon} yrs` : 'enter your real income and cash: no path passes VA checks with the numbers shown'],
     ['New payment', $(S[chosen].piti) + '/mo', PATHS.find(p => p[0] === chosen)[1]],
     ['Cash left after move-in', $(s.cashLeft), 'after down payment, closing, build interest'],
+    ['Income to qualify (41% DTI)', $(s.needInc) + '/mo', `you entered ${$(V.pay + V.bah + V.bas + V.other)}/mo`],
   ].map(([a, b, c]) => `<div class="kpi"><span>${a}</span><b>${b}</b><span>${c}</span></div>`).join('');
   // price
   const items = [['Base house (Obsidian 1899F)', V.base], ['Lot', V.lot], ['Options & upgrades', V.options], ['Pool', V.pool], ['Site work, septic, water', V.site], ['Allowance overages', V.allow]];
@@ -259,7 +264,7 @@ function render() {
     ['Residual income vs VA minimum', k => `<span class="tag ${S[k].residualOK ? 'good' : 'bad'}">${$(S[k].residual)} / ${$(S[k].residualNeed)}</span>`],
     ['sec', 'Outcome'], ['Cash left after move-in', k => $(S[k].cashLeft)], [`Net worth in ${V.horizon} yrs`, k => `<b>${$(S[k].nw.at(-1))}</b>`],
   ];
-  document.getElementById('cmp').innerHTML = `<div style="overflow-x:auto"><table><thead><tr><th></th>${PATHS.map(([k, n]) => `<th class="${k === best ? 'best' : ''}">${n}${k === best ? '<br><span class="tag good">best</span>' : ''}</th>`).join('')}</tr></thead><tbody>
+  document.getElementById('cmp').innerHTML = `<div style="overflow-x:auto"><table><thead><tr><th></th>${PATHS.map(([k, n]) => `<th class="${k === best ? 'best' : ''}">${n}${k === best ? `<br><span class="tag ${qualifies ? 'good' : 'warn'}">${qualifies ? 'best' : 'best if it qualified'}</span>` : ''}</th>`).join('')}</tr></thead><tbody>
     ${rows.map(r => r[0] === 'sec' ? `<tr class="sec"><td colspan="5">${r[1]}</td></tr>` : `<tr><td>${r[0]}</td>${PATHS.map(([k]) => `<td>${r[1](k)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
     <p class="note">${PATHS.map(([k, n, d]) => `<b>${n}:</b> ${d}`).join(' ')}</p>`;
   // payment
