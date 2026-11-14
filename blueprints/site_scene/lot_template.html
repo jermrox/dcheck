@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>__TITLE__</title>
+<style>
+  html,body{margin:0;height:100%;background:#cfe0ee;font:14px system-ui,sans-serif;color:#13202c;overflow:hidden}
+  canvas{display:block;width:100%;height:100%;touch-action:none}
+  #hud{position:absolute;left:12px;top:12px;background:rgba(255,255,255,.93);border:1px solid #9fb2c2;padding:10px 12px;max-width:360px;border-radius:4px}
+  #hud h1{font-size:16px;margin:0 0 4px} #hud p{margin:4px 0;font-size:12px;color:#3c4b58}
+  #hud button{font:inherit;font-size:12px;margin:6px 6px 0 0;padding:6px 10px;border:1px solid #2a5b8a;background:#fff;color:#2a5b8a;border-radius:3px;cursor:pointer}
+  #hud button.on{background:#2a5b8a;color:#fff}
+</style></head><body>
+<div id="hud"><h1>__TITLE__</h1>
+<p id="facts"></p>
+<p>Drag to orbit, scroll or pinch to zoom. Toggle layers to look inside.</p>
+<button id="b-roof" class="on">Roof</button><button id="b-l2" class="on">2nd floor</button><button id="b-l1" class="on">1st floor</button><button id="b-top">Top view</button></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const D = /*DATA*/null;
+document.getElementById('facts').textContent = `Plot plan draped on terrain fitted to its contours (datum ${D.datum}'). Finished floor ${D.ffe}' . First floor 10 ft, second floor 9 ft walls; second floor registered on the first by its walls and stair. Roof is a hip massing (no roof plan supplied).`;
+const r = new THREE.WebGLRenderer({ antialias: true }); r.setPixelRatio(Math.min(devicePixelRatio, 2)); document.body.append(r.domElement);
+r.shadowMap.enabled = true; r.outputEncoding = THREE.sRGBEncoding;
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0xcfe0ee);
+const cam = new THREE.PerspectiveCamera(42, 1, 1, 5000);
+scene.add(new THREE.HemisphereLight(0xffffff, 0x8a8f7a, 0.8));
+const sun = new THREE.DirectionalLight(0xffffff, 0.8); sun.position.set(-160, 300, 120); sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048); Object.assign(sun.shadow.camera, { left: -200, right: 200, top: 200, bottom: -200, far: 1000 }); scene.add(sun);
+const G = D.ground, N = D.N;
+// terrain: grid of heights, plot texture draped (x right, z down the plot = south)
+const tg = new THREE.PlaneGeometry(G.w, G.h, N, N); tg.rotateX(-Math.PI / 2);
+const pos = tg.attributes.position;
+for (let j = 0; j <= N; j++) for (let i = 0; i <= N; i++) { const k = j * (N + 1) + i; pos.setXYZ(k, G.x + i * G.w / N, D.grid[j][i], G.z + j * G.h / N); }
+tg.computeVertexNormals();
+const tex = new THREE.TextureLoader().load(G.src, () => (window.__ready = 1)); tex.anisotropy = 8; tex.encoding = THREE.sRGBEncoding;
+const terrain = new THREE.Mesh(tg, new THREE.MeshLambertMaterial({ map: tex })); terrain.receiveShadow = true; scene.add(terrain);
+const hAt = (x, z) => { const i = Math.max(0, Math.min(N, Math.round((x - G.x) / G.w * N))), j = Math.max(0, Math.min(N, Math.round((z - G.z) / G.h * N))); return D.grid[j][i]; };
+const shapeGeo = (pts) => { const g = new THREE.ShapeGeometry(new THREE.Shape(pts.map(p => new THREE.Vector2(p[0], -p[1])))); g.rotateX(-Math.PI / 2); return g; };
+const prism = (pts, y0, y1, mat) => { const g = new THREE.ExtrudeGeometry(new THREE.Shape(pts.map(p => new THREE.Vector2(p[0], -p[1]))), { depth: y1 - y0, bevelEnabled: false }); g.rotateX(-Math.PI / 2); const m = new THREE.Mesh(g, mat); m.position.y = y0; m.castShadow = m.receiveShadow = true; return m; };
+const E = D.extras;
+scene.add(prism(E.foundation.pts, E.foundation.bottom, E.foundation.top, new THREE.MeshLambertMaterial({ color: 0xb5866a })));
+// levels
+const wallM = new THREE.MeshLambertMaterial({ color: 0xf3efe7 }), glassM = new THREE.MeshLambertMaterial({ color: 0x8fc0e6, transparent: true, opacity: .45 });
+const levelGroups = D.levels.map(L => {
+  const g = new THREE.Group(); scene.add(g);
+  const slab = new THREE.Group(); g.add(slab);
+  for (const rm of L.rooms) { const m = new THREE.Mesh(shapeGeo(rm.pts), new THREE.MeshLambertMaterial({ color: rm.col })); m.position.y = L.base + 0.02; m.receiveShadow = true; slab.add(m); }
+  const piece = (p0, p1, f0, f1, y0, y1, mat) => {
+    const ax = p0[0] + (p1[0] - p0[0]) * f0, az = p0[1] + (p1[1] - p0[1]) * f0, bx = p0[0] + (p1[0] - p0[0]) * f1, bz = p0[1] + (p1[1] - p0[1]) * f1;
+    const len = Math.hypot(bx - ax, bz - az); if (len < 0.05 || y1 <= y0) return;
+    const b = new THREE.Mesh(new THREE.BoxGeometry(len, y1 - y0, mat === glassM ? 0.08 : 0.5), mat);
+    b.position.set((ax + bx) / 2, L.base + (y0 + y1) / 2, (az + bz) / 2); b.rotation.y = Math.atan2(-(bz - az), bx - ax); b.castShadow = mat === wallM; g.add(b);
+  };
+  for (const [p0, p1, ops] of L.walls) {
+    let f = 0; ops.sort((a, b) => a[0] - b[0]);
+    for (const [a, b, t] of ops) {
+      piece(p0, p1, f, a, 0, L.h, wallM);
+      if (t === 'window') { piece(p0, p1, a, b, 0, 3, wallM); piece(p0, p1, a, b, 7, L.h, wallM); piece(p0, p1, a, b, 3, 7, glassM); }
+      else piece(p0, p1, a, b, t === 'door' ? 7 : 8, L.h, wallM);
+      f = b;
+    }
+    piece(p0, p1, f, 1, 0, L.h, wallM);
+  }
+  return g;
+});
+// hip roofs on each rectangle (pitch rise/run)
+const roofG = new THREE.Group(); scene.add(roofG); const roofM = new THREE.MeshLambertMaterial({ color: 0x6b6f75, side: THREE.DoubleSide });
+for (const R of D.roofs) {
+  const [a, b, c, d] = R.pts, long = R.w >= R.d, half = Math.min(R.w, R.d) / 2, rise = half * R.pitch;
+  const mid = (p, q) => [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2], lerp = (p, q, t) => [p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t];
+  // ridge endpoints: inset by half the short side along the long axis
+  let r0, r1;
+  if (long) { const m0 = mid(a, d), m1 = mid(b, c), t = half / R.w; r0 = lerp(m0, m1, t); r1 = lerp(m0, m1, 1 - t); }
+  else { const m0 = mid(a, b), m1 = mid(d, c), t = half / R.d; r0 = lerp(m0, m1, t); r1 = lerp(m0, m1, 1 - t); }
+  const y0 = R.base, y1 = R.base + rise, V = [];
+  const tri = (p, q, s) => V.push(p[0], p[2], p[1], q[0], q[2], q[1], s[0], s[2], s[1]);
+  const A = [a[0], a[1], y0], B = [b[0], b[1], y0], C = [c[0], c[1], y0], Dd = [d[0], d[1], y0], R0 = [r0[0], r0[1], y1], R1 = [r1[0], r1[1], y1];
+  if (long) { tri(A, B, R1); tri(A, R1, R0); tri(C, Dd, R0); tri(C, R0, R1); tri(B, C, R1); tri(Dd, A, R0); }
+  else { tri(B, C, R1); tri(B, R1, R0); tri(Dd, A, R0); tri(Dd, R0, R1); tri(A, B, R0); tri(C, Dd, R1); }
+  const gg = new THREE.BufferGeometry(); gg.setAttribute('position', new THREE.Float32BufferAttribute(V, 3)); gg.computeVertexNormals();
+  const m = new THREE.Mesh(gg, roofM); m.castShadow = true; roofG.add(m);
+}
+// porches, deck, pool
+const porch = (P, mat) => {
+  scene.add(prism(P.pts, P.y - 0.4, P.y, new THREE.MeshLambertMaterial({ color: 0xb9b2a4 })));
+  for (const p of P.pts) { const post = new THREE.Mesh(new THREE.BoxGeometry(0.85, P.h, 0.85), new THREE.MeshLambertMaterial({ color: 0xf6f3ec })); post.position.set(p[0], P.y + P.h / 2, p[1]); post.castShadow = true; scene.add(post); }
+  if (P.screened) for (let i = 0; i < P.pts.length; i++) {
+    const p = P.pts[i], q = P.pts[(i + 1) % P.pts.length], len = Math.hypot(q[0] - p[0], q[1] - p[1]);
+    const w = new THREE.Mesh(new THREE.BoxGeometry(len, P.h - 1, 0.05), new THREE.MeshLambertMaterial({ color: 0x334, transparent: true, opacity: .25 }));
+    w.position.set((p[0] + q[0]) / 2, P.y + (P.h - 1) / 2 + 0.5, (p[1] + q[1]) / 2); w.rotation.y = Math.atan2(-(q[1] - p[1]), q[0] - p[0]); scene.add(w);
+  }
+  const roof = new THREE.Mesh(shapeGeo(P.pts), new THREE.MeshLambertMaterial({ color: 0x6b6f75, side: THREE.DoubleSide })); roof.position.y = P.y + P.h; roof.castShadow = true; roofG.add(roof);
+};
+porch(E.screen); porch(E.summer);
+if (E.deck) scene.add(prism(E.deck.pts, E.deck.y - 0.5, E.deck.y, new THREE.MeshLambertMaterial({ color: 0xd9d4c7 })));
+scene.add(prism(E.pool.pts, E.pool.y - 0.3, E.pool.y, new THREE.MeshLambertMaterial({ color: 0xe6e1d6 })));
+{ const c = E.pool.pts.reduce((s, p) => [s[0] + p[0] / 4, s[1] + p[1] / 4], [0, 0]);
+  const inner = E.pool.pts.map(p => { const dx = p[0] - c[0], dz = p[1] - c[1], k = 1 - 1.3 / Math.hypot(dx, dz); return [c[0] + dx * k, c[1] + dz * k]; });
+  const w = new THREE.Mesh(shapeGeo(inner), new THREE.MeshPhongMaterial({ color: 0x3aa0d8, shininess: 90 })); w.position.y = E.pool.y + 0.02; scene.add(w); }
+// camera
+const cx = E.foundation.pts.reduce((s, p) => s + p[0], 0) / E.foundation.pts.length, cz = E.foundation.pts.reduce((s, p) => s + p[1], 0) / E.foundation.pts.length, cy = E.foundation.top;
+let yaw = 0.5, pitch = 0.55, dist = 190, ptrs = new Map(), pinch = 0; const cv = r.domElement;
+cv.addEventListener('pointerdown', e => { cv.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, e); });
+cv.addEventListener('pointerup', e => { ptrs.delete(e.pointerId); pinch = 0; });
+cv.addEventListener('pointermove', e => { if (!ptrs.has(e.pointerId)) return; const pv = ptrs.get(e.pointerId); ptrs.set(e.pointerId, e);
+  if (ptrs.size === 2) { const [a, b] = [...ptrs.values()], d = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY); if (pinch) dist = Math.min(900, Math.max(25, dist * pinch / d)); pinch = d; return; }
+  yaw -= (e.clientX - pv.clientX) * 0.006; pitch = Math.min(1.55, Math.max(0.05, pitch + (e.clientY - pv.clientY) * 0.005)); });
+cv.addEventListener('wheel', e => { e.preventDefault(); dist = Math.min(900, Math.max(25, dist * (1 + e.deltaY * 0.001))); }, { passive: false });
+const tog = (id, obj) => { const b = document.getElementById(id); b.onclick = () => { obj.visible = !obj.visible; b.classList.toggle('on', obj.visible); }; };
+tog('b-roof', roofG); tog('b-l2', levelGroups[1]); tog('b-l1', levelGroups[0]);
+document.getElementById('b-top').onclick = e => { const on = pitch < 1.5; pitch = on ? 1.55 : 0.55; e.target.classList.toggle('on', on); };
+window.__view = (y, p, d) => { yaw = y; pitch = p; dist = d; };
+function resize() { r.setSize(innerWidth, innerHeight); cam.aspect = innerWidth / innerHeight; cam.updateProjectionMatrix(); }
+addEventListener('resize', resize); resize();
+(function loop() { requestAnimationFrame(loop); const c = Math.cos(pitch) * dist; cam.position.set(cx + Math.sin(yaw) * c, cy + Math.sin(pitch) * dist, cz + Math.cos(yaw) * c); cam.lookAt(cx, cy, cz); r.render(scene, cam); })();
+</script></body></html>
