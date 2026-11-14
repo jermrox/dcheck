@@ -1,0 +1,114 @@
+{
+ "base": "x-monterey-bay-raleigh-llc-available-homes-custom-obsidian-at-north-ridge",
+ "px_per_ft": 11.08,
+ "scale_sides": 12,
+ "scale_spread_pct": 4.0,
+ "scale_rederived": 11.07,
+ "levels": [
+  {
+   "level": "First Floor",
+   "walls": 89,
+   "openings": 37,
+   "rooms": 29,
+   "room_size_checks": 9,
+   "room_size_err_median_pct": 2.6,
+   "room_size_worst": [
+    [
+     "Garage",
+     25.2,
+     "22.9x30.3 printed vs 22.7x21.2 modelled"
+    ],
+    [
+     "Porch (West)",
+     4.0,
+     "15.6x17.8 printed vs 16.2x17.6 modelled"
+    ],
+    [
+     "Porch (East)",
+     2.9,
+     "17.3x11.4 printed vs 16.8x11.1 modelled"
+    ]
+   ],
+   "room_overlaps": [
+    [
+     "Vestibule",
+     "Great Room",
+     1.2
+    ]
+   ],
+   "room_overlap_count": 1,
+   "room_edges_on_walls_pct": 73.7,
+   "modelled_living_sqft": 2679,
+   "printed_living_sqft": 2841,
+   "living_area_diff_pct": -5.7,
+   "main_door": true,
+   "file": "obsidian-at-north-ridge-first-floor.home.json"
+  },
+  {
+   "level": "Second Floor",
+   "walls": 60,
+   "openings": 26,
+   "rooms": 18,
+   "room_size_checks": 6,
+   "room_size_err_median_pct": 4.4,
+   "room_size_worst": [
+    [
+     "Exercise Room",
+     34.4,
+     "17.2x28.6 printed vs 17.1x18.8 modelled"
+    ],
+    [
+     "Pub",
+     9.6,
+     "16.1x10.8 printed vs 15.7x11.9 modelled"
+    ],
+    [
+     "Media Room",
+     4.7,
+     "16.3x14.8 printed vs 17.1x14.7 modelled"
+    ]
+   ],
+   "room_overlaps": [],
+   "room_overlap_count": 0,
+   "room_edges_on_walls_pct": 88.1,
+   "modelled_living_sqft": 2154,
+   "printed_living_sqft": 2438,
+   "living_area_diff_pct": -11.6,
+   "main_door": true,
+   "file": "obsidian-at-north-ridge-second-floor.home.json"
+  },
+  {
+   "level": "Casita",
+   "walls": 23,
+   "openings": 11,
+   "rooms": 9,
+   "room_size_checks": 3,
+   "room_size_err_median_pct": 20.8,
+   "room_size_worst": [
+    [
+     "C. Lanai",
+     22.6,
+     "9.7x16.7 printed vs 7.6x12.9 modelled"
+    ],
+    [
+     "C. Suite",
+     20.8,
+     "11.7x14.0 printed vs 9.2x11.4 modelled"
+    ],
+    [
+     "Casita Living",
+     18.3,
+     "16.7x15.8 printed vs 12.9x15.0 modelled"
+    ]
+   ],
+   "room_overlaps": [],
+   "room_overlap_count": 0,
+   "room_edges_on_walls_pct": 85.8,
+   "modelled_living_sqft": 448,
+   "printed_living_sqft": 671,
+   "living_area_diff_pct": -33.2,
+   "main_door": true,
+   "file": "obsidian-at-north-ridge-casita.home.json"
+  }
+ ]
+}

@@ -1,0 +1,24 @@
+[
+ {
+  "open": "obsidian-model-at-cheval-first-floor",
+  "name": "Obsidian Model at Cheval · First Floor",
+  "rooms": 28,
+  "walls": 41,
+  "items": 32,
+  "clashing": 0,
+  "clashes": [],
+  "file": "obsidian-model-at-cheval-first-floor.home.json",
+  "errors": []
+ },
+ {
+  "open": "obsidian-model-at-cheval-second-floor",
+  "name": "Obsidian Model at Cheval · Second Floor",
+  "rooms": 10,
+  "walls": 26,
+  "items": 23,
+  "clashing": 0,
+  "clashes": [],
+  "file": "obsidian-model-at-cheval-second-floor.home.json",
+  "errors": []
+ }
+]

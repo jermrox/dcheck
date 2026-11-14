@@ -1,0 +1,35 @@
+[
+ {
+  "open": "obsidian-at-north-ridge-casita",
+  "name": "Obsidian at North Ridge · Casita",
+  "rooms": 9,
+  "walls": 23,
+  "items": 12,
+  "clashing": 0,
+  "clashes": [],
+  "file": "obsidian-at-north-ridge-casita.home.json",
+  "errors": []
+ },
+ {
+  "open": "obsidian-at-north-ridge-first-floor",
+  "name": "Obsidian at North Ridge · First Floor",
+  "rooms": 29,
+  "walls": 89,
+  "items": 34,
+  "clashing": 0,
+  "clashes": [],
+  "file": "obsidian-at-north-ridge-first-floor.home.json",
+  "errors": []
+ },
+ {
+  "open": "obsidian-at-north-ridge-second-floor",
+  "name": "Obsidian at North Ridge · Second Floor",
+  "rooms": 18,
+  "walls": 60,
+  "items": 42,
+  "clashing": 0,
+  "clashes": [],
+  "file": "obsidian-at-north-ridge-second-floor.home.json",
+  "errors": []
+ }
+]
