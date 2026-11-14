@@ -3,6 +3,8 @@
   python3 -I review_tools.py <root> sheet <base>                  overview image + model summary + OCR'd dimension labels
   python3 -I review_tools.py <root> crop  <base> x0 y0 x1 y1 [zoom]   zoomed crop of the raw blueprint with pixel rulers
   python3 -I review_tools.py <root> span  <base> x y              wall-to-wall distances (px) through point (x, y)
+  python3 -I review_tools.py <root> walls <base> x0 y0 x1 y1       traced walls in a box as merged centre lines (px)
+  python3 -I review_tools.py <root> overlay <base> <plan.json> [level]   draw a reader's plan over the blueprint
 
 <root> holds fp/ (blueprint images), traced2/ (models + ocr cache) and review/ (outputs).
 All coordinates are pixels of the ORIGINAL blueprint image.
@@ -67,3 +69,43 @@ elif cmd == "span":
     l, r, u, d = ray(-1, 0), ray(1, 0), ray(0, -1), ray(0, 1)
     print(f"from ({x},{y}): left={l} right={r} up={u} down={d}  ->  width_px={(l + r) if l and r else None}  height_px={(u + d) if u and d else None}")
     print("None means no traced wall was hit in that direction (a missing wall or an open side); measure from a crop instead.")
+elif cmd == "walls":
+    x0, y0, x1, y1 = (int(v) for v in sys.argv[4:8])
+    segs = []
+    for x, y, w, h in model["w"]:
+        if x + w < x0 or x > x1 or y + h < y0 or y > y1: continue
+        segs.append(("h", y + h / 2, x, x + w, h) if w >= h else ("v", x + w / 2, y, y + h, w))
+    out = []
+    for ax in ("h", "v"):                                     # merge collinear pieces with small gaps
+        group = sorted((s_ for s_ in segs if s_[0] == ax), key=lambda q: (round(q[1] / 4), q[2]))
+        cur = None
+        for q in group:
+            if cur and abs(q[1] - cur[1]) <= 4 and q[2] - cur[3] <= 6: cur = [ax, (cur[1] + q[1]) / 2, cur[2], max(cur[3], q[3]), max(cur[4], q[4])]
+            else:
+                if cur: out.append(cur)
+                cur = list(q)
+        if cur: out.append(cur)
+    for ax, c, a, b, t in sorted(out, key=lambda q: (q[0], q[1], q[2])):
+        if b - a < 12: continue
+        print(f"{ax} " + (f"y={c:.0f} x={a:.0f}..{b:.0f}" if ax == "h" else f"x={c:.0f} y={a:.0f}..{b:.0f}") + f" thick={t:.0f}")
+    gaps = [o for o in model.get("o", []) if x0 <= o[0] <= x1 and y0 <= o[1] <= y1]
+    print("traced openings (x,y,w,h,kind 0 window/1 door/2 opening):", gaps)
+elif cmd == "overlay":
+    plan = json.load(open(sys.argv[4])); lv_i = int(sys.argv[5]) if len(sys.argv) > 5 else None
+    ov = img.copy(); col = {"door": (40, 170, 40), "window": (230, 140, 30), "opening": (200, 60, 200)}
+    for i, lv in enumerate(plan.get("levels", [])):
+        if lv_i is not None and i != lv_i: continue
+        for r in lv.get("rooms", []):
+            for q in r["rect"]:
+                cv2.rectangle(ov, (int(q[0]), int(q[1])), (int(q[2]), int(q[3])), (60, 200, 255), 2)
+            q = r["rect"][0]; cv2.putText(ov, f"{r['name']} [{r['type']}]", (int(q[0]) + 4, int(q[1]) + 16), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 90, 200), 1, cv2.LINE_AA)
+        for w in lv.get("walls", []):
+            x1_, y1_, x2_, y2_ = (int(v) for v in w[:4]); cv2.line(ov, (x1_, y1_), (x2_, y2_), (30, 30, 230), 3)
+            L = max(1e-6, ((x2_ - x1_) ** 2 + (y2_ - y1_) ** 2) ** 0.5); ux, uy = (x2_ - x1_) / L, (y2_ - y1_) / L
+            for o in (w[4] if len(w) > 4 else []):
+                a, b = o[1], o[2]
+                cv2.line(ov, (int(x1_ + ux * a), int(y1_ + uy * a)), (int(x1_ + ux * b), int(y1_ + uy * b)), col.get(o[0], (0, 0, 0)), 6)
+        if "box" in lv: cv2.rectangle(ov, tuple(int(v) for v in lv["box"][:2]), tuple(int(v) for v in lv["box"][2:]), (120, 120, 120), 1)
+    ov = rulers(ov, 0, 0, 1, 200)
+    p = os.path.join(out_dir, "overlay.jpg" if lv_i is None else f"overlay_{lv_i}.jpg"); cv2.imwrite(p, ov, [cv2.IMWRITE_JPEG_QUALITY, 88])
+    print(f"overlay: {p}  (red = your walls, green doors, orange windows, magenta openings, yellow boxes = rooms)")
