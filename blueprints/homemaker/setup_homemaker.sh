@@ -9,7 +9,7 @@ MODELS="${1:?models.json}"; FP="${2:?blueprint images dir}"; HM="${3:-$HOME/home
 HERE="$(cd "$(dirname "$0")" && pwd)"
 [ -d "$HM/.git" ] || git clone --depth 1 https://github.com/bayllama/homemaker "$HM"
 # HOMEMAKER's file watcher crashes if project folders change under it: stop a running server first
-pkill -f "node server.js" 2>/dev/null || true
+pkill -x -f "node server.js" 2>/dev/null || true      # exact command line only
 (cd "$HM/homemaker" && [ -d node_modules/ws ] || npm install --no-audit --no-fund)
 python3 -c "import cv2, numpy" 2>/dev/null || pip install --quiet opencv-python-headless numpy
 python3 -I "$HERE/to_homemaker.py" "$MODELS" "$FP" "$HM/homemaker/projects"
