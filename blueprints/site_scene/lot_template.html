@@ -12,11 +12,11 @@
 <div id="hud"><h1>__TITLE__</h1>
 <p id="facts"></p>
 <p>Drag to orbit, scroll or pinch to zoom. Toggle layers to look inside.</p>
-<button id="b-roof" class="on">Roof</button><button id="b-l2" class="on">2nd floor</button><button id="b-l1" class="on">1st floor</button><button id="b-top">Top view</button></div>
+<button id="b-roof" class="on">Roof</button><button id="b-l2" class="on">2nd floor</button><button id="b-l1" class="on">1st floor</button><button id="b-ceil">Ceilings</button><button id="b-top">Top view</button></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 const D = /*DATA*/null;
-document.getElementById('facts').textContent = `Plot plan draped on terrain fitted to its contours (datum ${D.datum}'). Finished floor ${D.ffe}' . First floor 10 ft, second floor 9 ft walls; second floor registered on the first by its walls and stair. Roof is a hip massing (no roof plan supplied).`;
+document.getElementById('facts').textContent = `Plot plan draped on terrain fitted to its contours (datum ${D.datum}'). Finished floor ${D.ffe}' . Ceilings from the official sheet: 10'-1\" first floor, 9'-1\" second, vaulted kitchen, dining, porch and bonus room with beams, raised great-room ceiling; second floor registered on the first by its walls and stair. Roof is a hip massing (no roof plan supplied).`;
 const r = new THREE.WebGLRenderer({ antialias: true }); r.setPixelRatio(Math.min(devicePixelRatio, 2)); document.body.append(r.domElement);
 r.shadowMap.enabled = true; r.outputEncoding = THREE.sRGBEncoding;
 const scene = new THREE.Scene(); scene.background = new THREE.Color(0xcfe0ee);
@@ -42,7 +42,8 @@ const wallM = new THREE.MeshLambertMaterial({ color: 0xf3efe7 }), glassM = new T
 const levelGroups = D.levels.map(L => {
   const g = new THREE.Group(); scene.add(g);
   const slab = new THREE.Group(); g.add(slab);
-  for (const rm of L.rooms) { const m = new THREE.Mesh(shapeGeo(rm.pts), new THREE.MeshLambertMaterial({ color: rm.col })); m.position.y = L.base + 0.02; m.receiveShadow = true; slab.add(m); }
+  for (const rm of L.rooms) { const m = new THREE.Mesh(shapeGeo(rm.pts), new THREE.MeshLambertMaterial({ color: rm.col })); m.position.y = L.base + 0.02 - (rm.drop || 0); m.receiveShadow = true; slab.add(m);
+    if (rm.drop) { const sk = prism(rm.pts, L.base - rm.drop - 0.5, L.base - rm.drop, new THREE.MeshLambertMaterial({ color: 0xb5b2ac })); slab.add(sk); } }
   const piece = (p0, p1, f0, f1, y0, y1, mat) => {
     const ax = p0[0] + (p1[0] - p0[0]) * f0, az = p0[1] + (p1[1] - p0[1]) * f0, bx = p0[0] + (p1[0] - p0[0]) * f1, bz = p0[1] + (p1[1] - p0[1]) * f1;
     const len = Math.hypot(bx - ax, bz - az); if (len < 0.05 || y1 <= y0) return;
@@ -61,6 +62,35 @@ const levelGroups = D.levels.map(L => {
   }
   return g;
 });
+// ceilings: flat at the room's height, vaulted (gable along the long side) or raised tray, with beams
+const ceilG = new THREE.Group(); ceilG.visible = false; scene.add(ceilG);
+const ceilM = new THREE.MeshLambertMaterial({ color: 0xfbf9f4, side: THREE.DoubleSide }), beamM = new THREE.MeshLambertMaterial({ color: 0x7a5536 });
+const beam = (p, q, y, w, h) => { const len = Math.hypot(q[0] - p[0], q[1] - p[1]); const b = new THREE.Mesh(new THREE.BoxGeometry(len, h, w), beamM); b.position.set((p[0] + q[0]) / 2, y - h / 2, (p[1] + q[1]) / 2); b.rotation.y = Math.atan2(-(q[1] - p[1]), q[0] - p[0]); ceilG.add(b); };
+const lerp2 = (p, q, t) => [p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t];
+for (const L of D.levels) for (const rm of L.rooms) {
+  const [a, b, c, d] = rm.pts, base = L.base - (rm.drop || 0), wallTop = L.base + L.h;
+  if (rm.ceil === 'vault') {
+    const long = rm.w >= rm.d, rise = Math.min(rm.w, rm.d) * 0.25, y0 = wallTop, y1 = wallTop + rise;
+    const [p0, p1, q0, q1] = long ? [a, b, d, c] : [a, d, b, c];         // eaves p0-p1 and q0-q1, ridge between
+    const r0 = lerp2(p0, q0, 0.5), r1 = lerp2(p1, q1, 0.5), V = [];
+    const tri = (A, B, C) => V.push(A[0], A[2], A[1], B[0], B[2], B[1], C[0], C[2], C[1]);
+    const P0 = [p0[0], p0[1], y0], P1 = [p1[0], p1[1], y0], Q0 = [q0[0], q0[1], y0], Q1 = [q1[0], q1[1], y0], R0 = [r0[0], r0[1], y1], R1 = [r1[0], r1[1], y1];
+    tri(P0, P1, R1); tri(P0, R1, R0); tri(Q0, R0, R1); tri(Q0, R1, Q1);
+    const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(V, 3)); g.computeVertexNormals(); ceilG.add(new THREE.Mesh(g, ceilM));
+    beam(r0, r1, y1, 0.67, 1.0);                                        // 8x12 ridge beam
+    const n = Math.max(2, Math.round(Math.hypot(p1[0] - p0[0], p1[1] - p0[1]) / 4));
+    for (let i = 1; i < n; i++) { const t = i / n, e0 = lerp2(p0, p1, t), e1 = lerp2(q0, q1, t), m = lerp2(r0, r1, t); beam(e0, e1, y0 + 0.01, 0.67, 0.67); }
+  } else {
+    const h = typeof rm.ceil === 'number' ? rm.ceil : L.h, y = base + h;
+    const m = new THREE.Mesh(shapeGeo(rm.pts), ceilM); m.position.y = y; ceilG.add(m);
+    if (rm.name === 'Great Room') {                                      // recessed: one 12 in step, 8x4 box beams
+      const inset = (p, k) => lerp2(p, lerp2(lerp2(a, c, 0.5), lerp2(a, c, 0.5), 0), k);
+      const ctr = lerp2(a, c, 0.5), ins = [a, b, c, d].map(p => lerp2(p, ctr, 0.18));
+      const tr = new THREE.Mesh(shapeGeo(ins), ceilM); tr.position.y = y + 1; ceilG.add(tr); m.position.y = y;
+      for (let i = 1; i < 4; i++) { beam(lerp2(ins[0], ins[1], i / 4), lerp2(ins[3], ins[2], i / 4), y + 1, 0.67, 0.33); beam(lerp2(ins[0], ins[3], i / 4), lerp2(ins[1], ins[2], i / 4), y + 1, 0.67, 0.33); }
+    }
+  }
+}
 // hip roofs on each rectangle (pitch rise/run)
 const roofG = new THREE.Group(); scene.add(roofG); const roofM = new THREE.MeshLambertMaterial({ color: 0x6b6f75, side: THREE.DoubleSide });
 for (const R of D.roofs) {
@@ -105,7 +135,7 @@ cv.addEventListener('pointermove', e => { if (!ptrs.has(e.pointerId)) return; co
   yaw -= (e.clientX - pv.clientX) * 0.006; pitch = Math.min(1.55, Math.max(0.05, pitch + (e.clientY - pv.clientY) * 0.005)); });
 cv.addEventListener('wheel', e => { e.preventDefault(); dist = Math.min(900, Math.max(25, dist * (1 + e.deltaY * 0.001))); }, { passive: false });
 const tog = (id, obj) => { const b = document.getElementById(id); b.onclick = () => { obj.visible = !obj.visible; b.classList.toggle('on', obj.visible); }; };
-tog('b-roof', roofG); tog('b-l2', levelGroups[1]); tog('b-l1', levelGroups[0]);
+tog('b-roof', roofG); tog('b-ceil', ceilG); tog('b-l2', levelGroups[1]); tog('b-l1', levelGroups[0]);
 document.getElementById('b-top').onclick = e => { const on = pitch < 1.5; pitch = on ? 1.55 : 0.55; e.target.classList.toggle('on', on); };
 window.__view = (y, p, d) => { yaw = y; pitch = p; dist = d; };
 function resize() { r.setSize(innerWidth, innerHeight); cam.aspect = innerWidth / innerHeight; cam.updateProjectionMatrix(); }

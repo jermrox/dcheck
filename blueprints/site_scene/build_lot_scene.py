@@ -43,9 +43,11 @@ grade_max = max(elev(*p) for p in foot); grade_min = min(elev(*p) for p in foot)
 ffe = grade_max + cfg.get("grade_to_floor", 1.5)               # finished floor: above the highest grade at the walls
 ceil = cfg.get("ceilings", [10, 9]); gap = cfg.get("floor_gap", 1.0)
 lv_base = [ffe - datum, ffe - datum + ceil[0] + gap]
+ROOMCEIL = cfg.get("room_ceilings", {})   # "1|Great Room": 11.08 | "vault" | "tray"; "drop": {"1|Garage": 1.0}
+DROP = cfg.get("room_drops", {})
 
 FLOORCOL = {"oak": "#c9a273", "carpet": "#cbc2b2", "bathtile": "#c9d2d6", "concrete": "#b5b2ac", "greytile": "#a9acaf"}
-def level(home_path, shift, base, height, skip_types=("balcony",)):
+def level(home_path, shift, base, height, lvl, skip_types=("balcony",)):
     home = json.load(open(home_path)); plan = home["plan"]; fin = (home.get("design") or {}).get("finishes", {})
     dx, dz = shift; walls, rooms = [], []
     for w in plan["walls"]:
@@ -61,11 +63,13 @@ def level(home_path, shift, base, height, skip_types=("balcony",)):
         col = FLOORCOL.get((fin.get(r["id"]) or {}).get("floor"), "#d8d2c6")
         for q in r["rects"]:
             q2 = [q[0] + dx, q[1] + dz, q[2] + dx, q[3] + dz]; plan_rects.append(q2)
-            rooms.append({"col": col, "pts": [P(q2[0], q2[1]), P(q2[2], q2[1]), P(q2[2], q2[3]), P(q2[0], q2[3])]})
+            key = f"{lvl}|{r['name']}"; spec = ROOMCEIL.get(key, height); drop = DROP.get(key, 0)
+            rooms.append({"name": r["name"], "col": col, "drop": drop, "ceil": spec, "w": q2[2] - q2[0], "d": q2[3] - q2[1],
+                          "pts": [P(q2[0], q2[1]), P(q2[2], q2[1]), P(q2[2], q2[3]), P(q2[0], q2[3])]})
     return {"base": round(base, 3), "h": height, "walls": walls, "rooms": rooms}, plan_rects
 
-L1, r1 = level(cfg["level1"]["home"], (0, 0), lv_base[0], ceil[0])
-L2, r2 = level(cfg["level2"]["home"], cfg["level2"]["shift"], lv_base[1], ceil[1])
+L1, r1 = level(cfg["level1"]["home"], (0, 0), lv_base[0], ceil[0], 1)
+L2, r2 = level(cfg["level2"]["home"], cfg["level2"]["shift"], lv_base[1], ceil[1], 2)
 
 def rect_cover(rects, exclude=None, G=0.5, min_side=6):
     """Greedy largest-rectangle cover of the union of rects (plan feet), minus 'exclude' rects."""
