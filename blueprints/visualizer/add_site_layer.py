@@ -20,6 +20,10 @@ if 'id="tb-site"' not in s:
     assert anchor in s; s = s.replace(anchor, BTN + "\n        " + anchor, 1)
 if 'id="tb-vr"' not in s:
     s = s.replace(anchor, VRBTN + "\n        " + anchor, 1)
+MONEY = ('<a id="tb-money" class="icon-btn" href="obsidian/finance/index.html" target="_blank" rel="noopener" '
+         'title="Money plan: price, VA loan, sell or rent the current house"><i class="fa-solid fa-sack-dollar"></i></a>')
+if 'id="tb-money"' not in s:
+    s = s.replace(anchor, MONEY + "\n        " + anchor, 1)
 clamp = "Math.min(110, orbitGoal.dist * f)"
 if clamp in s: s = s.replace(clamp, "Math.min(window.__maxDist || 110, orbitGoal.dist * f)")
 s = re.sub(r"<script id=\"site-layer\">.*?</script>\n", "", s, flags=re.S)
