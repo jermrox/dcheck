@@ -71,6 +71,37 @@
     on = !on; apply();
     if (on) { if (view === 'walk') setView('orbit'); Object.assign(orbitGoal, { dist: 230, pitch: 0.6 }); toast('Site on: lot, terrain, roof and the other floor'); }
   };
+  // VR: walk your furnished floor at true scale; with the site on, step outside onto the lot
+  let XRH = null;
+  function vrSpots() {
+    const out = [];
+    if (S && on) {
+      const lot = S.L.spots, w = p => S.L.root.localToWorld(new THREE.Vector3(p.x, p.y, p.z));
+      for (const p of [lot[0], lot[lot.length - 1]]) { const v = w(p); out.push({ name: p.name, x: v.x, y: v.y, z: v.z, yaw: p.yaw + S.outer.rotation.y }); }
+    }
+    for (const f of FOCUS) {
+      const v = WALK_VIEWS[f.id]; if (!v || f.id === 'home') continue;
+      out.push({ name: f.name, x: v.p[0], y: 0, z: v.p[1], yaw: Math.atan2(-(v.t[0] - v.p[0]), -(v.t[1] - v.p[1])) });
+    }
+    return out;
+  }
+  function floorAt(x, z) {
+    if (typeof roomAt === 'function' && roomAt(x, z)) return 0;
+    if (!S || !on) return null;
+    const q = S.L.root.worldToLocal(new THREE.Vector3(x, 0, z));
+    if (S.L.inside(q.x, q.z)) return null;
+    return S.L.root.localToWorld(new THREE.Vector3(q.x, S.L.hAt(q.x, q.z), q.z)).y;
+  }
+  window.enterVR = function () {
+    if (!XRH) {
+      const b = document.getElementById('tb-vr');
+      XRH = addXR({ renderer, scene, spots: vrSpots, floorAt: (x, z) => floorAt(x, z), button: b,
+        onStart: () => { if (view !== 'walk') setView('walk'); if (S) { S.L.roofG.visible = opt.roof; } },
+        onSpot: p => toast('VR: ' + p.name), compact: true,
+        onUnsupported: () => toast('VR needs a headset browser: open this page in the Meta Quest Browser (or Chrome/Edge with a PC VR headset)') });
+    }
+  };
+  addEventListener('load', () => { const b = document.getElementById('tb-vr'); if (b && typeof addXR === 'function') { window.enterVR(); } });
   const sv = window.setView;
   window.setView = function (v) { sv(v); apply(); };
   if (new URLSearchParams(location.search).get('site') === '1') addEventListener('load', () => setTimeout(window.toggleSite, 300));

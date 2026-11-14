@@ -10,12 +10,16 @@ import os, re, shutil, sys
 page, data = sys.argv[1], sys.argv[2]
 s = open(page).read()
 here = os.path.dirname(os.path.abspath(__file__))
-layer = open(os.path.join(here, "site_layer.js")).read()
+layer = open(os.path.join(here, "..", "site_scene", "xr.js")).read() + "\n" + open(os.path.join(here, "site_layer.js")).read()
 BTN = ('<button id="tb-site" class="icon-btn" onclick="toggleSite()" title="Site: lot, terrain, roof and the other floor">'
        '<i class="fa-solid fa-mountain-sun"></i></button>')
+VRBTN = ('<button id="tb-vr" class="icon-btn" style="width:auto;padding:0 8px;font-weight:700;font-size:12px" '
+         'title="Walk through in VR (Meta Quest Browser)">VR</button>')
 anchor = '<button id="tb-labels"'
 if 'id="tb-site"' not in s:
     assert anchor in s; s = s.replace(anchor, BTN + "\n        " + anchor, 1)
+if 'id="tb-vr"' not in s:
+    s = s.replace(anchor, VRBTN + "\n        " + anchor, 1)
 clamp = "Math.min(110, orbitGoal.dist * f)"
 if clamp in s: s = s.replace(clamp, "Math.min(window.__maxDist || 110, orbitGoal.dist * f)")
 s = re.sub(r"<script id=\"site-layer\">.*?</script>\n", "", s, flags=re.S)

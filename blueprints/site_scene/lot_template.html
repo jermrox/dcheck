@@ -11,20 +11,30 @@
 </style></head><body>
 <div id="hud"><h1>__TITLE__</h1>
 <p id="facts"></p>
-<p>Drag to orbit, scroll or pinch to zoom. Toggle layers to look inside.</p>
-<button id="b-roof" class="on">Roof</button><button id="b-l2" class="on">2nd floor</button><button id="b-l1" class="on">1st floor</button><button id="b-ceil">Ceilings</button><button id="b-top">Top view</button></div>
+<p>Drag to orbit, scroll or pinch to zoom. Toggle layers to look inside. <b>Enter VR</b> (top right) on a Quest: left stick walks, right stick turns, trigger jumps room to room.</p>
+<button id="b-roof" class="on">Roof</button><button id="b-l2" class="on">2nd floor</button><button id="b-l1" class="on">1st floor</button><button id="b-ceil">Ceilings</button><button id="b-trees" class="on">Trees</button><button id="b-survey">Survey</button><button id="b-top">Top view</button></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>/*LOTJS*/</script>
+<script>/*XRJS*/</script>
 <script>
 const D = /*DATA*/null;
-document.getElementById('facts').textContent = `Plot plan draped on terrain fitted to its contours (datum ${D.datum}'). Finished floor ${D.ffe}' . Ceilings from the official sheet: 10'-1\" first floor, 9'-1\" second, vaulted kitchen, dining, porch and bonus room with beams, raised great-room ceiling; second floor registered on the first by its walls and stair. Roof is a hip massing (no roof plan supplied).`;
+document.getElementById('facts').textContent = `Landscape painted on the surveyed lot (driveway, walk, deck, beds from the plot plan) on terrain fitted to its contours (datum ${D.datum}'); press Survey to see the plot plan itself. Finished floor ${D.ffe}' . Ceilings from the official sheet: 10'-1\" first floor, 9'-1\" second, vaulted kitchen, dining, porch and bonus room with beams, raised great-room ceiling; second floor registered on the first by its walls and stair. Roof is a hip massing (no roof plan supplied).`;
 const r = new THREE.WebGLRenderer({ antialias: true }); r.setPixelRatio(Math.min(devicePixelRatio, 2)); document.body.append(r.domElement);
-r.shadowMap.enabled = true; r.outputEncoding = THREE.sRGBEncoding;
-const scene = new THREE.Scene(); scene.background = new THREE.Color(0xcfe0ee);
+r.shadowMap.enabled = true; r.shadowMap.type = THREE.PCFSoftShadowMap; r.outputEncoding = THREE.sRGBEncoding; r.toneMapping = THREE.ACESFilmicToneMapping; r.toneMappingExposure = 1.05;
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0xa9cbe9); scene.fog = new THREE.Fog(0xc4d9ea, 450, 1400);
+{ // sky dome: blue gradient with soft clouds
+  const c = document.createElement('canvas'); c.width = 1024; c.height = 512; const x = c.getContext('2d');
+  const g = x.createLinearGradient(0, 0, 0, 512); g.addColorStop(0, '#4f86c9'); g.addColorStop(0.55, '#8fbbe6'); g.addColorStop(1, '#dbe9f4'); x.fillStyle = g; x.fillRect(0, 0, 1024, 512);
+  let sd = 5; const rr = () => ((sd = (sd * 16807) % 2147483647) / 2147483647);
+  for (let i = 0; i < 40; i++) { x.fillStyle = `rgba(255,255,255,${0.25 + rr() * 0.4})`; x.beginPath(); x.ellipse(rr() * 1024, 80 + rr() * 260, 30 + rr() * 90, 8 + rr() * 18, 0, 0, 6.3); x.fill(); }
+  const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding;
+  const sky = new THREE.Mesh(new THREE.SphereGeometry(1800, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2), new THREE.MeshBasicMaterial({ map: t, side: THREE.BackSide, fog: false, toneMapped: false }));
+  sky.position.set(320, -40, 470); scene.add(sky);
+}
 const cam = new THREE.PerspectiveCamera(42, 1, 1, 5000);
-scene.add(new THREE.HemisphereLight(0xffffff, 0x8a8f7a, 0.8));
-const sun = new THREE.DirectionalLight(0xffffff, 0.8); sun.position.set(-160, 300, 120); sun.castShadow = true;
-sun.shadow.mapSize.set(2048, 2048); Object.assign(sun.shadow.camera, { left: -200, right: 200, top: 200, bottom: -200, far: 1000 }); scene.add(sun);
+scene.add(new THREE.HemisphereLight(0xdfeeff, 0x5f6b48, 0.75));
+const sun = new THREE.DirectionalLight(0xfff1dc, 1.15); sun.position.set(140, 260, 620); sun.target.position.set(330, 0, 480); scene.add(sun.target); sun.shadow.bias = -0.0005; sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048); Object.assign(sun.shadow.camera, { left: -230, right: 230, top: 230, bottom: -230, far: 1200 }); scene.add(sun);
 const LOT = buildLotScene(D); scene.add(LOT.root);
 const { roofG, ceilG, levelGroups } = LOT, E = D.extras;
 // camera
@@ -37,10 +47,18 @@ cv.addEventListener('pointermove', e => { if (!ptrs.has(e.pointerId)) return; co
   yaw -= (e.clientX - pv.clientX) * 0.006; pitch = Math.min(1.55, Math.max(0.05, pitch + (e.clientY - pv.clientY) * 0.005)); });
 cv.addEventListener('wheel', e => { e.preventDefault(); dist = Math.min(900, Math.max(25, dist * (1 + e.deltaY * 0.001))); }, { passive: false });
 const tog = (id, obj) => { const b = document.getElementById(id); b.onclick = () => { obj.visible = !obj.visible; b.classList.toggle('on', obj.visible); }; };
+tog('b-trees', LOT.plantG);
+document.getElementById('b-survey').onclick = e => { const on = !e.target.classList.contains('on'); e.target.classList.toggle('on', on); LOT.setGround(on ? 'survey' : 'land'); };
 tog('b-roof', roofG); tog('b-ceil', ceilG); tog('b-l2', levelGroups[1]); tog('b-l1', levelGroups[0]);
 document.getElementById('b-top').onclick = e => { const on = pitch < 1.5; pitch = on ? 1.55 : 0.55; e.target.classList.toggle('on', on); };
 window.__view = (y, p, d) => { yaw = y; pitch = p; dist = d; };
+const vrLabel = document.createElement('div'); vrLabel.style.cssText = 'position:absolute;right:12px;top:56px;font:12px system-ui;color:#13202c;background:rgba(255,255,255,.9);padding:4px 8px;border-radius:6px;display:none';
+document.body.append(vrLabel);
+const XR = addXR({ renderer: r, scene, spots: LOT.spots, floorAt: (x, z, y) => LOT.inside(x, z) ? null : LOT.hAt(x, z),
+  onStart: () => { roofG.visible = true; ceilG.visible = true; levelGroups.forEach(g => g.visible = true); },
+  onSpot: p => { vrLabel.style.display = ''; vrLabel.textContent = 'VR: ' + p.name; } });
 function resize() { r.setSize(innerWidth, innerHeight); cam.aspect = innerWidth / innerHeight; cam.updateProjectionMatrix(); }
 addEventListener('resize', resize); resize();
-(function loop() { requestAnimationFrame(loop); const c = Math.cos(pitch) * dist; cam.position.set(cx + Math.sin(yaw) * c, cy + Math.sin(pitch) * dist, cz + Math.cos(yaw) * c); cam.lookAt(cx, cy, cz); r.render(scene, cam); })();
+(function loop() { requestAnimationFrame(loop); const c = Math.cos(pitch) * dist; cam.position.set(cx + Math.sin(yaw) * c, cy + Math.sin(pitch) * dist, cz + Math.cos(yaw) * c); cam.lookAt(cx, cy, cz);
+  if (window.__vrPreview != null) { XR.go(window.__vrPreview); XR.cam.position.set(0, 1.6, 0); XR.cam.aspect = cam.aspect; XR.cam.updateProjectionMatrix(); r.render(scene, XR.cam); } else r.render(scene, cam); })();
 </script></body></html>
