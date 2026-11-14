@@ -1,0 +1,2 @@
+Source: https://github.com/github/awesome-copilot/tree/8ecd5b1/skills/architecture-blueprint-generator
+License: MIT (github/awesome-copilot)
