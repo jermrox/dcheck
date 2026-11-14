@@ -46,7 +46,7 @@ svg text{fill:var(--sub);font-size:11px} .src{font-size:11px;color:var(--sub)} .
 </aside>
 <section>
   <div class="kpis" id="kpis"></div>
-  <div class="card"><h2>Year by year</h2><p class="note">School years run Aug-Jun. Costs are after military fee assistance and tax breaks you selected, in today's dollars plus the growth rate you set.</p><div id="years"></div></div>
+  <div class="card"><h2>Year by year</h2><p class="note">School years run Aug-Jun. Costs are after military fee assistance (DoD parent fee by income, provider cap $2,000/mo), free NC Pre-K for service families, and the tax breaks you selected, in today's dollars plus the growth rate you set.</p><div id="years"></div></div>
   <div class="card"><h2>Cost by year</h2><div id="chart"></div></div>
   <div class="card"><h2>Assigned schools for Shinleaf Estates</h2><div id="schools"></div></div>
   <div class="card"><h2>Infant care and daycare nearby</h2><div id="care"></div></div>
@@ -65,7 +65,7 @@ const today = new Date(FAM.today || Date.now());
 const thisSY = today.getMonth() >= 7 ? today.getFullYear() : today.getFullYear() - 1;       // school year starting August
 let st; try { st = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) {}
 st = st || { kids: [{ name: 'Baby 1', date: `${thisSY + 1}-06-01`, care: 'center', center: 0, school: 'public', priv: 0 }],
-  hh: { mccyn: 'yes', mccynPct: 30, dcfsa: 'yes', marg: 22, growth: 4, horizon: 20, agi: 180000 } };
+  hh: { mccyn: 'yes', military: 'active', dcfsa: 'yes', marg: 22, growth: 4, horizon: 20, agi: 180000 } };
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {} };
 const CARE = [['center', 'Daycare center'], ['nanny', 'Nanny'], ['share', 'Nanny share'], ['aupair', 'Au pair'], ['home', 'Parent / family at home']];
 const SCH = [['public', 'Public (assigned)'], ['charter', 'Charter'], ['private', 'Private']];
@@ -90,7 +90,7 @@ function kidsUI() {
 document.getElementById('add').onclick = () => { st.kids.push({ name: 'Child ' + (st.kids.length + 1), date: `${thisSY - 2}-03-01`, care: 'center', center: 0, school: 'public', priv: 0 }); save(); kidsUI(); render(); };
 document.getElementById('addplan').onclick = () => { const last = st.kids.map(k => k.date).sort().at(-1) || `${thisSY}-06-01`; const d = new Date(last); d.setFullYear(d.getFullYear() + 2);
   st.kids.push({ name: 'Baby ' + (st.kids.length + 1), date: d.toISOString().slice(0, 10), care: 'center', center: 0, school: 'public', priv: 0 }); save(); kidsUI(); render(); };
-const HH = [['mccyn', 'Military fee assistance (MCCYN)', 'sel', [['yes', 'Use it'], ['no', 'No']]], ['mccynPct', 'Fee assistance covers about', '%'],
+const HH = [['military', 'Service status', 'sel', [['active', 'Active duty'], ['guard', 'Guard/Reserve on orders'], ['veteran', 'Veteran / separated']]], ['mccyn', 'Military fee assistance (MCCYN)', 'sel', [['yes', 'Use it'], ['no', 'No']]],
   ['dcfsa', 'Dependent Care FSA', 'sel', [['yes', 'Use it'], ['no', 'No']]], ['marg', 'Marginal tax rate (fed+state)', '%'], ['agi', 'Household AGI (yearly)', '$'],
   ['growth', 'Tuition growth per year', '%'], ['horizon', 'Years to show', 'yr']];
 function hhUI() {
@@ -127,6 +127,12 @@ function careCost(k, band) {      // yearly, before help
   const map = { infant: 'infant_mo', toddler: 'toddler_mo', twos: 'twos_mo', threes: 'threes_mo', prek: 'prek_mo' };
   return r(map[band]) * 12;
 }
+function mccynFee(inc) {   // DoD parent fee (full-time, basic area) by total family income, linear between published tiers
+  const T = FAM.mccyn_fees || [[45000, 234], [175000, 1023]];
+  if (inc <= T[0][0]) return T[0][1];
+  for (let i = 1; i < T.length; i++) if (inc <= T[i][0]) { const [a, fa] = T[i - 1], [b, fb] = T[i]; return fa + (fb - fa) * (inc - a) / (b - a); }
+  return T.at(-1)[1];
+}
 function schoolFor(band) { const s = FAM.schools || {}; return band === 'elem' ? s.elem : band === 'middle' ? s.middle : band === 'high' ? s.high : null; }
 function render() {
   const H = Math.max(1, Math.round(st.hh.horizon)), years = [], gr = 1 + st.hh.growth / 100;
@@ -140,7 +146,9 @@ function render() {
       if (['infant', 'toddler', 'twos', 'threes', 'prek'].includes(s.band)) {
         cost = careCost(k, s.band) * (s.partial ?? 1);
         if (s.band === 'prek' && FAM.prek_free && k.school === 'public') where = FAM.prek_note || '';
-        if (k.care === 'center' && st.hh.mccyn === 'yes') cost *= 1 - st.hh.mccynPct / 100;
+        const mil = st.hh.military !== 'veteran';
+        if (s.band === 'prek' && FAM.prek_free && mil && k.school !== 'private') { cost = 0; where = 'NC Pre-K (free for active-duty families)'; }
+        else if (k.care === 'center' && st.hh.mccyn === 'yes' && mil) { const mo = cost / 12; cost = (mccynFee(st.hh.agi) + Math.max(0, mo - (FAM.mccyn_cap || 2000))) * 12 * (s.partial ?? 1); }
         where = where || (k.care === 'center' ? ((FAM.daycare || [])[+k.center] || { name: 'Wake County average' }).name : CARE.find(c => c[0] === k.care)[1]);
         careYear += cost;
       } else if (s.band === 'elem' || s.band === 'middle' || s.band === 'high') {
@@ -159,7 +167,7 @@ function render() {
     const fsaSave = fsa * st.hh.marg / 100;
     const kidsUnder13 = row.kids.filter(x => x && x.s.band !== 'high' && x.s.band !== 'done' && !(x.s.g >= 8)).length;
     const cdccBase = Math.max(0, Math.min(careAdj - fsa, kidsUnder13 >= 2 ? 6000 : kidsUnder13 ? 3000 : 0));
-    const cdcc = cdccBase * (FAM.cdcc_rate || 0.2);
+    const cdcc = cdccBase * (st.hh.agi > 150000 ? 0.2 : st.hh.agi > 75000 ? 0.35 : 0.5);
     const kidsUnder17 = row.kids.filter(x => x && x.s.band !== 'done' && !(x.s.g >= 11)).length;
     const ctc = kidsUnder17 * (FAM.ctc || 2200) * (st.hh.agi > (FAM.ctc_phaseout || 400000) ? 0.5 : 1);
     row.help = fsaSave + cdcc + ctc; row.net = row.total - row.help;
@@ -168,9 +176,10 @@ function render() {
   const first = years[0], next5 = years.slice(0, 5).reduce((a, r) => a + r.net, 0), all = years.reduce((a, r) => a + r.net, 0);
   const peak = years.reduce((a, r) => r.net > a.net ? r : a, years[0]);
   const monthlyNow = Math.max(0, first.net / 12);
-  try { localStorage.setItem('obsidian-family-monthly', JSON.stringify({ monthly: Math.round(first.total / 12), sy: first.sy })); } catch (e) {}
+  const peak3 = years.slice(0, 3).reduce((a, r) => r.total > a.total ? r : a, years[0]);   // what a lender sees: the heaviest of the next 3 years
+  try { localStorage.setItem('obsidian-family-monthly', JSON.stringify({ monthly: Math.round(peak3.total / 12), sy: peak3.sy })); } catch (e) {}
   document.getElementById('kpis').innerHTML = [
-    ['This school year', $(first.net), `${$(monthlyNow)}/mo after help`], ['Next 5 years', $(next5), 'net of fee assistance and tax breaks'],
+    ['This school year', first.net < 0 ? '+' + $(-first.net) : $(first.net), first.net < 0 ? 'tax credits exceed costs' : `${$(monthlyNow)}/mo after help`], ['Next 5 years', $(next5), 'net of fee assistance and tax breaks'],
     ['Peak year', `${peak.sy}-${String(peak.sy + 1).slice(2)}`, $(peak.net)], [`${H}-year total`, $(all), 'childcare + school + after-school'],
   ].map(([a, b, c]) => `<div class="kpi"><span>${a}</span><b>${b}</b><span>${c}</span></div>`).join('');
   // table
