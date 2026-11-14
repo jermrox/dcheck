@@ -14,6 +14,7 @@
 <p>Drag to orbit, scroll or pinch to zoom. Toggle layers to look inside.</p>
 <button id="b-roof" class="on">Roof</button><button id="b-l2" class="on">2nd floor</button><button id="b-l1" class="on">1st floor</button><button id="b-ceil">Ceilings</button><button id="b-top">Top view</button></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>/*LOTJS*/</script>
 <script>
 const D = /*DATA*/null;
 document.getElementById('facts').textContent = `Plot plan draped on terrain fitted to its contours (datum ${D.datum}'). Finished floor ${D.ffe}' . Ceilings from the official sheet: 10'-1\" first floor, 9'-1\" second, vaulted kitchen, dining, porch and bonus room with beams, raised great-room ceiling; second floor registered on the first by its walls and stair. Roof is a hip massing (no roof plan supplied).`;
@@ -24,131 +25,8 @@ const cam = new THREE.PerspectiveCamera(42, 1, 1, 5000);
 scene.add(new THREE.HemisphereLight(0xffffff, 0x8a8f7a, 0.8));
 const sun = new THREE.DirectionalLight(0xffffff, 0.8); sun.position.set(-160, 300, 120); sun.castShadow = true;
 sun.shadow.mapSize.set(2048, 2048); Object.assign(sun.shadow.camera, { left: -200, right: 200, top: 200, bottom: -200, far: 1000 }); scene.add(sun);
-const G = D.ground, N = D.N;
-// terrain: grid of heights, plot texture draped (x right, z down the plot = south)
-const tg = new THREE.PlaneGeometry(G.w, G.h, N, N); tg.rotateX(-Math.PI / 2);
-const pos = tg.attributes.position;
-for (let j = 0; j <= N; j++) for (let i = 0; i <= N; i++) { const k = j * (N + 1) + i; pos.setXYZ(k, G.x + i * G.w / N, D.grid[j][i], G.z + j * G.h / N); }
-tg.computeVertexNormals();
-const tex = new THREE.TextureLoader().load(G.src, () => (window.__ready = 1)); tex.anisotropy = 8; tex.encoding = THREE.sRGBEncoding;
-const terrain = new THREE.Mesh(tg, new THREE.MeshLambertMaterial({ map: tex })); terrain.receiveShadow = true; scene.add(terrain);
-const hAt = (x, z) => { const i = Math.max(0, Math.min(N, Math.round((x - G.x) / G.w * N))), j = Math.max(0, Math.min(N, Math.round((z - G.z) / G.h * N))); return D.grid[j][i]; };
-const shapeGeo = (pts) => { const g = new THREE.ShapeGeometry(new THREE.Shape(pts.map(p => new THREE.Vector2(p[0], -p[1])))); g.rotateX(-Math.PI / 2); return g; };
-const prism = (pts, y0, y1, mat) => { const g = new THREE.ExtrudeGeometry(new THREE.Shape(pts.map(p => new THREE.Vector2(p[0], -p[1]))), { depth: y1 - y0, bevelEnabled: false }); g.rotateX(-Math.PI / 2); const m = new THREE.Mesh(g, mat); m.position.y = y0; m.castShadow = m.receiveShadow = true; return m; };
-const E = D.extras;
-function canvasTex(draw, n = 256) { const c = document.createElement('canvas'); c.width = c.height = n; draw(c.getContext('2d'), n); const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8; t.encoding = THREE.sRGBEncoding; return t; }
-const brickTex = canvasTex((g, n) => { g.fillStyle = '#d9d6cf'; g.fillRect(0, 0, n, n); const bh = n / 8, bw = n / 4;
-  for (let r = 0; r < 8; r++) for (let c = -1; c < 5; c++) { const x = c * bw + (r % 2 ? bw / 2 : 0), v = 236 + Math.random() * 12; g.fillStyle = `rgb(${v},${v - 2},${v - 6})`; g.fillRect(x + 2, r * bh + 2, bw - 4, bh - 4); } });
-const shingleTex = canvasTex((g, n) => { g.fillStyle = '#3d3632'; g.fillRect(0, 0, n, n);
-  for (let r = 0; r < 16; r++) for (let c = -1; c < 9; c++) { const v = 50 + Math.random() * 22; g.fillStyle = `rgb(${v + 6},${v},${v - 4})`; g.fillRect(c * n / 8 + (r % 2 ? n / 16 : 0) + 1, r * n / 16 + 1, n / 8 - 2, n / 16 - 3); } });
-const uvScale = (geo, su, sv) => { const uv = geo.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * su, uv.getY(i) * sv); };
-{ const fnd = prism(E.foundation.pts, E.foundation.bottom, E.foundation.top, new THREE.MeshLambertMaterial({ map: brickTex })); uvScale(fnd.geometry, 0.25, 0.4); scene.add(fnd); }
-// levels
-const wallM = new THREE.MeshLambertMaterial({ color: 0xf3efe7 }), brickM = new THREE.MeshLambertMaterial({ map: brickTex }), frameM = new THREE.MeshLambertMaterial({ color: 0x1d1f22 }), garageM = new THREE.MeshLambertMaterial({ color: 0x4a3a30 }), glassM = new THREE.MeshLambertMaterial({ color: 0x8fc0e6, transparent: true, opacity: .45 });
-const levelGroups = D.levels.map((L, li) => {
-  const g = new THREE.Group(); scene.add(g);
-  const slab = new THREE.Group(); g.add(slab);
-  for (const rm of L.rooms) { const m = new THREE.Mesh(shapeGeo(rm.pts), new THREE.MeshLambertMaterial({ color: rm.col })); m.position.y = L.base + 0.02 - (rm.drop || 0); m.receiveShadow = true; slab.add(m);
-    if (rm.drop) { const sk = prism(rm.pts, L.base - rm.drop - 0.5, L.base - rm.drop, new THREE.MeshLambertMaterial({ color: 0xb5b2ac })); slab.add(sk); } }
-  const piece = (p0, p1, f0, f1, y0, y1, mat) => {
-    const ax = p0[0] + (p1[0] - p0[0]) * f0, az = p0[1] + (p1[1] - p0[1]) * f0, bx = p0[0] + (p1[0] - p0[0]) * f1, bz = p0[1] + (p1[1] - p0[1]) * f1;
-    const len = Math.hypot(bx - ax, bz - az); if (len < 0.05 || y1 <= y0) return;
-    const geo = new THREE.BoxGeometry(len, y1 - y0, mat === glassM ? 0.08 : mat === frameM ? 0.6 : 0.5); if (mat === brickM) uvScale(geo, len / 4, (y1 - y0) / 2.5);
-    const b = new THREE.Mesh(geo, mat);
-    b.position.set((ax + bx) / 2, L.base + (y0 + y1) / 2, (az + bz) / 2); b.rotation.y = Math.atan2(-(bz - az), bx - ax); b.castShadow = mat !== glassM; g.add(b);
-  };
-  for (const [p0, p1, ops, ext] of L.walls) {
-    const M = ext ? brickM : wallM, len = Math.hypot(p1[0] - p0[0], p1[1] - p0[1]); let f = 0; ops.sort((a, b) => a[0] - b[0]);
-    for (const [a, b, t] of ops) {
-      piece(p0, p1, f, a, 0, L.h, M); const fr = 0.25 / Math.max(len, 1);
-      if (t === 'window') { piece(p0, p1, a, b, 0, 3, M); piece(p0, p1, a, b, 7, L.h, M); piece(p0, p1, a, b, 3, 7, glassM);
-        piece(p0, p1, a, b, 2.8, 3.05, frameM); piece(p0, p1, a, b, 6.95, 7.2, frameM); piece(p0, p1, a, a + fr, 3, 7, frameM); piece(p0, p1, b - fr, b, 3, 7, frameM); }
-      else if (ext && (b - a) * len > 7.5) { piece(p0, p1, a, b, 0, 8, garageM); piece(p0, p1, a, b, 8, L.h, M); }
-      else piece(p0, p1, a, b, t === 'door' ? 7 : 8, L.h, M);
-      f = b;
-    }
-    piece(p0, p1, f, 1, 0, L.h, M);
-    if (ext && li > 0) { const gap = L.base - (D.levels[0].base + D.levels[0].h); if (gap > 0.05) piece(p0, p1, 0, 1, -gap - 0.05, 0, brickM); }   // floor band
-  }
-  for (const it of (L.furn || [])) {   // furniture from the visualizer's starter layout
-    const m = new THREE.Mesh(new THREE.BoxGeometry(it.w, it.h, it.d), new THREE.MeshLambertMaterial({ color: it.c }));
-    m.position.set(it.p[0], L.base + it.e + it.h / 2, it.p[1]); m.rotation.y = -it.rot; m.castShadow = true; g.add(m);
-  }
-  return g;
-});
-// ceilings: flat at the room's height, vaulted (gable along the long side) or raised tray, with beams
-const ceilG = new THREE.Group(); ceilG.visible = false; scene.add(ceilG);
-const ceilM = new THREE.MeshLambertMaterial({ color: 0xfbf9f4, side: THREE.DoubleSide }), beamM = new THREE.MeshLambertMaterial({ color: 0x7a5536 });
-const beam = (p, q, y, w, h) => { const len = Math.hypot(q[0] - p[0], q[1] - p[1]); const b = new THREE.Mesh(new THREE.BoxGeometry(len, h, w), beamM); b.position.set((p[0] + q[0]) / 2, y - h / 2, (p[1] + q[1]) / 2); b.rotation.y = Math.atan2(-(q[1] - p[1]), q[0] - p[0]); ceilG.add(b); };
-const lerp2 = (p, q, t) => [p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t];
-for (const L of D.levels) for (const rm of L.rooms) {
-  const [a, b, c, d] = rm.pts, base = L.base - (rm.drop || 0), wallTop = L.base + L.h;
-  if (rm.ceil === 'vault') {
-    const long = rm.w >= rm.d, rise = Math.min(rm.w, rm.d) * 0.25, y0 = wallTop, y1 = wallTop + rise;
-    const [p0, p1, q0, q1] = long ? [a, b, d, c] : [a, d, b, c];         // eaves p0-p1 and q0-q1, ridge between
-    const r0 = lerp2(p0, q0, 0.5), r1 = lerp2(p1, q1, 0.5), V = [];
-    const tri = (A, B, C) => V.push(A[0], A[2], A[1], B[0], B[2], B[1], C[0], C[2], C[1]);
-    const P0 = [p0[0], p0[1], y0], P1 = [p1[0], p1[1], y0], Q0 = [q0[0], q0[1], y0], Q1 = [q1[0], q1[1], y0], R0 = [r0[0], r0[1], y1], R1 = [r1[0], r1[1], y1];
-    tri(P0, P1, R1); tri(P0, R1, R0); tri(Q0, R0, R1); tri(Q0, R1, Q1);
-    const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(V, 3)); g.computeVertexNormals(); ceilG.add(new THREE.Mesh(g, ceilM));
-    beam(r0, r1, y1, 0.67, 1.0);                                        // 8x12 ridge beam
-    const n = Math.max(2, Math.round(Math.hypot(p1[0] - p0[0], p1[1] - p0[1]) / 4));
-    for (let i = 1; i < n; i++) { const t = i / n, e0 = lerp2(p0, p1, t), e1 = lerp2(q0, q1, t), m = lerp2(r0, r1, t); beam(e0, e1, y0 + 0.01, 0.67, 0.67); }
-  } else {
-    const h = typeof rm.ceil === 'number' ? rm.ceil : L.h, y = base + h;
-    const m = new THREE.Mesh(shapeGeo(rm.pts), ceilM); m.position.y = y; ceilG.add(m);
-    if (rm.name === 'Great Room') {                                      // recessed: one 12 in step, 8x4 box beams
-      const inset = (p, k) => lerp2(p, lerp2(lerp2(a, c, 0.5), lerp2(a, c, 0.5), 0), k);
-      const ctr = lerp2(a, c, 0.5), ins = [a, b, c, d].map(p => lerp2(p, ctr, 0.18));
-      const tr = new THREE.Mesh(shapeGeo(ins), ceilM); tr.position.y = y + 1; ceilG.add(tr); m.position.y = y;
-      for (let i = 1; i < 4; i++) { beam(lerp2(ins[0], ins[1], i / 4), lerp2(ins[3], ins[2], i / 4), y + 1, 0.67, 0.33); beam(lerp2(ins[0], ins[3], i / 4), lerp2(ins[1], ins[2], i / 4), y + 1, 0.67, 0.33); }
-    }
-  }
-}
-// hip roofs on each rectangle (pitch rise/run)
-const roofG = new THREE.Group(); scene.add(roofG); const roofM = new THREE.MeshLambertMaterial({ map: shingleTex, side: THREE.DoubleSide }), gableM = new THREE.MeshLambertMaterial({ map: brickTex, side: THREE.DoubleSide }), fasciaM = new THREE.MeshLambertMaterial({ color: 0x1d1f22 });
-for (const R of D.roofs) {
-  const [a, b, c, d] = R.pts, long = R.w >= R.d, half = Math.min(R.w, R.d) / 2, rise = half * R.pitch;
-  const mid = (p, q) => [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2], lerp = (p, q, t) => [p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t];
-  // ridge endpoints: inset by half the short side along the long axis
-  let r0, r1;
-  if (long) { const m0 = mid(a, d), m1 = mid(b, c), t = half / R.w; r0 = lerp(m0, m1, t); r1 = lerp(m0, m1, 1 - t); }
-  else { const m0 = mid(a, b), m1 = mid(d, c), t = half / R.d; r0 = lerp(m0, m1, t); r1 = lerp(m0, m1, 1 - t); }
-  const y0 = R.base, y1 = R.base + rise, V = [];
-  const tri = (p, q, s) => V.push(p[0], p[2], p[1], q[0], q[2], q[1], s[0], s[2], s[1]);
-  const A = [a[0], a[1], y0], B = [b[0], b[1], y0], C = [c[0], c[1], y0], Dd = [d[0], d[1], y0], R0 = [r0[0], r0[1], y1], R1 = [r1[0], r1[1], y1];
-  const GV = [];
-  if (R.kind === 'front') {           // ridge runs to the street; brick gable end at the front (d-c), hip at the back (a-b)
-    const W2 = R.w / 2, rise2 = W2 * R.pitch, fm = mid(d, c), bm = mid(a, b), rb = lerp(bm, fm, Math.min(0.45, W2 / R.d)), Y1 = y0 + rise2;
-    const FM = [fm[0], fm[1], Y1], RB = [rb[0], rb[1], Y1];
-    tri(Dd, FM, RB); tri(Dd, RB, A); tri(C, B, RB); tri(C, RB, FM); tri(A, RB, B);
-    GV.push(Dd[0], Dd[2], Dd[1], C[0], C[2], C[1], FM[0], FM[2], FM[1]);
-  } else if (long) { tri(A, B, R1); tri(A, R1, R0); tri(C, Dd, R0); tri(C, R0, R1); tri(B, C, R1); tri(Dd, A, R0); }
-  else { tri(B, C, R1); tri(B, R1, R0); tri(Dd, A, R0); tri(Dd, R0, R1); tri(A, B, R0); tri(C, Dd, R1); }
-  if (GV.length) { const g2 = new THREE.BufferGeometry(); g2.setAttribute('position', new THREE.Float32BufferAttribute(GV, 3));
-    const ex = Math.hypot(C[0] - Dd[0], C[1] - Dd[1]); g2.setAttribute('uv', new THREE.Float32BufferAttribute([0, 0, ex / 4, 0, ex / 8, (GV[7] - GV[1]) / 2.5], 2)); g2.computeVertexNormals(); roofG.add(new THREE.Mesh(g2, gableM)); }
-  for (const [p, q] of [[a, b], [b, c], [c, d], [d, a]]) { const len = Math.hypot(q[0] - p[0], q[1] - p[1]); const f = new THREE.Mesh(new THREE.BoxGeometry(len, 0.7, 0.25), fasciaM); f.position.set((p[0] + q[0]) / 2, y0 - 0.35, (p[1] + q[1]) / 2); f.rotation.y = Math.atan2(-(q[1] - p[1]), q[0] - p[0]); roofG.add(f); }
-  const gg = new THREE.BufferGeometry(); gg.setAttribute('position', new THREE.Float32BufferAttribute(V, 3));
-  const UV = []; for (let i = 0; i < V.length; i += 3) UV.push(V[i] / 8, (V[i + 2] + V[i + 1]) / 8); gg.setAttribute('uv', new THREE.Float32BufferAttribute(UV, 2)); gg.computeVertexNormals();
-  const m = new THREE.Mesh(gg, roofM); m.castShadow = true; roofG.add(m);
-}
-// porches, deck, pool
-const porch = (P, mat) => {
-  scene.add(prism(P.pts, P.y - 0.4, P.y, new THREE.MeshLambertMaterial({ color: 0xb9b2a4 })));
-  for (const p of P.pts) { const post = new THREE.Mesh(new THREE.BoxGeometry(0.85, P.h, 0.85), new THREE.MeshLambertMaterial({ color: 0xf6f3ec })); post.position.set(p[0], P.y + P.h / 2, p[1]); post.castShadow = true; scene.add(post); }
-  if (P.screened) for (let i = 0; i < P.pts.length; i++) {
-    const p = P.pts[i], q = P.pts[(i + 1) % P.pts.length], len = Math.hypot(q[0] - p[0], q[1] - p[1]);
-    const w = new THREE.Mesh(new THREE.BoxGeometry(len, P.h - 1, 0.05), new THREE.MeshLambertMaterial({ color: 0x334, transparent: true, opacity: .25 }));
-    w.position.set((p[0] + q[0]) / 2, P.y + (P.h - 1) / 2 + 0.5, (p[1] + q[1]) / 2); w.rotation.y = Math.atan2(-(q[1] - p[1]), q[0] - p[0]); scene.add(w);
-  }
-  const roof = new THREE.Mesh(shapeGeo(P.pts), new THREE.MeshLambertMaterial({ color: 0x6b6f75, side: THREE.DoubleSide })); roof.position.y = P.y + P.h; roof.castShadow = true; roofG.add(roof);
-};
-porch(E.screen); porch(E.summer);
-if (E.deck) scene.add(prism(E.deck.pts, E.deck.y - 0.5, E.deck.y, new THREE.MeshLambertMaterial({ color: 0xd9d4c7 })));
-scene.add(prism(E.pool.pts, E.pool.y - 0.3, E.pool.y, new THREE.MeshLambertMaterial({ color: 0xe6e1d6 })));
-{ const c = E.pool.pts.reduce((s, p) => [s[0] + p[0] / 4, s[1] + p[1] / 4], [0, 0]);
-  const inner = E.pool.pts.map(p => { const dx = p[0] - c[0], dz = p[1] - c[1], k = 1 - 1.3 / Math.hypot(dx, dz); return [c[0] + dx * k, c[1] + dz * k]; });
-  const w = new THREE.Mesh(shapeGeo(inner), new THREE.MeshPhongMaterial({ color: 0x3aa0d8, shininess: 90 })); w.position.y = E.pool.y + 0.02; scene.add(w); }
+const LOT = buildLotScene(D); scene.add(LOT.root);
+const { roofG, ceilG, levelGroups } = LOT, E = D.extras;
 // camera
 const cx = E.foundation.pts.reduce((s, p) => s + p[0], 0) / E.foundation.pts.length, cz = E.foundation.pts.reduce((s, p) => s + p[1], 0) / E.foundation.pts.length, cy = E.foundation.top;
 let yaw = 0.5, pitch = 0.55, dist = 190, ptrs = new Map(), pinch = 0; const cv = r.domElement;

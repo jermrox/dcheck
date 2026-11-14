@@ -1,6 +1,7 @@
 """Full lot scene: terrain from contours, both floors stacked, hip roofs, porches, pool, on the plot plan.
 
-Usage: python3 -I build_lot_scene.py <config.json> <out.html>
+Usage: python3 -I build_lot_scene.py <config.json> <out.html> [site.js]
+  site.js (optional): the same scene as data for the Interior Studio "Site" layer (window.LOT_SITE)
 config.json:
   plot_pdf, clip [x0,y0,x1,y1] (PDF pt), ft_per_pt
   level1 {home, fit:{rot,dx,dy,mc,pc}}   plan feet -> plot feet (house footprint fit)
@@ -13,7 +14,7 @@ config.json:
 import base64, json, math, sys
 import pymupdf, cv2, numpy as np
 
-cfg = json.load(open(sys.argv[1])); out = sys.argv[2]
+cfg = json.load(open(sys.argv[1])); out = sys.argv[2]; site_js = sys.argv[3] if len(sys.argv) > 3 else None
 FT = cfg.get("ft_per_pt", 60 / 72)
 x0, y0, x1, y1 = cfg["clip"]
 
@@ -153,7 +154,17 @@ extras = {
 }
 data = {"ground": ground, "grid": grid, "N": N, "levels": [L1, L2], "roofs": roof1 + roof2, "extras": extras,
         "title": cfg.get("title", "Lot"), "datum": datum, "ffe": round(ffe, 2)}
-tpl = open(__file__.replace("build_lot_scene.py", "lot_template.html")).read()
+def sig(home_path):   # identifies a plan so the Studio knows which level it is showing
+    w = json.load(open(home_path))["plan"]["walls"]
+    return [len(w)] + [round(v, 2) for x in w[:4] for v in (x["x1"], x["z1"], x["x2"], x["z2"])]
+data["fit"] = {k: f1[k] for k in ("rot", "dx", "dy", "mc", "pc")}
+data["shift2"] = cfg["level2"]["shift"]
+data["sig"] = [sig(cfg["level1"]["home"]), sig(cfg["level2"]["home"])]
+here = __file__.replace("build_lot_scene.py", "")
+lotjs = open(here + "lot_scene.js").read()
+tpl = open(here + "lot_template.html").read().replace("/*LOTJS*/", lotjs)
 open(out, "w").write(tpl.replace("/*DATA*/null", json.dumps(data)).replace("__TITLE__", cfg.get("title", "Lot")))
+if site_js:
+    open(site_js, "w").write("window.LOT_SITE = " + json.dumps(data) + ";\n" + lotjs)
 print(f"{out}: FFE {ffe:.1f} ft (grade {grade_min:.1f}-{grade_max:.1f}); walls L1 {len(L1['walls'])}, L2 {len(L2['walls'])}; "
       f"roof planes {len(roof1)}+{len(roof2)}; datum {datum}")
