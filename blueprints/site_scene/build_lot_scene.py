@@ -58,6 +58,27 @@ def level(home_path, shift, base, height, lvl, skip_types=("balcony",)):
         walls.append([P(e0[0] + dx, e0[1] + dz), P(e1[0] + dx, e1[1] + dz),
                       [[round((o["a"] - a0) / L, 4), round((o["b"] - a0) / L, 4), o["t"]] for o in w.get("ops", [])]])
     plan_rects = []
+    # outline of the level (non-porch rooms) to tell exterior walls from partitions
+    G = 0.25; inside = [q for r in plan["rooms"] if r["type"] not in skip_types for q in r["rects"]]
+    ox, oz = min(q[0] for q in inside) - 3, min(q[1] for q in inside) - 3
+    Wd, Hd = int((max(q[2] for q in inside) - ox + 3) / G) + 1, int((max(q[3] for q in inside) - oz + 3) / G) + 1
+    mk = np.zeros((Hd, Wd), np.uint8)
+    for q in inside: mk[int((q[1] - oz) / G):int((q[3] - oz) / G), int((q[0] - ox) / G):int((q[2] - ox) / G)] = 1
+    mk = cv2.morphologyEx(mk, cv2.MORPH_CLOSE, np.ones((5, 5), np.uint8))
+    def exterior(e0, e1):
+        hits = 0
+        for t_ in (0.25, 0.5, 0.75):
+            x = e0[0] + (e1[0] - e0[0]) * t_; z = e0[1] + (e1[1] - e0[1]) * t_
+            if abs(e1[1] - e0[1]) < 1e-6: a_, b_ = (x, z - 1.2), (x, z + 1.2)
+            else: a_, b_ = (x - 1.2, z), (x + 1.2, z)
+            va = mk[min(Hd - 1, max(0, int((a_[1] - oz) / G))), min(Wd - 1, max(0, int((a_[0] - ox) / G)))]
+            vb = mk[min(Hd - 1, max(0, int((b_[1] - oz) / G))), min(Wd - 1, max(0, int((b_[0] - ox) / G)))]
+            hits += int(va != vb)
+        return hits >= 2
+    for wl, w in zip(walls, [w for w in plan["walls"] if (max(w["x1"], w["x2"]) - min(w["x1"], w["x2"]) if w["z1"] == w["z2"] else max(w["z1"], w["z2"]) - min(w["z1"], w["z2"])) > 0]):
+        e0 = (min(w["x1"], w["x2"]), w["z1"]) if w["z1"] == w["z2"] else (w["x1"], min(w["z1"], w["z2"]))
+        e1 = (max(w["x1"], w["x2"]), w["z1"]) if w["z1"] == w["z2"] else (w["x1"], max(w["z1"], w["z2"]))
+        wl.append(1 if exterior(e0, e1) else 0)
     for r in plan["rooms"]:
         if r["type"] in skip_types: continue
         col = FLOORCOL.get((fin.get(r["id"]) or {}).get("floor"), "#d8d2c6")
@@ -66,7 +87,12 @@ def level(home_path, shift, base, height, lvl, skip_types=("balcony",)):
             key = f"{lvl}|{r['name']}"; spec = ROOMCEIL.get(key, height); drop = DROP.get(key, 0)
             rooms.append({"name": r["name"], "col": col, "drop": drop, "ceil": spec, "w": q2[2] - q2[0], "d": q2[3] - q2[1],
                           "pts": [P(q2[0], q2[1]), P(q2[2], q2[1]), P(q2[2], q2[3]), P(q2[0], q2[3])]})
-    return {"base": round(base, 3), "h": height, "walls": walls, "rooms": rooms}, plan_rects
+    furn = []
+    for it in (cfg.get("furniture", {}).get(home_path) or []):
+        q = P(it["x"] + dx, it["z"] + dz)
+        furn.append({"p": q, "rot": round(math.radians(it.get("rot", 0)) - t, 4), "w": it["w"], "d": it["d"], "h": it["h"],
+                     "e": it.get("elev", 0), "c": it.get("color") or "#cccccc", "n": it["type"]})
+    return {"base": round(base, 3), "h": height, "walls": walls, "rooms": rooms, "furn": furn}, plan_rects
 
 L1, r1 = level(cfg["level1"]["home"], (0, 0), lv_base[0], ceil[0], 1)
 L2, r2 = level(cfg["level2"]["home"], cfg["level2"]["shift"], lv_base[1], ceil[1], 2)
@@ -101,15 +127,19 @@ def rect_cover(rects, exclude=None, G=0.5, min_side=6):
     return out
 
 pitch, ov = cfg.get("roof_pitch", 0.5), cfg.get("overhang", 1.5)
-def roofs(rects, base):
+gable_pitch = cfg.get("gable_pitch", 1.25)
+def roofs(rects, base, blockers=()):
     res = []
     for q in rects:
         q2 = [q[0] - ov, q[1] - ov, q[2] + ov, q[3] + ov]
-        res.append({"base": round(base, 3), "pitch": pitch, "pts": [P(q2[0], q2[1]), P(q2[2], q2[1]), P(q2[2], q2[3]), P(q2[0], q2[3])],
-                    "w": q2[2] - q2[0], "d": q2[3] - q2[1]})
+        # street-facing (largest plan z) if nothing else in this cover sits in front of it across most of its width
+        front = not any(o is not q and o[1] >= q[3] - 0.5 and min(o[2], q[2]) - max(o[0], q[0]) > 0.5 * (q[2] - q[0]) for o in list(rects) + list(blockers))
+        kind = "front" if front and (q[2] - q[0]) <= 34 else "hip"
+        res.append({"base": round(base, 3), "pitch": gable_pitch if kind == "front" else pitch, "kind": kind,
+                    "pts": [P(q2[0], q2[1]), P(q2[2], q2[1]), P(q2[2], q2[3]), P(q2[0], q2[3])], "w": q2[2] - q2[0], "d": q2[3] - q2[1]})
     return res
 roof2 = roofs(rect_cover(r2), L2["base"] + ceil[1])
-roof1 = roofs(rect_cover(r1, exclude=r2), L1["base"] + ceil[0])
+roof1 = roofs(rect_cover(r1, exclude=r2), L1["base"] + ceil[0], blockers=r2)
 
 pt2ft = lambda pts: [[p[0] * FT, p[1] * FT] for p in pts]
 def flat(name, pts, z): return {"name": name, "pts": pt2ft(pts), "y": round(z, 3)}

@@ -36,10 +36,16 @@ const hAt = (x, z) => { const i = Math.max(0, Math.min(N, Math.round((x - G.x) /
 const shapeGeo = (pts) => { const g = new THREE.ShapeGeometry(new THREE.Shape(pts.map(p => new THREE.Vector2(p[0], -p[1])))); g.rotateX(-Math.PI / 2); return g; };
 const prism = (pts, y0, y1, mat) => { const g = new THREE.ExtrudeGeometry(new THREE.Shape(pts.map(p => new THREE.Vector2(p[0], -p[1]))), { depth: y1 - y0, bevelEnabled: false }); g.rotateX(-Math.PI / 2); const m = new THREE.Mesh(g, mat); m.position.y = y0; m.castShadow = m.receiveShadow = true; return m; };
 const E = D.extras;
-scene.add(prism(E.foundation.pts, E.foundation.bottom, E.foundation.top, new THREE.MeshLambertMaterial({ color: 0xb5866a })));
+function canvasTex(draw, n = 256) { const c = document.createElement('canvas'); c.width = c.height = n; draw(c.getContext('2d'), n); const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8; t.encoding = THREE.sRGBEncoding; return t; }
+const brickTex = canvasTex((g, n) => { g.fillStyle = '#d9d6cf'; g.fillRect(0, 0, n, n); const bh = n / 8, bw = n / 4;
+  for (let r = 0; r < 8; r++) for (let c = -1; c < 5; c++) { const x = c * bw + (r % 2 ? bw / 2 : 0), v = 236 + Math.random() * 12; g.fillStyle = `rgb(${v},${v - 2},${v - 6})`; g.fillRect(x + 2, r * bh + 2, bw - 4, bh - 4); } });
+const shingleTex = canvasTex((g, n) => { g.fillStyle = '#3d3632'; g.fillRect(0, 0, n, n);
+  for (let r = 0; r < 16; r++) for (let c = -1; c < 9; c++) { const v = 50 + Math.random() * 22; g.fillStyle = `rgb(${v + 6},${v},${v - 4})`; g.fillRect(c * n / 8 + (r % 2 ? n / 16 : 0) + 1, r * n / 16 + 1, n / 8 - 2, n / 16 - 3); } });
+const uvScale = (geo, su, sv) => { const uv = geo.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * su, uv.getY(i) * sv); };
+{ const fnd = prism(E.foundation.pts, E.foundation.bottom, E.foundation.top, new THREE.MeshLambertMaterial({ map: brickTex })); uvScale(fnd.geometry, 0.25, 0.4); scene.add(fnd); }
 // levels
-const wallM = new THREE.MeshLambertMaterial({ color: 0xf3efe7 }), glassM = new THREE.MeshLambertMaterial({ color: 0x8fc0e6, transparent: true, opacity: .45 });
-const levelGroups = D.levels.map(L => {
+const wallM = new THREE.MeshLambertMaterial({ color: 0xf3efe7 }), brickM = new THREE.MeshLambertMaterial({ map: brickTex }), frameM = new THREE.MeshLambertMaterial({ color: 0x1d1f22 }), garageM = new THREE.MeshLambertMaterial({ color: 0x4a3a30 }), glassM = new THREE.MeshLambertMaterial({ color: 0x8fc0e6, transparent: true, opacity: .45 });
+const levelGroups = D.levels.map((L, li) => {
   const g = new THREE.Group(); scene.add(g);
   const slab = new THREE.Group(); g.add(slab);
   for (const rm of L.rooms) { const m = new THREE.Mesh(shapeGeo(rm.pts), new THREE.MeshLambertMaterial({ color: rm.col })); m.position.y = L.base + 0.02 - (rm.drop || 0); m.receiveShadow = true; slab.add(m);
@@ -47,18 +53,26 @@ const levelGroups = D.levels.map(L => {
   const piece = (p0, p1, f0, f1, y0, y1, mat) => {
     const ax = p0[0] + (p1[0] - p0[0]) * f0, az = p0[1] + (p1[1] - p0[1]) * f0, bx = p0[0] + (p1[0] - p0[0]) * f1, bz = p0[1] + (p1[1] - p0[1]) * f1;
     const len = Math.hypot(bx - ax, bz - az); if (len < 0.05 || y1 <= y0) return;
-    const b = new THREE.Mesh(new THREE.BoxGeometry(len, y1 - y0, mat === glassM ? 0.08 : 0.5), mat);
-    b.position.set((ax + bx) / 2, L.base + (y0 + y1) / 2, (az + bz) / 2); b.rotation.y = Math.atan2(-(bz - az), bx - ax); b.castShadow = mat === wallM; g.add(b);
+    const geo = new THREE.BoxGeometry(len, y1 - y0, mat === glassM ? 0.08 : mat === frameM ? 0.6 : 0.5); if (mat === brickM) uvScale(geo, len / 4, (y1 - y0) / 2.5);
+    const b = new THREE.Mesh(geo, mat);
+    b.position.set((ax + bx) / 2, L.base + (y0 + y1) / 2, (az + bz) / 2); b.rotation.y = Math.atan2(-(bz - az), bx - ax); b.castShadow = mat !== glassM; g.add(b);
   };
-  for (const [p0, p1, ops] of L.walls) {
-    let f = 0; ops.sort((a, b) => a[0] - b[0]);
+  for (const [p0, p1, ops, ext] of L.walls) {
+    const M = ext ? brickM : wallM, len = Math.hypot(p1[0] - p0[0], p1[1] - p0[1]); let f = 0; ops.sort((a, b) => a[0] - b[0]);
     for (const [a, b, t] of ops) {
-      piece(p0, p1, f, a, 0, L.h, wallM);
-      if (t === 'window') { piece(p0, p1, a, b, 0, 3, wallM); piece(p0, p1, a, b, 7, L.h, wallM); piece(p0, p1, a, b, 3, 7, glassM); }
-      else piece(p0, p1, a, b, t === 'door' ? 7 : 8, L.h, wallM);
+      piece(p0, p1, f, a, 0, L.h, M); const fr = 0.25 / Math.max(len, 1);
+      if (t === 'window') { piece(p0, p1, a, b, 0, 3, M); piece(p0, p1, a, b, 7, L.h, M); piece(p0, p1, a, b, 3, 7, glassM);
+        piece(p0, p1, a, b, 2.8, 3.05, frameM); piece(p0, p1, a, b, 6.95, 7.2, frameM); piece(p0, p1, a, a + fr, 3, 7, frameM); piece(p0, p1, b - fr, b, 3, 7, frameM); }
+      else if (ext && (b - a) * len > 7.5) { piece(p0, p1, a, b, 0, 8, garageM); piece(p0, p1, a, b, 8, L.h, M); }
+      else piece(p0, p1, a, b, t === 'door' ? 7 : 8, L.h, M);
       f = b;
     }
-    piece(p0, p1, f, 1, 0, L.h, wallM);
+    piece(p0, p1, f, 1, 0, L.h, M);
+    if (ext && li > 0) { const gap = L.base - (D.levels[0].base + D.levels[0].h); if (gap > 0.05) piece(p0, p1, 0, 1, -gap - 0.05, 0, brickM); }   // floor band
+  }
+  for (const it of (L.furn || [])) {   // furniture from the visualizer's starter layout
+    const m = new THREE.Mesh(new THREE.BoxGeometry(it.w, it.h, it.d), new THREE.MeshLambertMaterial({ color: it.c }));
+    m.position.set(it.p[0], L.base + it.e + it.h / 2, it.p[1]); m.rotation.y = -it.rot; m.castShadow = true; g.add(m);
   }
   return g;
 });
@@ -92,7 +106,7 @@ for (const L of D.levels) for (const rm of L.rooms) {
   }
 }
 // hip roofs on each rectangle (pitch rise/run)
-const roofG = new THREE.Group(); scene.add(roofG); const roofM = new THREE.MeshLambertMaterial({ color: 0x6b6f75, side: THREE.DoubleSide });
+const roofG = new THREE.Group(); scene.add(roofG); const roofM = new THREE.MeshLambertMaterial({ map: shingleTex, side: THREE.DoubleSide }), gableM = new THREE.MeshLambertMaterial({ map: brickTex, side: THREE.DoubleSide }), fasciaM = new THREE.MeshLambertMaterial({ color: 0x1d1f22 });
 for (const R of D.roofs) {
   const [a, b, c, d] = R.pts, long = R.w >= R.d, half = Math.min(R.w, R.d) / 2, rise = half * R.pitch;
   const mid = (p, q) => [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2], lerp = (p, q, t) => [p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t];
@@ -103,9 +117,19 @@ for (const R of D.roofs) {
   const y0 = R.base, y1 = R.base + rise, V = [];
   const tri = (p, q, s) => V.push(p[0], p[2], p[1], q[0], q[2], q[1], s[0], s[2], s[1]);
   const A = [a[0], a[1], y0], B = [b[0], b[1], y0], C = [c[0], c[1], y0], Dd = [d[0], d[1], y0], R0 = [r0[0], r0[1], y1], R1 = [r1[0], r1[1], y1];
-  if (long) { tri(A, B, R1); tri(A, R1, R0); tri(C, Dd, R0); tri(C, R0, R1); tri(B, C, R1); tri(Dd, A, R0); }
+  const GV = [];
+  if (R.kind === 'front') {           // ridge runs to the street; brick gable end at the front (d-c), hip at the back (a-b)
+    const W2 = R.w / 2, rise2 = W2 * R.pitch, fm = mid(d, c), bm = mid(a, b), rb = lerp(bm, fm, Math.min(0.45, W2 / R.d)), Y1 = y0 + rise2;
+    const FM = [fm[0], fm[1], Y1], RB = [rb[0], rb[1], Y1];
+    tri(Dd, FM, RB); tri(Dd, RB, A); tri(C, B, RB); tri(C, RB, FM); tri(A, RB, B);
+    GV.push(Dd[0], Dd[2], Dd[1], C[0], C[2], C[1], FM[0], FM[2], FM[1]);
+  } else if (long) { tri(A, B, R1); tri(A, R1, R0); tri(C, Dd, R0); tri(C, R0, R1); tri(B, C, R1); tri(Dd, A, R0); }
   else { tri(B, C, R1); tri(B, R1, R0); tri(Dd, A, R0); tri(Dd, R0, R1); tri(A, B, R0); tri(C, Dd, R1); }
-  const gg = new THREE.BufferGeometry(); gg.setAttribute('position', new THREE.Float32BufferAttribute(V, 3)); gg.computeVertexNormals();
+  if (GV.length) { const g2 = new THREE.BufferGeometry(); g2.setAttribute('position', new THREE.Float32BufferAttribute(GV, 3));
+    const ex = Math.hypot(C[0] - Dd[0], C[1] - Dd[1]); g2.setAttribute('uv', new THREE.Float32BufferAttribute([0, 0, ex / 4, 0, ex / 8, (GV[7] - GV[1]) / 2.5], 2)); g2.computeVertexNormals(); roofG.add(new THREE.Mesh(g2, gableM)); }
+  for (const [p, q] of [[a, b], [b, c], [c, d], [d, a]]) { const len = Math.hypot(q[0] - p[0], q[1] - p[1]); const f = new THREE.Mesh(new THREE.BoxGeometry(len, 0.7, 0.25), fasciaM); f.position.set((p[0] + q[0]) / 2, y0 - 0.35, (p[1] + q[1]) / 2); f.rotation.y = Math.atan2(-(q[1] - p[1]), q[0] - p[0]); roofG.add(f); }
+  const gg = new THREE.BufferGeometry(); gg.setAttribute('position', new THREE.Float32BufferAttribute(V, 3));
+  const UV = []; for (let i = 0; i < V.length; i += 3) UV.push(V[i] / 8, (V[i + 2] + V[i + 1]) / 8); gg.setAttribute('uv', new THREE.Float32BufferAttribute(UV, 2)); gg.computeVertexNormals();
   const m = new THREE.Mesh(gg, roofM); m.castShadow = true; roofG.add(m);
 }
 // porches, deck, pool
