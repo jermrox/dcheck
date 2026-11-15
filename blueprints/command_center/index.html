@@ -130,6 +130,20 @@ section{display:grid;gap:12px}
     </div>
   </section>
 
+  <section id="loan-sec" hidden>
+    <div class="sec-h"><h2>Construction loan: build phase, then the permanent loan</h2></div>
+    <p class="muted" id="loan-intro" style="margin:0"></p>
+    <div class="paths" id="build"></div>
+    <div class="sec-h" style="margin-top:6px"><h3 style="font-size:16px">After the build: three ways to structure it</h3></div>
+    <div class="paths" id="loanopts"></div>
+    <p class="note" id="loan-note" style="margin:0"></p>
+  </section>
+
+  <section id="src-sec" hidden>
+    <div class="sec-h"><h2>Where every rate and percentage comes from</h2></div>
+    <ol class="note" id="sources" style="margin:0;padding-left:20px;display:grid;gap:4px"></ol>
+  </section>
+
   <section>
     <div class="sec-h"><h2>Needs you</h2><span class="count" id="c-you"></span></div>
     <p class="note" style="margin:0">Only things that need your login, your signature or the builder's answer. Each card has the exact steps.</p>
@@ -194,7 +208,7 @@ function renderAnswer() {
   if (!money) return;
   const m = money, c = calc(m), lo = c.rents[0], hi = c.rents[1];
   $('ans-h').textContent = 'Sell Wendell and put the proceeds down.';
-  $('ans-p').textContent = `Keeping Wendell means borrowing ${fmt(c.sale)} more on the new home, which adds ${fmt(c.extra)}/mo of principal and interest at ${m.rate}%. At today's Wendell market rent of ${fmt(lo.rent)}–${fmt(hi.rent)}, the rental clears only ${fmt(lo.profit)}–${fmt(hi.profit)}/mo after tax, HOA, insurance, vacancy, upkeep and a manager. Net, keeping costs about ${fmt(hi.net)}–${fmt(lo.net)} a month, roughly ${fmt(hi.net * 12)}–${fmt(lo.net * 12)} a year. Wendell-area prices are also falling right now, so the house is not growing fast enough to make up for it. Keeping only wins long-term if you would spend, not invest, the money selling frees up.`;
+  $('ans-p').textContent = `Keeping Wendell means borrowing ${fmt(c.sale)} more on the new home, which adds ${fmt(c.extra)}/mo of principal and interest at ${m.rate}%. At today's Wendell market rent of ${fmt(lo.rent)}–${fmt(hi.rent)}, the rental clears only ${fmt(lo.profit)}–${fmt(hi.profit)}/mo after tax, HOA, insurance, vacancy, upkeep and a manager. Net, keeping costs about ${fmt(hi.net)}–${fmt(lo.net)} a month, roughly ${fmt(hi.net * 12)}–${fmt(lo.net * 12)} a year. Wendell-area prices are also falling right now, so the house is not growing fast enough to make up for it. Keeping only wins long-term if you would spend, not invest, the money selling frees up. The lower sell-path payment only happens if the permanent loan is sized after Wendell sells. VA loans cannot be recast, so a VA one-time-close set at the start keeps the higher payment; see the construction-loan section below.`;
   const P = [
     {name: 'Sell Wendell · ' + fmt(m.otherDown + c.sale) + ' down', rows: [['VA loan (incl. ' + m.fee + '% fee)', fmt(c.sellLoan)], ['Principal & interest', fmt(c.sellPI) + '/mo'], ['Wendell rent profit', '—'], ['Effective cost', fmt(c.sellPI) + '/mo']], best: true},
     {name: 'Keep Wendell · ' + fmt(m.otherDown) + ' down', rows: [['VA loan (incl. ' + m.fee + '% fee)', fmt(c.keepLoan)], ['Principal & interest', fmt(c.keepPI) + '/mo'], ['Wendell rent profit', '+' + fmt(lo.profit) + ' to +' + fmt(hi.profit)], ['Effective cost', fmt(c.keepPI - hi.profit) + '–' + fmt(c.keepPI - lo.profit).replace('$', '') + '/mo']]},
@@ -208,6 +222,13 @@ function renderAnswer() {
   }
   $('ans-bar').innerHTML = alt + `<div class="note">Same for both paths and not in the comparison: new-home property tax about ${fmt(c.newTax)}/mo at Wake's ${m.newTaxPct}%, plus homeowners insurance and HOA. Sale nets about ${fmt(c.sale)} from a ${fmt(m.wVal)} price after ${m.commission}% commission, NC excise tax and ${fmt(m.closing)} other costs.</div>`;
   $('ans-src').textContent = m.note || '';
+  renderLoan(m);
+}
+const cardOf = o => `<div class="path ${o.best ? 'best' : ''}"><b>${esc(o.name)}</b>${(o.rows || []).map(([k, v]) => `<span>${esc(k)}</span><span class="v">${esc(v)}</span>`).join('')}${o.note ? `<span class="note" style="margin-top:4px">${esc(o.note)}</span>` : ''}</div>`;
+function renderLoan(m) {
+  if (m.build) { $('loan-sec').hidden = false; $('loan-intro').textContent = m.build.intro || ''; $('build').innerHTML = (m.build.cards || []).map(cardOf).join(''); }
+  if (m.loanOptions) { $('loanopts').innerHTML = m.loanOptions.map(cardOf).join(''); $('loan-note').textContent = m.loanNote || ''; }
+  if (m.sources && m.sources.length) { $('src-sec').hidden = false; $('sources').innerHTML = m.sources.map(x => `<li><b>${esc(x.what)}</b>: ${esc(x.value)} · <a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.src)}</a>${x.date ? ', ' + esc(x.date) : ''}</li>`).join(''); }
 }
 
 /* ---------- plan sections from the tracker ---------- */
