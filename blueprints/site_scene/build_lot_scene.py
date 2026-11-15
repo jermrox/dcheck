@@ -25,6 +25,11 @@ ok, buf = cv2.imencode(".jpg", img, [cv2.IMWRITE_JPEG_QUALITY, 80])
 ground = {"src": "data:image/jpeg;base64," + base64.b64encode(buf.tobytes()).decode(),
           "x": x0 * FT, "z": y0 * FT, "w": (x1 - x0) * FT, "h": (y1 - y0) * FT}
 
+if cfg.get("lap_pool"):   # replace the plot-plan pool with a lap pool (length x width ft) on the same centre and long axis
+    P = np.array(cfg["pool_pt"], float); c = P.mean(0)
+    e = [P[(i + 1) % 4] - P[i] for i in range(4)]; u = max(e, key=lambda v: np.hypot(*v)); u = u / np.hypot(*u); v = np.array([-u[1], u[0]])
+    L, W = cfg["lap_pool"]["length"] / FT / 2, cfg["lap_pool"]["width"] / FT / 2
+    cfg["pool_pt"] = [list(c + su * L * u + sv * W * v) for su, sv in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
 T = cfg["terrain"]; MX = np.array(T["mx"])
 def elev(x, z):
     p = (np.array([x, z]) - MX) / T["scale"]; cols = [1.0]

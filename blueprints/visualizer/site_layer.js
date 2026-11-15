@@ -42,6 +42,7 @@
     S.L.levelGroups[1 - S.lv].visible = opt.other && !plan;
     S.L.roofG.visible = opt.roof && !plan;
     groundMesh.visible = on ? false : view === 'orbit';
+    if (typeof skyMesh !== 'undefined' && skyMesh) skyMesh.visible = !on && view === 'walk';   // no stock city backdrop around a real lot
     window.__maxDist = on ? 420 : 110;
     persp.far = on ? 3000 : 500; persp.updateProjectionMatrix();
     // room labels float above the roof: show them only when the roof is off
@@ -102,6 +103,8 @@
     }
   };
   addEventListener('load', () => { const b = document.getElementById('tb-vr'); if (b && typeof addXR === 'function') { window.enterVR(); } });
+  // imported homes: hide the sample flat's product library (its items are for the built-in demo flat)
+  if (typeof IS_BUILTIN !== 'undefined' && !IS_BUILTIN) { const st = document.createElement('style'); st.textContent = '#lib-wrap{display:none!important}'; document.head.append(st); }
   const sv = window.setView;
   window.setView = function (v) { sv(v); apply(); };
   // ?site=1 opens the Obsidian floor with the lot around it (importing the plan on first visit); &floor=2 for the 2nd floor
@@ -110,7 +113,7 @@
     const file = want ? 'obsidian-second-floor-spec.home.json' : 'obsidian-first-floor-spec.home.json';
     const guard = 'site-open-' + file;
     if (levelIndex(D) === want) { sessionStorage.removeItem(guard); return window.toggleSite(); }
-    const tag = 'site:' + file;
+    const tag = 'site:v5:' + file;
     if (sessionStorage.getItem(guard)) { sessionStorage.removeItem(guard); return window.toggleSite(); }   // never loop
     const have = listProjects().find(p => { try { return JSON.parse(localStorage.getItem(planKey(p.id)) || '{}').srcTag === tag; } catch (e) { return false; } });
     let id = have && have.id;
