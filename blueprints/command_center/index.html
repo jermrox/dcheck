@@ -89,9 +89,9 @@ textarea{resize:vertical;min-height:96px;line-height:1.5}
 @media(max-width:720px){.add{grid-template-columns:1fr 1fr}.add .t-in{grid-column:1/-1}}
 
 /* money */
-.money{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:16px}
+.money{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:16px;align-items:start}
 @media(max-width:820px){.money{grid-template-columns:1fr}}
-.fields{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;align-content:start}
 .fields label{display:grid;gap:3px;font-size:12.5px;color:var(--mute)}
 .fields .full{grid-column:1/-1}
 .fields h3{grid-column:1/-1;font-size:13px;margin-top:6px;color:var(--ink)}
@@ -109,6 +109,13 @@ textarea{resize:vertical;min-height:96px;line-height:1.5}
 .bar i{display:block;height:100%}
 .legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--mute);margin-top:6px}
 .legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:0}
+.paths{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+@media(max-width:560px){.paths{grid-template-columns:1fr}}
+.path{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;gap:2px;font-size:13px}
+.path.best{border:2px solid var(--lawn);background:var(--lawn-soft)}
+.path b{font-family:var(--f-display);font-size:14px}
+.path .v{font:600 17px var(--f-mono);font-variant-numeric:tabular-nums}
+.answer{border-color:var(--trim)}
 .tag-ex{font:500 10.5px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;background:var(--warn-soft);color:var(--warn);padding:3px 7px;border-radius:5px}
 
 /* docs */
@@ -196,11 +203,12 @@ textarea{resize:vertical;min-height:96px;line-height:1.5}
         <label>Loan balance<input type="number" id="m-obal" step="1000"></label>
         <label>Payment / mo (PITI)<input type="number" id="m-opay" step="50"></label>
         <label>Market rent / mo<input type="number" id="m-orent" step="50"></label>
-        <div class="full row"><span class="note grow" id="m-saved">Example numbers. Edit any field to start your own.</span><button class="btn ghost small" type="button" id="m-reset">Reset to examples</button></div>
+        <div class="full row"><span class="note grow" id="m-saved">Change any number and the answer updates.</span><button class="btn ghost small" type="button" id="m-reset">Reset to examples</button></div>
       </form>
       <div class="panel">
+        <div class="box answer" id="answer"><div class="eyebrow">The answer</div><h2 id="ans-h" style="margin:6px 0 4px">–</h2><p id="ans-p" class="muted" style="margin:0 0 12px"></p><div class="paths" id="paths"></div><p class="note" id="ans-src" style="margin:10px 0 0"></p></div>
         <div class="box">
-          <div class="row" style="justify-content:space-between"><h2>VA path</h2><span id="m-tag" class="tag-ex">Example</span></div>
+          <div class="row" style="justify-content:space-between"><h2>Best VA path in detail</h2><span id="m-tag" class="tag-ex">Example</span></div>
           <div class="kpis" style="margin-top:12px">
             <div class="kpi"><b id="k-pay">–</b><span>monthly payment (PITI + HOA)</span></div>
             <div class="kpi"><b id="k-income">–</b><span>gross income to qualify at 41% DTI</span></div>
@@ -371,7 +379,7 @@ async function addToCalendar(it, btn) {
 
 /* ---------- money (private) ---------- */
 const EX = {base: 1200000, lot: 150000, opts: 60000, appr: 1450000, tax: 0.66, ins: 4500, hoa: 150, debt: 600, varate: 6.5, cvrate: 6.9, limit: 832750, orig: 300000, exempt: false, first: false, oval: 450000, obal: 280000, opay: 2400, orent: 2800};
-let money = Object.assign({}, EX), moneyIsExample = true, moneyDoc = null;
+let money = Object.assign({}, EX), moneyIsExample = true, moneyDoc = null, moneySource = 'Example', moneyNote = 'Example numbers. Your private numbers load when you open this in Claude.';
 const MF = Object.keys(EX);
 function fillMoney() { for (const k of MF) { const el = $('m-' + k); if (el.type === 'checkbox') el.checked = !!money[k]; else el.value = money[k]; } }
 function readMoney() { for (const k of MF) { const el = $('m-' + k); money[k] = el.type === 'checkbox' ? el.checked : (parseFloat(el.value) || 0); } }
@@ -394,9 +402,30 @@ function calc(m) {
   const incomeCv = (cvTotal + m.debt) / 0.41;
   return {allIn, basis, gap, cap, down, feePct, loan, pi, tax, ins, hoa: m.hoa, total, cvDown, cvPI, cvTotal, sellNet, rentNet, incomeVA, incomeCv, cash: down + gap, keepOld, rentCredit};
 }
+function renderAnswer() {
+  const sell = calc(Object.assign({}, money, {orig: 0})), keep = calc(money), m = money;
+  const tax = sell.tax + sell.ins + sell.hoa;
+  const cvLoan = sell.allIn - sell.cvDown;
+  const P = [
+    {k: 'sell', name: 'Sell current house, VA $0 down', cash: sell.cash, pay: sell.total, inc: sell.incomeVA, note: 'Full entitlement back; only the amount over appraisal is cash.'},
+    {k: 'keep', name: 'Keep & rent it, VA partial', cash: keep.cash, pay: keep.total, inc: keep.incomeVA, note: 'Entitlement still tied up: 25% of the gap above ' + (isFinite(keep.cap) ? fmt(keep.cap) : '—') + ' is due at closing.'},
+    {k: 'conv', name: 'Conventional jumbo, 20% down', cash: sell.cvDown + 0, pay: sell.cvTotal, inc: sell.incomeCv, note: 'No funding fee; jumbo rate ' + m.cvrate + '%.'},
+  ];
+  if (m.orig <= 0) P.splice(1, 1);
+  const equity = Math.max(0, sell.sellNet);
+  const best = P.slice().sort((a, b) => a.cash - b.cash || a.pay - b.pay)[0];
+  $('paths').innerHTML = P.map(p => `<div class="path ${p === best ? 'best' : ''}"><b>${p.name}</b><span>Cash to close</span><span class="v">${fmt(p.cash)}</span><span>Payment</span><span class="v">${fmt(p.pay)}/mo</span><span>Income needed (41% DTI)</span><span class="v">${fmt(p.inc)}/mo</span><span class="note">${p.note}</span></div>`).join('');
+  $('ans-h').textContent = best.k === 'sell' ? 'Sell the current house and use VA at $0 down.' : best.k === 'keep' ? 'Keep the current house and use VA partial entitlement.' : 'Go conventional with 20% down.';
+  const covers = equity >= best.cash;
+  $('ans-p').textContent = (best.k === 'sell'
+      ? `It needs the least cash: ${fmt(best.cash)} at closing (the build costs ${fmt(sell.gap)} more than the appraisal), versus ${fmt(P.find(p => p.k !== 'sell').cash)} on the next option. ` + (covers ? `Selling should net about ${fmt(equity)}, which covers it with ${fmt(equity - best.cash)} left over.` : `Selling nets about ${fmt(equity)}, ${fmt(best.cash - equity)} short of the cash needed.`)
+      : `It needs the least cash at closing: ${fmt(best.cash)}.`)
+    + ` To qualify, the household needs about ${fmt(best.inc)}/mo gross (BAH and VA compensation count)` + (m.exempt ? '.' : `; a VA disability rating of 10%+ would waive the ${sell.feePct}% funding fee and save ${fmt(sell.loan - sell.basis)}.`);
+}
 function renderMoney() {
+  renderAnswer();
   const c = calc(money);
-  $('m-tag').hidden = !moneyIsExample;
+  $('m-tag').textContent = moneySource; $('m-tag').hidden = !moneySource; $('ans-src').textContent = moneyNote;
   $('k-pay').textContent = fmt(c.total); $('k-income').textContent = fmt(c.incomeVA) + '/mo';
   $('k-cash').textContent = fmt(c.cash); $('k-allin').textContent = fmt(c.allIn);
   const parts = [['Principal & interest', c.pi, 'var(--trim)'], ['Property tax', c.tax, 'var(--lawn)'], ['Insurance', c.ins, 'var(--warn)'], ['HOA', c.hoa, 'var(--mute)']];
@@ -417,13 +446,13 @@ function renderMoney() {
 fillMoney(); renderMoney();
 let moneyTimer = null, moneySaving = Promise.resolve();
 $('mform').addEventListener('input', () => {
-  readMoney(); moneyIsExample = false; renderMoney(); $('m-saved').textContent = 'Saving…';
+  readMoney(); moneyIsExample = false; moneySource = 'Your numbers'; moneyNote = ''; renderMoney(); $('m-saved').textContent = 'Saving…';
   clearTimeout(moneyTimer); moneyTimer = setTimeout(saveMoney, 900);
 });
-$('m-reset').onclick = () => { money = Object.assign({}, EX); fillMoney(); moneyIsExample = true; renderMoney(); clearTimeout(moneyTimer); moneyTimer = setTimeout(() => saveMoney(true), 300); };
+$('m-reset').onclick = () => { money = Object.assign({}, EX); fillMoney(); moneyIsExample = true; moneySource = 'Example'; moneyNote = ''; renderMoney(); clearTimeout(moneyTimer); moneyTimer = setTimeout(() => saveMoney(true), 300); };
 function saveMoney(asExample) {
   if (!moneyDoc) { $('m-saved').textContent = 'Sign in to save your numbers. They are only kept on this screen for now.'; return; }
-  const body = Object.assign({}, money, {example: !!asExample, updatedAt: new Date().toISOString()});
+  const body = Object.assign({}, money, {example: !!asExample, source: asExample ? 'Example' : 'Your numbers', note: '', updatedAt: new Date().toISOString()});
   moneySaving = moneySaving.then(() => moneyDoc.set(body)).then(() => { $('m-saved').textContent = asExample ? 'Example numbers.' : 'Saved privately.'; })
     .catch(() => { $('m-saved').textContent = 'Not saved. Check your connection.'; });
 }
@@ -565,7 +594,7 @@ async function boot() {
   // private space
   if (uid) {
     moneyDoc = db.doc('data/users/' + uid + '/money'); notesDoc = db.doc('data/users/' + uid + '/journal');
-    moneyDoc.get().then(s => { if (s.exists) { const d = s.data(); for (const k of MF) if (k in d) money[k] = d[k]; moneyIsExample = !!d.example; fillMoney(); renderMoney(); $('m-saved').textContent = moneyIsExample ? 'Example numbers.' : 'Your saved numbers.'; } }).catch(() => {});
+    moneyDoc.get().then(s => { if (s.exists) { const d = s.data(); for (const k of MF) if (k in d) money[k] = d[k]; moneyIsExample = !!d.example; moneySource = d.source || (moneyIsExample ? 'Example' : ''); moneyNote = d.note || ''; fillMoney(); renderMoney(); $('m-saved').textContent = moneyIsExample ? 'Example numbers.' : 'Your saved numbers.'; } }).catch(() => {});
     notesDoc.get().then(s => { if (s.exists && !$('notes').value) $('notes').value = s.data().text || ''; notesLoaded = true; }).catch(() => {});
   } else {
     $('m-banner').textContent = 'Sign in to keep your numbers. Without it they stay on this screen only.';
