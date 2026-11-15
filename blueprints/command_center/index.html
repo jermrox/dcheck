@@ -3,259 +3,147 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: one column "site binder" - masthead with build status, tab strip, one working panel at a time. */
+/* Layout: a finished build plan read top to bottom - the answer, what was decided, what was verified, what is left, what is coming. */
 :root{
   --paper:#f6f6f3; --card:#ffffff; --ink:#15171c; --mute:#5d636e; --line:#e2e1dc;
   --trim:#1d1f24; --lawn:#2f6b4f; --lawn-soft:#e3efe8; --brick:#efeeea;
-  --warn:#a86a10; --warn-soft:#f8ecd7; --bad:#b03a2e; --bad-soft:#f7e1de; --ok:#2f6b4f;
+  --warn:#a86a10; --warn-soft:#f8ecd7; --bad:#b03a2e; --bad-soft:#f7e1de;
   --f-display:"Archivo",system-ui,sans-serif; --f-body:"Inter",system-ui,sans-serif; --f-mono:"IBM Plex Mono",ui-monospace,monospace;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --paper:#121417; --card:#1a1d22; --ink:#e9ebee; --mute:#9aa1ab; --line:#2a2e35;
   --trim:#e9ebee; --lawn:#7cc39d; --lawn-soft:#1b2d24; --brick:#20242a;
-  --warn:#e2a64a; --warn-soft:#33281a; --bad:#ef8a7f; --bad-soft:#3a201d; --ok:#7cc39d; color-scheme:dark}}
+  --warn:#e2a64a; --warn-soft:#33281a; --bad:#ef8a7f; --bad-soft:#3a201d; color-scheme:dark}}
 :root[data-theme="dark"]{
   --paper:#121417; --card:#1a1d22; --ink:#e9ebee; --mute:#9aa1ab; --line:#2a2e35;
   --trim:#e9ebee; --lawn:#7cc39d; --lawn-soft:#1b2d24; --brick:#20242a;
-  --warn:#e2a64a; --warn-soft:#33281a; --bad:#ef8a7f; --bad-soft:#3a201d; --ok:#7cc39d; color-scheme:dark}
+  --warn:#e2a64a; --warn-soft:#33281a; --bad:#ef8a7f; --bad-soft:#3a201d; color-scheme:dark}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 body{background:var(--paper);color:var(--ink);font:15px/1.55 var(--f-body)}
-.wrap{max-width:1040px;margin:0 auto;padding-block:20px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:980px;margin:0 auto;padding-block:20px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:28px}
 h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0}
-h1{font-size:clamp(26px,4vw,36px);font-weight:800;letter-spacing:-.015em}
-h2{font-size:19px;font-weight:700}
+h1{font-size:clamp(28px,4.4vw,40px);font-weight:800;letter-spacing:-.015em}
+h2{font-size:20px;font-weight:700}
 .eyebrow{font:500 11px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
-.mono,.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
 .muted{color:var(--mute)}
-button,input,select,textarea{font:inherit;color:inherit}
+.note{font-size:13px;color:var(--mute)}
+button,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
 :focus-visible{outline:2px solid var(--lawn);outline-offset:2px}
+.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
 
-/* masthead: elevation-style band, white brick with black trim line */
 .mast{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:end;padding-bottom:16px;border-bottom:3px solid var(--trim)}
-.mast .sub{margin:6px 0 0;color:var(--mute);max-width:62ch}
-.status{display:flex;gap:18px;flex-wrap:wrap}
-.status div{min-width:72px}
-.status b{display:block;font:600 22px/1.1 var(--f-mono)}
-.status span{font-size:12px;color:var(--mute)}
+.mast .sub{margin:6px 0 0;color:var(--mute);max-width:64ch}
+.score{display:flex;gap:20px;flex-wrap:wrap}
+.score b{display:block;font:600 26px/1.1 var(--f-mono)}
+.score span{font-size:12px;color:var(--mute)}
 @media(max-width:640px){.mast{grid-template-columns:1fr}}
 
-.tabs{display:flex;gap:4px;margin:14px 0 18px;overflow-x:auto;scrollbar-width:none}
-.tabs a{padding:8px 14px;border-radius:8px;color:var(--mute);text-decoration:none;font-weight:600;white-space:nowrap}
-.tabs a[aria-current="page"]{background:var(--trim);color:var(--paper)}
-.tabs a:hover:not([aria-current]){color:var(--ink);background:var(--brick)}
+section{display:grid;gap:12px}
+.sec-h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.count{font:500 12px var(--f-mono);color:var(--mute)}
 
-.panel{display:grid;gap:16px}
-.box{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
-.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.grow{flex:1 1 220px;min-width:0}
-.note{font-size:13px;color:var(--mute)}
-.banner{padding:10px 14px;border-radius:10px;background:var(--warn-soft);color:var(--ink);font-size:13.5px}
-.banner[data-kind="ok"]{background:var(--lawn-soft)}
-.banner[data-kind="bad"]{background:var(--bad-soft)}
-
-input[type=text],input[type=number],input[type=date],select,textarea{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%}
-textarea{resize:vertical;min-height:96px;line-height:1.5}
-.btn{border:1px solid var(--trim);background:var(--trim);color:var(--paper);border-radius:8px;padding:8px 14px;font-weight:600}
-.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
-.btn.small{padding:4px 10px;font-size:13px}
-.btn:disabled{opacity:.45;cursor:default}
-.icon{width:34px;height:34px;padding:0;display:inline-grid;place-items:center;border-radius:8px;border:1px solid var(--line);background:transparent}
-.icon.on{background:var(--bad-soft);border-color:var(--bad)}
-
-/* tracker */
-.chips{display:flex;gap:6px;flex-wrap:wrap}
-.chip{border:1px solid var(--line);background:transparent;border-radius:999px;padding:4px 12px;font-size:13px}
-.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
-.items{display:grid;gap:8px}
-.item{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:start;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
-.item.done .t{text-decoration:line-through;color:var(--mute)}
-.item .t{font-weight:600}
-.item .d{font-size:13.5px;color:var(--mute);margin-top:2px;white-space:pre-wrap}
-.item .meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;align-items:center}
-.kind{font:500 10.5px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;padding:4px 7px;border-radius:5px;background:var(--brick);color:var(--mute)}
-.kind[data-k="verify"]{background:var(--warn-soft);color:var(--warn)}
-.kind[data-k="milestone"]{background:var(--lawn-soft);color:var(--lawn)}
-.kind[data-k="decision"]{background:var(--bad-soft);color:var(--bad)}
-.due{font:500 12px var(--f-mono);color:var(--mute)}
-.due.late{color:var(--bad)}
-.st{width:84px;border-radius:999px;border:1px solid var(--line);padding:4px 0;font-size:12px;font-weight:600;background:transparent}
-.st[data-s="doing"]{background:var(--warn-soft);border-color:var(--warn);color:var(--warn)}
-.st[data-s="done"]{background:var(--lawn-soft);border-color:var(--lawn);color:var(--lawn)}
-.acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
-@media(max-width:560px){.item{grid-template-columns:auto 1fr}.acts{grid-column:1/-1;justify-content:flex-start}}
-.add{display:grid;grid-template-columns:140px 1fr 160px auto;gap:8px}
-@media(max-width:720px){.add{grid-template-columns:1fr 1fr}.add .t-in{grid-column:1/-1}}
-
-/* money */
-.money{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:16px;align-items:start}
-@media(max-width:820px){.money{grid-template-columns:1fr}}
-.fields{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;align-content:start}
-.fields label{display:grid;gap:3px;font-size:12.5px;color:var(--mute)}
-.fields .full{grid-column:1/-1}
-.fields h3{grid-column:1/-1;font-size:13px;margin-top:6px;color:var(--ink)}
-.check{display:flex!important;align-items:center;gap:8px;grid-template-columns:none}
-.check input{width:auto}
-.kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.kpi{border:1px solid var(--line);border-radius:10px;padding:12px}
-.kpi b{display:block;font:600 22px/1.15 var(--f-mono);font-variant-numeric:tabular-nums}
-.kpi span{font-size:12.5px;color:var(--mute)}
-.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
-.tbl td,.tbl th{padding:7px 4px;border-bottom:1px solid var(--line);text-align:left}
-.tbl td:last-child,.tbl th:last-child{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums}
-.tbl tr.total td{font-weight:700;border-bottom:2px solid var(--ink)}
-.bar{display:flex;height:14px;border-radius:4px;overflow:hidden;background:var(--brick)}
-.bar i{display:block;height:100%}
-.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--mute);margin-top:6px}
-.legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:0}
-.paths{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-@media(max-width:560px){.paths{grid-template-columns:1fr}}
-.path{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;gap:2px;font-size:13px}
+/* the answer */
+.answer{background:var(--card);border:2px solid var(--trim);border-radius:14px;padding:20px;display:grid;gap:14px}
+.answer h2{font-size:clamp(20px,3vw,26px)}
+.paths{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media(max-width:640px){.paths{grid-template-columns:1fr}}
+.path{border:1px solid var(--line);border-radius:10px;padding:12px;display:grid;gap:2px;font-size:13px}
 .path.best{border:2px solid var(--lawn);background:var(--lawn-soft)}
-.path b{font-family:var(--f-display);font-size:14px}
-.path .v{font:600 17px var(--f-mono);font-variant-numeric:tabular-nums}
-.answer{border-color:var(--trim)}
-.tag-ex{font:500 10.5px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;background:var(--warn-soft);color:var(--warn);padding:3px 7px;border-radius:5px}
+.path b{font-family:var(--f-display);font-size:14.5px;margin-bottom:4px}
+.path .v{font:600 18px var(--f-mono);font-variant-numeric:tabular-nums;margin-bottom:4px}
+.bar{display:flex;height:12px;border-radius:4px;overflow:hidden;background:var(--brick)}
+.bar i{display:block;height:100%}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--mute)}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px}
 
-/* docs */
-.docs{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
-.doc{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--card);display:flex;flex-direction:column}
-.doc .thumb{aspect-ratio:4/3;max-width:100%;background:var(--brick);display:grid;place-items:center;color:var(--mute);font:500 13px var(--f-mono)}
-.doc .thumb img{width:100%;height:100%;object-fit:cover}
-.doc .body{padding:10px 12px;display:grid;gap:6px;min-width:0}
-.doc .name{font-weight:600;overflow-wrap:anywhere}
-.drop{border:2px dashed var(--line);border-radius:12px;padding:22px;text-align:center;color:var(--mute)}
-.drop.over{border-color:var(--lawn);background:var(--lawn-soft)}
+/* findings */
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media(max-width:700px){.cards{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:grid;gap:6px;align-content:start;min-width:0}
+.card .t{font-weight:600}
+.card .d{font-size:14px;color:var(--ink);white-space:pre-wrap;overflow-wrap:anywhere}
+.chip{justify-self:start;font:500 10.5px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;padding:4px 7px;border-radius:5px}
+.chip.ok{background:var(--lawn-soft);color:var(--lawn)}
+.chip.you{background:var(--warn-soft);color:var(--warn)}
+.card.you{border-left:4px solid var(--warn)}
+.card .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.btn{border:1px solid var(--line);background:transparent;border-radius:8px;padding:5px 12px;font-size:13px;font-weight:600}
+.btn.dark{background:var(--trim);border-color:var(--trim);color:var(--paper)}
+
+/* timeline */
+.steps{display:grid;gap:0;counter-reset:s;border-left:2px solid var(--line);margin-left:8px}
+.step{position:relative;padding:4px 0 14px 20px}
+.step::before{content:"";position:absolute;left:-7px;top:9px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--trim)}
+.step.done::before{background:var(--lawn);border-color:var(--lawn)}
+.step .t{font-weight:600}
 
 /* ask */
-.chat{display:grid;gap:10px;max-height:56vh;overflow-y:auto;padding-right:4px}
-.msg{max-width:78ch;padding:10px 14px;border-radius:12px;white-space:pre-wrap;overflow-wrap:anywhere}
+.ask{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:grid;gap:10px}
+.chat{display:grid;gap:8px;max-height:50vh;overflow-y:auto}
+.msg{padding:10px 14px;border-radius:12px;white-space:pre-wrap;overflow-wrap:anywhere;max-width:78ch}
 .msg.me{justify-self:end;background:var(--trim);color:var(--paper)}
 .msg.ai{background:var(--brick)}
-.msg.sys{font-size:12.5px;color:var(--mute);background:transparent;padding:0 4px}
-.suggest{display:flex;gap:6px;flex-wrap:wrap}
-.composer{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:end}
-.composer textarea{min-height:52px}
-@media(prefers-reduced-motion:no-preference){.msg{animation:in .18s ease-out}@keyframes in{from{opacity:.4;transform:translateY(3px)}}}
+.msg.sys{font-size:12.5px;color:var(--mute);padding:0 4px}
+.composer{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}
+.composer textarea{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-height:46px;resize:vertical;width:100%}
+.banner{padding:10px 14px;border-radius:10px;background:var(--warn-soft);font-size:13.5px}
 </style>
 
 <div class="wrap">
   <header class="mast">
     <div>
-      <div class="eyebrow">Obsidian 1899F · new build</div>
+      <div class="eyebrow">Obsidian 1899F · new build plan</div>
       <h1>Build HQ</h1>
-      <p class="sub">Track every decision and inspection, run your loan numbers privately, keep the contract and photos together, and ask Claude what to do next.</p>
+      <p class="sub">The money answer, the decisions made, the facts checked, and the short list of steps only you can take.</p>
     </div>
-    <div class="status" aria-live="polite">
-      <div><b id="s-open">–</b><span>open items</span></div>
-      <div><b id="s-verify">–</b><span>to verify</span></div>
-      <div><b id="s-next">–</b><span id="s-next-l">next date</span></div>
+    <div class="score" aria-live="polite">
+      <div><b id="s-done">–</b><span>handled</span></div>
+      <div><b id="s-you">–</b><span>need you</span></div>
+      <div><b id="s-next">–</b><span>upcoming milestones</span></div>
     </div>
   </header>
 
-  <nav class="tabs" aria-label="Sections">
-    <a href="#tracker">Tracker</a><a href="#money">Money</a><a href="#documents">Documents</a><a href="#ask">Ask Claude</a><a href="#notes">Notes</a>
-  </nav>
-
   <div id="conn" class="banner" hidden></div>
 
-  <!-- TRACKER -->
-  <section class="panel" id="v-tracker">
-    <div class="row">
-      <div class="chips" id="filters" role="group" aria-label="Filter"></div>
-      <span class="grow"></span>
-      <button class="btn ghost small" id="csv">Download CSV</button>
-    </div>
-    <form class="box add" id="addForm">
-      <select id="a-kind" aria-label="Type"><option value="task">Task</option><option value="verify">Verify</option><option value="decision">Decision</option><option value="milestone">Milestone</option></select>
-      <input class="t-in" id="a-title" type="text" placeholder="Add an item, e.g. Pre-drywall walkthrough" aria-label="Title" required>
-      <input id="a-due" type="date" aria-label="Due date">
-      <button class="btn" type="submit">Add</button>
-      <input id="a-detail" type="text" placeholder="Details (optional)" aria-label="Details" style="grid-column:1/-1">
-    </form>
-    <div class="items" id="items"><div class="box muted">Loading the tracker…</div></div>
-  </section>
-
-  <!-- MONEY -->
-  <section class="panel" id="v-money" hidden>
-    <div class="banner" id="m-banner">These numbers are saved to your private space: nobody else who opens this page can see them, including people you share it with.</div>
-    <div class="money">
-      <form class="box fields" id="mform" autocomplete="off">
-        <h3>The new house</h3>
-        <label>Base price<input type="number" id="m-base" step="1000"></label>
-        <label>Lot premium<input type="number" id="m-lot" step="1000"></label>
-        <label>Options &amp; pool<input type="number" id="m-opts" step="1000"></label>
-        <label>Appraised value<input type="number" id="m-appr" step="1000"></label>
-        <label>Property tax %<input type="number" id="m-tax" step="0.0001"></label>
-        <label>Insurance / yr<input type="number" id="m-ins" step="100"></label>
-        <label>HOA / mo<input type="number" id="m-hoa" step="5"></label>
-        <label>Other debts / mo<input type="number" id="m-debt" step="50"></label>
-        <h3>Loan</h3>
-        <label>VA rate %<input type="number" id="m-varate" step="0.01"></label>
-        <label>Conventional rate %<input type="number" id="m-cvrate" step="0.01"></label>
-        <label>County loan limit<input type="number" id="m-limit" step="50"></label>
-        <label>Original VA loan still open<input type="number" id="m-orig" step="1000"></label>
-        <label class="check full"><input type="checkbox" id="m-exempt"> Funding fee exempt (VA disability rating)</label>
-        <label class="check full"><input type="checkbox" id="m-first"> First use of VA entitlement</label>
-        <h3>Current house</h3>
-        <label>Value<input type="number" id="m-oval" step="1000"></label>
-        <label>Loan balance<input type="number" id="m-obal" step="1000"></label>
-        <label>Payment / mo (PITI)<input type="number" id="m-opay" step="50"></label>
-        <label>Market rent / mo<input type="number" id="m-orent" step="50"></label>
-        <div class="full row"><span class="note grow" id="m-saved">Change any number and the answer updates.</span><button class="btn ghost small" type="button" id="m-reset">Reset to examples</button></div>
-      </form>
-      <div class="panel">
-        <div class="box answer" id="answer"><div class="eyebrow">The answer</div><h2 id="ans-h" style="margin:6px 0 4px">–</h2><p id="ans-p" class="muted" style="margin:0 0 12px"></p><div class="paths" id="paths"></div><p class="note" id="ans-src" style="margin:10px 0 0"></p></div>
-        <div class="box">
-          <div class="row" style="justify-content:space-between"><h2>Best VA path in detail</h2><span id="m-tag" class="tag-ex">Example</span></div>
-          <div class="kpis" style="margin-top:12px">
-            <div class="kpi"><b id="k-pay">–</b><span>monthly payment (PITI + HOA)</span></div>
-            <div class="kpi"><b id="k-income">–</b><span>gross income to qualify at 41% DTI</span></div>
-            <div class="kpi"><b id="k-cash">–</b><span>cash at closing (down + appraisal gap)</span></div>
-            <div class="kpi"><b id="k-allin">–</b><span>all-in price</span></div>
-          </div>
-          <div style="margin-top:14px"><div class="bar" id="k-bar"></div><div class="legend" id="k-legend"></div></div>
-        </div>
-        <div class="box" style="overflow-x:auto">
-          <table class="tbl"><thead><tr><th>Current house</th><th>Sell</th><th>Rent out</th></tr></thead><tbody id="k-old"></tbody></table>
-        </div>
-        <div class="box" style="overflow-x:auto">
-          <table class="tbl"><thead><tr><th>VA vs conventional</th><th>VA</th><th>20% down</th></tr></thead><tbody id="k-cmp"></tbody></table>
-          <p class="note" style="margin:10px 0 0">Estimates only. VA partial entitlement: the zero-down limit is 4 × (25% of the county limit − 25% of the open VA loan); above it you put down 25% of the difference. Rent counts at 75% toward qualifying.</p>
-        </div>
-      </div>
+  <section>
+    <div class="answer" id="answer">
+      <div class="eyebrow">The money answer</div>
+      <h2 id="ans-h">Loading your numbers…</h2>
+      <p id="ans-p" class="muted" style="margin:0"></p>
+      <div class="paths" id="paths"></div>
+      <div id="ans-bar"></div>
+      <p class="note" id="ans-src" style="margin:0"></p>
     </div>
   </section>
 
-  <!-- DOCUMENTS -->
-  <section class="panel" id="v-documents" hidden>
-    <div class="banner" data-kind="ok">Files you add here are visible to anyone you share this page with. Keep the contract here only if this page stays private to you.</div>
-    <label class="drop" id="drop" for="file">Drop a contract page, selection sheet, inspection photo or PDF here, or <u>choose a file</u>.<input id="file" type="file" accept="image/*,application/pdf,text/plain,text/csv,text/markdown" hidden></label>
-    <div class="docs" id="docs"></div>
+  <section>
+    <div class="sec-h"><h2>Needs you</h2><span class="count" id="c-you"></span></div>
+    <p class="note" style="margin:0">Only things that need your login, your signature or the builder's answer. Each card has the exact steps.</p>
+    <div class="cards" id="you"></div>
   </section>
 
-  <!-- ASK -->
-  <section class="panel" id="v-ask" hidden>
-    <div class="box panel">
-      <div class="note">Claude sees your tracker and, when you allow it, your private money numbers. It can add items and update their status for you.</div>
-      <div class="suggest" id="suggest"></div>
+  <section>
+    <div class="sec-h"><h2>Decided</h2><span class="count" id="c-dec"></span></div>
+    <div class="cards" id="decided"></div>
+  </section>
+
+  <section>
+    <div class="sec-h"><h2>Checked and confirmed</h2><span class="count" id="c-ver"></span></div>
+    <div class="cards" id="verified"></div>
+  </section>
+
+  <section>
+    <div class="sec-h"><h2>Build timeline</h2></div>
+    <div class="steps" id="steps"></div>
+  </section>
+
+  <section>
+    <div class="ask" id="ask">
+      <div class="sec-h"><h2>Ask about the plan</h2></div>
       <div class="chat" id="chat" aria-live="polite"></div>
-      <div class="composer">
-        <textarea id="q" placeholder="Ask about the build, the loan, or what to do this week" aria-label="Question"></textarea>
-        <button class="icon" id="q-mic" title="Dictate" aria-label="Dictate" hidden>🎙</button>
-        <div class="row" style="gap:6px"><button class="btn" id="q-send">Ask</button><button class="btn ghost" id="q-stop" hidden>Stop</button></div>
-      </div>
-      <label class="check note"><input type="checkbox" id="q-money" checked style="width:auto"> Include my money numbers</label>
-    </div>
-  </section>
-
-  <!-- NOTES -->
-  <section class="panel" id="v-notes" hidden>
-    <div class="box panel">
-      <div class="row"><h2 class="grow">Site journal</h2><button class="icon" id="n-mic" title="Dictate" aria-label="Dictate" hidden>🎙</button><span class="note" id="n-saved"></span></div>
-      <textarea id="notes" style="min-height:320px" placeholder="Walkthrough notes, questions for the superintendent, things to photograph. Private to you."></textarea>
-      <div class="row"><span class="note grow">Saved automatically to your private space.</span><button class="btn ghost small" id="n-dl">Download as text</button></div>
+      <div class="composer"><textarea id="q" aria-label="Question" placeholder="Ask anything about the build, the loan or the family plan"></textarea><button class="btn dark" id="q-send">Ask</button></div>
     </div>
   </section>
 </div>
@@ -264,341 +152,106 @@ textarea{resize:vertical;min-height:96px;line-height:1.5}
 (() => {
 const $ = id => document.getElementById(id);
 const fmt = n => (n < 0 ? '−$' : '$') + Math.round(Math.abs(n)).toLocaleString('en-US');
-const KINDS = {task: 'Task', verify: 'Verify', decision: 'Decision', milestone: 'Milestone'};
-const NEXT = {open: 'doing', doing: 'done', done: 'open'};
-const LABEL = {open: 'Open', doing: 'Doing', done: 'Done'};
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
-const today = () => new Date().toISOString().slice(0, 10);
+let db = null, user = null, sample = null, mcp = null, items = [], money = null, canWrite = true;
 
-let db = null, user = null, uid = null, canWrite = true, items = [], filter = 'all';
-let sample = null, mcp = null, assets = null, downloads = null, dict = null;
-let docs = [];
+function banner(t) { $('conn').hidden = !t; $('conn').textContent = t || ''; }
 
-/* ---------- routing ---------- */
-const VIEWS = ['tracker', 'money', 'documents', 'ask', 'notes'];
-function route() {
-  const v = VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'tracker';
-  for (const k of VIEWS) $('v-' + k).hidden = k !== v;
-  document.querySelectorAll('.tabs a').forEach(a => { if (a.getAttribute('href') === '#' + v) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
-}
-addEventListener('hashchange', route); route();
-
-function banner(text, kind) { const b = $('conn'); b.hidden = !text; b.textContent = text || ''; if (kind) b.dataset.kind = kind; else delete b.dataset.kind; }
-
-/* ---------- tracker ---------- */
-function renderFilters() {
-  const opts = [['all', 'All'], ['open', 'Not done'], ...Object.entries(KINDS)];
-  $('filters').innerHTML = opts.map(([k, t]) => `<button class="chip" data-f="${k}" aria-pressed="${filter === k}">${t}</button>`).join('');
-}
-$('filters').onclick = e => { const b = e.target.closest('[data-f]'); if (!b) return; filter = b.dataset.f; renderFilters(); renderItems(); };
-renderFilters();
-
-function sorted() {
-  const rank = {doing: 0, open: 1, done: 2};
-  return items.slice().sort((a, b) => (rank[a.status] - rank[b.status]) || ((a.due || '9999') < (b.due || '9999') ? -1 : (a.due || '9999') > (b.due || '9999') ? 1 : 0) || (a.order || 0) - (b.order || 0));
-}
-function renderItems() {
-  const list = sorted().filter(it => filter === 'all' || (filter === 'open' ? it.status !== 'done' : it.kind === filter));
-  const t = today();
-  $('items').innerHTML = list.length ? list.map(it => `
-    <div class="item ${it.status === 'done' ? 'done' : ''}" data-id="${esc(it.id)}">
-      <button class="st" data-act="st" data-s="${esc(it.status)}" ${canWrite ? '' : 'disabled'} title="Change status">${LABEL[it.status] || 'Open'}</button>
-      <div style="min-width:0"><div class="t">${esc(it.title)}</div>${it.detail ? `<div class="d">${esc(it.detail)}</div>` : ''}
-        <div class="meta"><span class="kind" data-k="${esc(it.kind)}">${KINDS[it.kind] || 'Task'}</span>${it.due ? `<span class="due ${it.due < t && it.status !== 'done' ? 'late' : ''}">${esc(it.due)}</span>` : ''}</div></div>
-      <div class="acts">
-        ${it.due && mcp ? `<button class="btn ghost small" data-act="cal">Add to Calendar</button>` : ''}
-        ${canWrite ? `<button class="btn ghost small" data-act="del">Remove</button>` : ''}
-      </div>
-    </div>`).join('') : `<div class="box muted">${items.length ? 'Nothing matches this filter.' : 'No items yet. Add the first one above: a decision you owe the builder, a fact to verify, or an inspection date.'}</div>`;
-  renderStatus();
-}
-function renderStatus() {
-  const open = items.filter(i => i.status !== 'done');
-  $('s-open').textContent = open.length;
-  $('s-verify').textContent = open.filter(i => i.kind === 'verify').length;
-  const next = open.filter(i => i.due && i.due >= today()).sort((a, b) => a.due < b.due ? -1 : 1)[0];
-  $('s-next').textContent = next ? next.due.slice(5).replace('-', '/') : '—';
-  $('s-next-l').textContent = next ? next.title.slice(0, 26) : 'no dates set';
-}
-$('items').onclick = async e => {
-  const b = e.target.closest('[data-act]'); if (!b) return;
-  const id = b.closest('.item').dataset.id, it = items.find(i => i.id === id); if (!it) return;
-  if (b.dataset.act === 'st') return setItem(id, {status: NEXT[it.status] || 'doing'});
-  if (b.dataset.act === 'del') {
-    if (b.dataset.armed) { b.disabled = true; try { await db.collection('items').doc(id).delete(); } catch (err) { writeFailed(err); } }
-    else { b.dataset.armed = '1'; b.textContent = 'Confirm remove'; setTimeout(() => { if (b.isConnected) { delete b.dataset.armed; b.textContent = 'Remove'; } }, 4000); }
-  }
-  if (b.dataset.act === 'cal') addToCalendar(it, b);
-};
-async function setItem(id, patch) {
-  try { await db.collection('items').doc(id).update(Object.assign({updatedAt: new Date().toISOString()}, patch)); }
-  catch (err) { writeFailed(err); }
-}
-async function addItem({kind, title, detail, due}) {
-  const doc = {kind: KINDS[kind] ? kind : 'task', title: String(title).slice(0, 200), detail: String(detail || '').slice(0, 1000), due: /^\d{4}-\d{2}-\d{2}$/.test(due || '') ? due : null, status: 'open', order: Date.now(), createdAt: new Date().toISOString()};
-  const ref = await db.collection('items').add(doc);
-  return ref.id;
-}
-$('addForm').onsubmit = async e => {
-  e.preventDefault(); if (!db) return;
-  const title = $('a-title').value.trim(); if (!title) return;
-  try { await addItem({kind: $('a-kind').value, title, detail: $('a-detail').value.trim(), due: $('a-due').value}); $('a-title').value = ''; $('a-detail').value = ''; $('a-due').value = ''; }
-  catch (err) { writeFailed(err); }
-};
-function writeFailed(err) {
-  if (err && err.code === 'invalid_argument') { canWrite = false; $('addForm').hidden = true; renderItems(); banner('You can view this tracker but not change it.'); }
-  else if (err && err.code === 'quota_exceeded') banner('The tracker is full. Remove finished items to add more.', 'bad');
-  else banner('That change did not save. Check your connection and try again.', 'bad');
-}
-$('csv').onclick = async () => {
-  const rows = [['type', 'status', 'title', 'due', 'details']].concat(sorted().map(i => [KINDS[i.kind] || i.kind, i.status, i.title, i.due || '', i.detail || '']));
-  const csv = rows.map(r => r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(',')).join('\n');
-  await saveFile('obsidian-build-tracker.csv', csv);
-};
-async function saveFile(filename, data) {
-  if (!downloads) { banner('Downloading files is not available in this view.'); return; }
-  try { await downloads.save({filename, data}); } catch (e) { if (e && e.code !== 'cancelled' && e.code !== 'declined') banner('The file was not saved.', 'bad'); }
-}
-
-/* ---------- calendar (Google Calendar connector) ---------- */
-async function addToCalendar(it, btn) {
-  btn.disabled = true; btn.textContent = 'Adding…';
-  const end = new Date(it.due + 'T00:00:00'); end.setDate(end.getDate() + 1);
-  try {
-    await mcp.callTool('Google Calendar', 'create_event', {summary: 'Build: ' + it.title, description: (it.detail || '') + '\n\nFrom Obsidian Build HQ', startTime: it.due + 'T00:00:00', endTime: end.toISOString().slice(0, 10) + 'T00:00:00', allDay: true});
-    btn.textContent = 'On your calendar';
-  } catch (e) {
-    btn.disabled = false; btn.textContent = 'Add to Calendar';
-    const msg = {server_not_connected: 'Add Google Calendar in claude.ai Settings → Connectors to send dates to your calendar.',
-      needs_reauth: 'Reconnect Google Calendar in claude.ai Settings → Connectors.',
-      not_in_manifest: 'Calendar access is turned off for this page.', approval_required: 'Adding the event needs your approval. Click again and allow it.',
-      blocked_by_policy: 'Your organization blocks creating calendar events here.', selection_required: 'Choose which Google Calendar connection to use when claude.ai asks.'}[e && e.code];
-    banner(msg || 'The event may not have been created. Check your calendar before trying again.', 'bad');
-  }
-}
-
-/* ---------- money (private) ---------- */
-const EX = {base: 1200000, lot: 150000, opts: 60000, appr: 1450000, tax: 0.66, ins: 4500, hoa: 150, debt: 600, varate: 6.5, cvrate: 6.9, limit: 832750, orig: 300000, exempt: false, first: false, oval: 450000, obal: 280000, opay: 2400, orent: 2800};
-let money = Object.assign({}, EX), moneyIsExample = true, moneyDoc = null, moneySource = 'Example', moneyNote = 'Example numbers. Your private numbers load when you open this in Claude.';
-const MF = Object.keys(EX);
-function fillMoney() { for (const k of MF) { const el = $('m-' + k); if (el.type === 'checkbox') el.checked = !!money[k]; else el.value = money[k]; } }
-function readMoney() { for (const k of MF) { const el = $('m-' + k); money[k] = el.type === 'checkbox' ? el.checked : (parseFloat(el.value) || 0); } }
-const pmt = (P, ratePct, yrs = 30) => { const r = ratePct / 1200, n = yrs * 12; return r ? P * r / (1 - Math.pow(1 + r, -n)) : P / n; };
-function calc(m) {
+/* ---------- money answer (numbers live in the viewer's private space) ---------- */
+const pmt = (P, r, n = 360) => { r /= 1200; return r ? P * r / (1 - Math.pow(1 + r, -n)) : P / n; };
+function calc(m, keepOld) {
   const allIn = m.base + m.lot + m.opts, basis = Math.min(allIn, m.appr || allIn), gap = Math.max(0, allIn - basis);
   let cap = Infinity, down = 0;
-  if (m.orig > 0) { cap = Math.max(0, (m.limit * 0.25 - m.orig * 0.25) * 4); if (basis > cap) down = 0.25 * (basis - cap); }
+  if (keepOld && m.orig > 0) { cap = Math.max(0, (m.limit * 0.25 - m.orig * 0.25) * 4); if (basis > cap) down = 0.25 * (basis - cap); }
   const dp = basis ? down / basis : 0;
   const feePct = m.exempt ? 0 : dp >= 0.10 ? 1.25 : dp >= 0.05 ? 1.5 : (m.first ? 2.15 : 3.3);
   const loan = (basis - down) * (1 + feePct / 100);
-  const tax = allIn * m.tax / 100 / 12, ins = m.ins / 12;
-  const pi = pmt(loan, m.varate), total = pi + tax + ins + m.hoa;
-  const rentCredit = 0; // counted per path below
-  const cvDown = allIn * 0.2, cvPI = pmt(allIn - cvDown, m.cvrate), cvTotal = cvPI + tax + ins + m.hoa;
-  const sellNet = m.oval * 0.93 - m.obal;
-  const rentNet = m.orent * 0.75 - m.opay;  // lender view
-  const keepOld = m.orig > 0;
-  const incomeVA = (total + m.debt + (keepOld ? Math.max(0, -rentNet) : 0)) / 0.41;
-  const incomeCv = (cvTotal + m.debt) / 0.41;
-  return {allIn, basis, gap, cap, down, feePct, loan, pi, tax, ins, hoa: m.hoa, total, cvDown, cvPI, cvTotal, sellNet, rentNet, incomeVA, incomeCv, cash: down + gap, keepOld, rentCredit};
+  const tax = allIn * m.tax / 100 / 12, ins = m.ins / 12, pi = pmt(loan, m.varate), total = pi + tax + ins + m.hoa;
+  const rentNet = m.orent * 0.75 - m.opay;
+  const income = (total + m.debt + (keepOld ? Math.max(0, -rentNet) : 0)) / 0.41;
+  const cvDown = allIn * 0.2, cvTotal = pmt(allIn - cvDown, m.cvrate) + tax + ins + m.hoa;
+  return {allIn, basis, gap, cap, down, feePct, loan, pi, tax, ins, total, income, cash: down + gap, cvDown, cvTotal, cvIncome: (cvTotal + m.debt) / 0.41, sellNet: m.oval * 0.93 - m.obal};
 }
 function renderAnswer() {
-  const sell = calc(Object.assign({}, money, {orig: 0})), keep = calc(money), m = money;
-  const tax = sell.tax + sell.ins + sell.hoa;
-  const cvLoan = sell.allIn - sell.cvDown;
+  if (!money) return;
+  const m = money, s = calc(m, false), k = calc(m, true);
   const P = [
-    {k: 'sell', name: 'Sell current house, VA $0 down', cash: sell.cash, pay: sell.total, inc: sell.incomeVA, note: 'Full entitlement back; only the amount over appraisal is cash.'},
-    {k: 'keep', name: 'Keep & rent it, VA partial', cash: keep.cash, pay: keep.total, inc: keep.incomeVA, note: 'Entitlement still tied up: 25% of the gap above ' + (isFinite(keep.cap) ? fmt(keep.cap) : '—') + ' is due at closing.'},
-    {k: 'conv', name: 'Conventional jumbo, 20% down', cash: sell.cvDown + 0, pay: sell.cvTotal, inc: sell.incomeCv, note: 'No funding fee; jumbo rate ' + m.cvrate + '%.'},
+    {name: 'Sell current house · VA $0 down', cash: s.cash, pay: s.total, inc: s.income, best: true},
+    {name: 'Keep & rent it · VA partial', cash: k.cash, pay: k.total, inc: k.income},
+    {name: 'Conventional · 20% down', cash: s.cvDown, pay: s.cvTotal, inc: s.cvIncome},
   ];
-  if (m.orig <= 0) P.splice(1, 1);
-  const equity = Math.max(0, sell.sellNet);
-  const best = P.slice().sort((a, b) => a.cash - b.cash || a.pay - b.pay)[0];
-  $('paths').innerHTML = P.map(p => `<div class="path ${p === best ? 'best' : ''}"><b>${p.name}</b><span>Cash to close</span><span class="v">${fmt(p.cash)}</span><span>Payment</span><span class="v">${fmt(p.pay)}/mo</span><span>Income needed (41% DTI)</span><span class="v">${fmt(p.inc)}/mo</span><span class="note">${p.note}</span></div>`).join('');
-  $('ans-h').textContent = best.k === 'sell' ? 'Sell the current house and use VA at $0 down.' : best.k === 'keep' ? 'Keep the current house and use VA partial entitlement.' : 'Go conventional with 20% down.';
-  const covers = equity >= best.cash;
-  $('ans-p').textContent = (best.k === 'sell'
-      ? `It needs the least cash: ${fmt(best.cash)} at closing (the build costs ${fmt(sell.gap)} more than the appraisal), versus ${fmt(P.find(p => p.k !== 'sell').cash)} on the next option. ` + (covers ? `Selling should net about ${fmt(equity)}, which covers it with ${fmt(equity - best.cash)} left over.` : `Selling nets about ${fmt(equity)}, ${fmt(best.cash - equity)} short of the cash needed.`)
-      : `It needs the least cash at closing: ${fmt(best.cash)}.`)
-    + ` To qualify, the household needs about ${fmt(best.inc)}/mo gross (BAH and VA compensation count)` + (m.exempt ? '.' : `; a VA disability rating of 10%+ would waive the ${sell.feePct}% funding fee and save ${fmt(sell.loan - sell.basis)}.`);
-}
-function renderMoney() {
-  renderAnswer();
-  const c = calc(money);
-  $('m-tag').textContent = moneySource; $('m-tag').hidden = !moneySource; $('ans-src').textContent = moneyNote;
-  $('k-pay').textContent = fmt(c.total); $('k-income').textContent = fmt(c.incomeVA) + '/mo';
-  $('k-cash').textContent = fmt(c.cash); $('k-allin').textContent = fmt(c.allIn);
-  const parts = [['Principal & interest', c.pi, 'var(--trim)'], ['Property tax', c.tax, 'var(--lawn)'], ['Insurance', c.ins, 'var(--warn)'], ['HOA', c.hoa, 'var(--mute)']];
-  $('k-bar').innerHTML = parts.map(([, v, col]) => `<i style="width:${(v / c.total * 100).toFixed(2)}%;background:${col}"></i>`).join('');
-  $('k-legend').innerHTML = parts.map(([t, v, col]) => `<span><i style="background:${col}"></i>${t} ${fmt(v)}</span>`).join('');
-  $('k-old').innerHTML = `
-    <tr><td>Cash to you now</td><td>${fmt(c.sellNet)}</td><td>$0</td></tr>
-    <tr><td>Monthly cash flow (rent − payment)</td><td>—</td><td>${fmt(money.orent - money.opay)}</td></tr>
-    <tr><td>Lender counts (75% of rent − payment)</td><td>—</td><td>${fmt(c.rentNet)}</td></tr>
-    <tr><td>VA entitlement</td><td>Restored after payoff</td><td>Partial: zero-down up to ${isFinite(c.cap) ? fmt(c.cap) : 'no limit'}</td></tr>`;
-  $('k-cmp').innerHTML = `
-    <tr><td>Down payment</td><td>${fmt(c.down)}</td><td>${fmt(c.cvDown)}</td></tr>
-    <tr><td>Funding fee / PMI</td><td>${c.feePct}% (${fmt(c.loan - (c.basis - c.down))})</td><td>None at 20%</td></tr>
-    <tr><td>Loan amount</td><td>${fmt(c.loan)}</td><td>${fmt(c.allIn - c.cvDown)}</td></tr>
-    <tr><td>Monthly payment</td><td>${fmt(c.total)}</td><td>${fmt(c.cvTotal)}</td></tr>
-    <tr class="total"><td>Income to qualify (41% DTI)</td><td>${fmt(c.incomeVA)}</td><td>${fmt(c.incomeCv)}</td></tr>`;
-}
-fillMoney(); renderMoney();
-let moneyTimer = null, moneySaving = Promise.resolve();
-$('mform').addEventListener('input', () => {
-  readMoney(); moneyIsExample = false; moneySource = 'Your numbers'; moneyNote = ''; renderMoney(); $('m-saved').textContent = 'Saving…';
-  clearTimeout(moneyTimer); moneyTimer = setTimeout(saveMoney, 900);
-});
-$('m-reset').onclick = () => { money = Object.assign({}, EX); fillMoney(); moneyIsExample = true; moneySource = 'Example'; moneyNote = ''; renderMoney(); clearTimeout(moneyTimer); moneyTimer = setTimeout(() => saveMoney(true), 300); };
-function saveMoney(asExample) {
-  if (!moneyDoc) { $('m-saved').textContent = 'Sign in to save your numbers. They are only kept on this screen for now.'; return; }
-  const body = Object.assign({}, money, {example: !!asExample, source: asExample ? 'Example' : 'Your numbers', note: '', updatedAt: new Date().toISOString()});
-  moneySaving = moneySaving.then(() => moneyDoc.set(body)).then(() => { $('m-saved').textContent = asExample ? 'Example numbers.' : 'Saved privately.'; })
-    .catch(() => { $('m-saved').textContent = 'Not saved. Check your connection.'; });
+  $('ans-h').textContent = 'Sell the current house and use VA at $0 down.';
+  $('ans-p').textContent = `It needs the least cash: ${fmt(s.cash)} at closing, which is the amount the build runs over the ${fmt(m.appr)} appraisal (the pool). Keeping the house ties up part of your VA entitlement and needs ${fmt(k.cash)}; conventional needs ${fmt(s.cvDown)}. Selling should net about ${fmt(s.sellNet)}, which covers it. To qualify, household gross income needs to be about ${fmt(s.income)}/mo (base pay, BAH and VA compensation all count). A VA disability rating of 10% or more waives the ${s.feePct}% funding fee: ${fmt(s.loan - s.basis)} saved.`;
+  $('paths').innerHTML = P.map(p => `<div class="path ${p.best ? 'best' : ''}"><b>${p.name}</b><span>Cash to close</span><span class="v">${fmt(p.cash)}</span><span>Monthly payment</span><span class="v">${fmt(p.pay)}</span><span>Income needed (41% DTI)</span><span class="v">${fmt(p.inc)}/mo</span></div>`).join('');
+  const parts = [['Principal & interest', s.pi, 'var(--trim)'], ['Property tax', s.tax, 'var(--lawn)'], ['Insurance', s.ins, 'var(--warn)'], ['HOA', m.hoa, 'var(--mute)']];
+  $('ans-bar').innerHTML = `<div class="note" style="margin-bottom:6px">Where the ${fmt(s.total)} monthly payment goes</div><div class="bar">${parts.map(([, v, c]) => `<i style="width:${(v / s.total * 100).toFixed(2)}%;background:${c}"></i>`).join('')}</div><div class="legend" style="margin-top:6px">${parts.map(([t, v, c]) => `<span><i style="background:${c}"></i>${t} ${fmt(v)}</span>`).join('')}</div>`;
+  $('ans-src').textContent = m.note || '';
 }
 
-/* ---------- documents (assets + db rows) ---------- */
-function renderDocs() {
-  if (!assets) { $('drop').hidden = true; }
-  $('docs').innerHTML = docs.length ? docs.map(d => {
-    const url = '/_blob/' + d.assetId, img = /^image\//.test(d.contentType || '');
-    return `<div class="doc" data-id="${esc(d.id)}">
-      <a class="thumb" href="${esc(url)}" target="_blank" rel="noopener">${img ? `<img src="${esc(url)}" alt="${esc(d.name)}" loading="lazy">` : esc((d.name.split('.').pop() || 'file').toUpperCase())}</a>
-      <div class="body"><div class="name">${esc(d.name)}</div><div class="note">${(d.size / 1024 / 1024).toFixed(2)} MB · ${esc((d.createdAt || '').slice(0, 10))}</div>
-        <div class="row" style="gap:6px">${img && sample ? `<button class="btn ghost small" data-act="read">Ask Claude to read it</button>` : ''}${assets && canWrite ? `<button class="btn ghost small" data-act="del">Delete</button>` : ''}</div></div></div>`;
-  }).join('') : `<div class="note">No documents yet. Add the purchase agreement, design-center selections or a photo from a walkthrough.</div>`;
+/* ---------- plan sections from the tracker ---------- */
+function renderPlan() {
+  const isYou = i => i.kind !== 'milestone' && i.status !== 'done';
+  const you = items.filter(isYou).sort((a, b) => (a.order || 0) - (b.order || 0));
+  const dec = items.filter(i => i.kind === 'decision' && i.status === 'done');
+  const ver = items.filter(i => i.kind !== 'decision' && i.kind !== 'milestone' && i.status === 'done');
+  const ms = items.filter(i => i.kind === 'milestone').sort((a, b) => (a.order || 0) - (b.order || 0));
+  const card = (i, mine) => `<div class="card ${mine ? 'you' : ''}" data-id="${esc(i.id)}"><span class="chip ${mine ? 'you' : 'ok'}">${mine ? 'Your step' : 'Done'}</span><div class="t">${esc(i.title)}</div>${i.detail ? `<div class="d">${esc(i.detail.replace(/^(DONE|DECIDED)[.:]\s*/, ''))}</div>` : ''}${mine && canWrite ? `<div class="row"><button class="btn" data-act="done">Mark done</button></div>` : ''}</div>`;
+  $('you').innerHTML = you.length ? you.map(i => card(i, true)).join('') : '<div class="card"><div class="t">Nothing left for you right now.</div></div>';
+  $('decided').innerHTML = dec.map(i => card(i, false)).join('') || '<div class="note">No decisions recorded yet.</div>';
+  $('verified').innerHTML = ver.map(i => card(i, false)).join('') || '<div class="note">Nothing verified yet.</div>';
+  $('steps').innerHTML = ms.map(i => `<div class="step ${i.status === 'done' ? 'done' : ''}"><div class="t">${esc(i.title)}${i.due ? ` <span class="note num">${esc(i.due)}</span>` : ''}</div>${i.detail ? `<div class="note">${esc(i.detail)}</div>` : ''}</div>`).join('');
+  $('c-you').textContent = you.length + ' left'; $('c-dec').textContent = dec.length; $('c-ver').textContent = ver.length;
+  $('s-done').textContent = dec.length + ver.length; $('s-you').textContent = you.length; $('s-next').textContent = ms.filter(i => i.status !== 'done').length;
 }
-async function uploadFile(f) {
-  if (!f || !assets || !db) return;
-  const types = {pdf: 'application/pdf', md: 'text/markdown', csv: 'text/csv', txt: 'text/plain'};
-  const ext = (f.name.split('.').pop() || '').toLowerCase();
-  banner('Uploading ' + f.name + '…', 'ok');
-  try {
-    const r = await assets.upload(f, f.type ? undefined : {type: types[ext] || 'application/octet-stream'});
-    await db.collection('docs').add({name: f.name.slice(0, 200), assetId: r.id, contentType: r.contentType, size: r.sizeBytes, createdAt: new Date().toISOString()});
-    banner('');
-  } catch (e) {
-    banner({too_large: 'That file is over 20 MB. Compress it or split it.', unsupported_type: 'That file type cannot be stored here. Use an image, PDF or text file.'}[e && e.code] || 'The upload did not finish. Try again.', 'bad');
-  }
-}
-$('file').onchange = e => { uploadFile(e.target.files[0]); e.target.value = ''; };
-const drop = $('drop');
-drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('over'); });
-drop.addEventListener('dragleave', () => drop.classList.remove('over'));
-drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('over'); uploadFile(e.dataTransfer.files[0]); });
-$('docs').onclick = async e => {
-  const b = e.target.closest('[data-act]'); if (!b) return;
-  const d = docs.find(x => x.id === b.closest('.doc').dataset.id); if (!d) return;
-  if (b.dataset.act === 'del') {
-    if (!b.dataset.armed) { b.dataset.armed = '1'; b.textContent = 'Confirm delete'; return; }
-    b.disabled = true;
-    try { await db.collection('docs').doc(d.id).delete(); await assets.delete(d.assetId); } catch (err) { banner('That file was not deleted.', 'bad'); }
-  }
-  if (b.dataset.act === 'read') {
-    location.hash = 'ask';
-    try { const blob = await (await fetch('/_blob/' + d.assetId)).blob(); ask('Read this document from my build (' + d.name + '). Summarize what it says, flag anything I should question or verify with the builder or lender, and suggest tracker items for those.', [blob]); }
-    catch (err) { pushMsg('sys', 'Could not load that image for Claude.'); }
-  }
+$('you').onclick = async e => {
+  const b = e.target.closest('[data-act="done"]'); if (!b || !db) return;
+  b.disabled = true;
+  try { await db.collection('items').doc(b.closest('.card').dataset.id).update({status: 'done', updatedAt: new Date().toISOString()}); }
+  catch (err) { b.disabled = false; banner('That did not save. Try again.'); }
 };
 
-/* ---------- ask Claude (sample + page tools) ---------- */
-const turns = []; let ctl = null;
-const SUGGEST = ['What should I do this week?', 'Which items are blocking closing?', 'Draft questions for my VA lender', 'Sell or rent my current house?', 'Make a pre-drywall walkthrough checklist'];
-$('suggest').innerHTML = SUGGEST.map(s => `<button class="chip">${esc(s)}</button>`).join('');
-$('suggest').onclick = e => { const b = e.target.closest('.chip'); if (b) ask(b.textContent); };
-function pushMsg(who, text) { const el = document.createElement('div'); el.className = 'msg ' + who; el.textContent = text; $('chat').append(el); $('chat').scrollTop = $('chat').scrollHeight; return el; }
+/* ---------- ask ---------- */
+const turns = [];
+function msg(who, t) { const el = document.createElement('div'); el.className = 'msg ' + who; el.textContent = t; $('chat').append(el); $('chat').scrollTop = $('chat').scrollHeight; return el; }
 function context() {
-  const t = sorted().map(i => `- [${i.status}] (${i.kind}) ${i.title}${i.due ? ' due ' + i.due : ''}${i.detail ? ': ' + i.detail.slice(0, 160) : ''} {id:${i.id}}`).join('\n') || '(empty)';
+  const t = items.map(i => `- [${i.status}] (${i.kind}) ${i.title}${i.detail ? ': ' + i.detail.slice(0, 400) : ''}`).join('\n');
   let m = '';
-  if ($('q-money').checked) { const c = calc(money); m = `\n\nMoney numbers${moneyIsExample ? ' (EXAMPLE values, not real)' : ''}: all-in ${fmt(c.allIn)}, appraisal ${fmt(money.appr)}, VA rate ${money.varate}%, open VA loan ${fmt(money.orig)}, VA down ${fmt(c.down)}, funding fee ${c.feePct}%, VA payment ${fmt(c.total)}/mo, income to qualify ${fmt(c.incomeVA)}/mo; conventional 20% down ${fmt(c.cvDown)}, payment ${fmt(c.cvTotal)}/mo. Current house: value ${fmt(money.oval)}, balance ${fmt(money.obal)}, payment ${fmt(money.opay)}, rent ${fmt(money.orent)}; sell nets ~${fmt(c.sellNet)}.`; }
-  return `You are helping a military family manage the construction of a new Obsidian 1899F home in Wake County, NC (builder new construction, VA financing). Today is ${today()}. Be concrete and brief; use short lists. When you suggest follow-ups that belong on the tracker, add them with add_item (kind: task, verify, decision or milestone). Use set_status when the user says something is done. Do not invent due dates.\n\nTracker:\n${t}${m}`;
+  if (money) { const s = calc(money, false); m = `\nMoney: all-in ${fmt(s.allIn)}, appraisal ${fmt(money.appr)}, VA ${money.varate}%, sell-path payment ${fmt(s.total)}/mo, cash to close ${fmt(s.cash)}, income needed ${fmt(s.income)}/mo. ${money.note || ''}`; }
+  return `You are the planner for a military family building an Obsidian 1899F in north Raleigh / Wake County, NC with VA financing. Answer directly with the decision and the numbers; do not ask the family to fill anything in. Be brief.\n\nPlan:\n${t}${m}`;
 }
-const TOOLS = [
-  {name: 'add_item', description: 'Add one item to the build tracker. Returns the new id.', inputSchema: {type: 'object', properties: {kind: {type: 'string', enum: ['task', 'verify', 'decision', 'milestone']}, title: {type: 'string'}, detail: {type: 'string'}, due: {type: 'string', description: 'YYYY-MM-DD, only if the user gave a date'}}, required: ['kind', 'title']},
-    async execute(i) { if (!canWrite) throw new Error('This viewer cannot change the tracker.'); const id = await addItem({kind: String(i.kind), title: String(i.title || ''), detail: String(i.detail || ''), due: String(i.due || '')}); pushMsg('sys', 'Added to tracker: ' + i.title); return {id}; }},
-  {name: 'set_status', description: 'Set a tracker item status to open, doing or done, by its id from the tracker list.', inputSchema: {type: 'object', properties: {id: {type: 'string'}, status: {type: 'string', enum: ['open', 'doing', 'done']}}, required: ['id', 'status']},
-    async execute(i) { const it = items.find(x => x.id === String(i.id)); if (!it) throw new Error('No item with that id'); if (!LABEL[i.status]) throw new Error('Bad status'); await setItem(it.id, {status: String(i.status)}); pushMsg('sys', `Marked ${LABEL[i.status].toLowerCase()}: ${it.title}`); return 'ok'; }},
-];
-async function ask(text, images) {
-  text = (text || '').trim(); if (!text || !sample) return;
-  $('q').value = ''; pushMsg('me', text + (images ? '  [image attached]' : ''));
-  turns.push({role: 'user', content: text});
-  const out = pushMsg('ai', 'Thinking…');
-  ctl = new AbortController(); $('q-send').disabled = true; $('q-stop').hidden = false;
-  const lim = await sample.limits().catch(() => null);
-  const opts = {signal: ctl.signal, cache: false, onText: ({text}) => { out.textContent = text; $('chat').scrollTop = $('chat').scrollHeight; }};
-  if (lim && lim.tools && db && canWrite) { opts.tools = TOOLS; delete opts.cache; }
-  if (images && lim && lim.images) opts.images = images;
-  try {
-    const r = await sample([{role: 'user', content: context()}, ...turns.slice(-10)], opts);
-    turns.push({role: 'assistant', content: r.text});
-    if (r.truncated) pushMsg('sys', 'The answer was cut short. Ask for less at a time.');
-  } catch (e) {
-    out.textContent = e.text || '';
-    if (!e.text) out.remove();
-    turns.pop();
-    const msg = {cancelled: '', not_granted: 'Claude is turned off for this page.', sampling_disabled: 'Claude is not available on this account.', rate_limited: 'Too many questions right now. Try again in a minute.', refused: 'Claude would not answer that. Try rephrasing.', images_unavailable: 'Images cannot be sent to Claude in this view.', prompt_too_large: 'Too much text at once. Remove finished tracker items or ask a shorter question.'}[e.code];
-    if (msg !== '') pushMsg('sys', msg || 'The answer was interrupted. Try again.');
-    if (e.code === 'not_granted' || e.code === 'sampling_disabled') $('v-ask').querySelector('.composer').hidden = true;
-  } finally { $('q-send').disabled = false; $('q-stop').hidden = true; ctl = null; }
+async function ask() {
+  const text = $('q').value.trim(); if (!text || !sample) return;
+  $('q').value = ''; msg('me', text); turns.push({role: 'user', content: text});
+  const out = msg('ai', 'Thinking…'); $('q-send').disabled = true;
+  try { const r = await sample([{role: 'user', content: context()}, ...turns.slice(-10)], {cache: false, onText: ({text}) => { out.textContent = text; }}); turns.push({role: 'assistant', content: r.text}); }
+  catch (e) { turns.pop(); out.textContent = e.text || ''; if (!e.text) out.remove(); if (e.code !== 'cancelled') msg('sys', {not_granted: 'Asking Claude is turned off for this page.', rate_limited: 'Too many questions right now. Try again in a minute.'}[e.code] || 'The answer was interrupted. Try again.'); }
+  finally { $('q-send').disabled = false; }
 }
-$('q-send').onclick = () => ask($('q').value);
-$('q').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); ask($('q').value); } });
-$('q-stop').onclick = () => ctl && ctl.abort();
+$('q-send').onclick = ask;
+$('q').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); ask(); } });
 
-/* ---------- notes (private) ---------- */
-let notesDoc = null, notesTimer = null, notesSaving = Promise.resolve(), notesLoaded = false;
-$('notes').addEventListener('input', () => {
-  $('n-saved').textContent = 'Saving…'; clearTimeout(notesTimer);
-  notesTimer = setTimeout(() => {
-    if (!notesDoc) { $('n-saved').textContent = 'Sign in to save notes'; return; }
-    const text = $('notes').value;
-    notesSaving = notesSaving.then(() => notesDoc.set({text, updatedAt: new Date().toISOString()})).then(() => { $('n-saved').textContent = 'Saved'; }).catch(() => { $('n-saved').textContent = 'Not saved'; });
-  }, 1200);
-});
-$('n-dl').onclick = () => saveFile('obsidian-site-journal.txt', $('notes').value);
-
-/* ---------- dictation ---------- */
-function wireMic(btn, target) {
-  btn.hidden = false;
-  btn.onclick = () => {
-    if (dict.active()) { dict.stop().catch(() => {}); return; }
-    const base = target.value ? target.value.replace(/\s*$/, ' ') : '';
-    let finals = '';
-    const offP = dict.onPartial(({text}) => { target.value = base + finals + text; });
-    const offF = dict.onFinal(({text}) => { finals += text + ' '; target.value = base + finals; target.dispatchEvent(new Event('input')); });
-    const offS = dict.onState(({state}) => { btn.classList.toggle('on', state === 'listening'); if (state === 'idle') { offP(); offF(); offS(); } });
-    dict.start().catch(e => { offP(); offF(); offS(); btn.classList.remove('on'); if (e && e.code === 'not_granted') { $('q-mic').hidden = true; $('n-mic').hidden = true; } });
-  };
-}
-
-/* ---------- boot capabilities ---------- */
+/* ---------- boot ---------- */
 async function boot() {
   const C = window.claude;
-  if (!C || !C.use) { banner('Open this page in Claude to save the tracker, notes and numbers.'); $('items').innerHTML = '<div class="box muted">The tracker needs the Claude viewer.</div>'; return; }
-  [db, user, sample, mcp, assets, downloads, dict] = await Promise.all(['db', 'user', 'sample', 'mcp', 'assets', 'downloads', 'dictation'].map(n => C.use(n).catch(() => null)));
-  if (!sample) $('v-ask').querySelector('.composer').hidden = true, $('suggest').hidden = true, pushMsg('sys', 'Asking Claude is not available in this view.');
-  if (dict) { wireMic($('q-mic'), $('q')); wireMic($('n-mic'), $('notes')); }
-  if (!db) { banner('Sign in to Claude to load the tracker.'); $('items').innerHTML = ''; renderDocs(); return; }
-  if (user) { const w = await user.can('data.write').catch(() => null); if (w === false) { canWrite = false; $('addForm').hidden = true; } uid = await user.id().catch(() => null); }
-  // tracker
+  if (!C || !C.use) { banner('Open this page in Claude to load the plan.'); return; }
+  [db, user, sample] = await Promise.all(['db', 'user', 'sample'].map(n => C.use(n).catch(() => null)));
+  if (!sample) $('ask').hidden = true;
+  if (!db) { banner('Sign in to Claude to load the plan.'); return; }
+  if (user) { const w = await user.can('data.write').catch(() => null); if (w === false) canWrite = false; }
   let loaded = false;
-  const timer = setTimeout(() => { if (!loaded) banner('The tracker cannot be reached yet. It will appear when the connection returns.'); }, 10000);
+  const timer = setTimeout(() => { if (!loaded) banner('The plan cannot be reached yet. It will appear when the connection returns.'); }, 10000);
   db.collection('items').onSnapshot(s => {
     items = s.docs.map(d => Object.assign({id: d.id}, d.data()));
-    if (!s.metadata.fromCache && !loaded) { loaded = true; clearTimeout(timer); banner(''); }
-    renderItems();
-  }, () => { clearTimeout(timer); banner('The tracker stopped updating. Reload the page to reconnect.', 'bad'); });
-  db.collection('docs').orderBy('createdAt', 'desc').onSnapshot(s => { docs = s.docs.map(d => Object.assign({id: d.id}, d.data())); renderDocs(); }, () => {});
-  renderDocs();
-  // private space
+    if (!s.metadata.fromCache) { loaded = true; clearTimeout(timer); banner(''); }
+    renderPlan();
+  }, () => { clearTimeout(timer); banner('The plan stopped updating. Reload to reconnect.'); });
+  const uid = user ? await user.id().catch(() => null) : null;
   if (uid) {
-    moneyDoc = db.doc('data/users/' + uid + '/money'); notesDoc = db.doc('data/users/' + uid + '/journal');
-    moneyDoc.get().then(s => { if (s.exists) { const d = s.data(); for (const k of MF) if (k in d) money[k] = d[k]; moneyIsExample = !!d.example; moneySource = d.source || (moneyIsExample ? 'Example' : ''); moneyNote = d.note || ''; fillMoney(); renderMoney(); $('m-saved').textContent = moneyIsExample ? 'Example numbers.' : 'Your saved numbers.'; } }).catch(() => {});
-    notesDoc.get().then(s => { if (s.exists && !$('notes').value) $('notes').value = s.data().text || ''; notesLoaded = true; }).catch(() => {});
-  } else {
-    $('m-banner').textContent = 'Sign in to keep your numbers. Without it they stay on this screen only.';
-  }
+    db.doc('data/users/' + uid + '/money').get().then(s => {
+      if (s.exists) { money = s.data(); renderAnswer(); }
+      else { $('ans-h').textContent = 'Sell the current house and use VA at $0 down.'; $('ans-p').textContent = 'Your detailed numbers are kept privately for the owner of this plan.'; }
+    }).catch(() => {});
+  } else { $('ans-h').textContent = 'Sell the current house and use VA at $0 down.'; $('ans-p').textContent = 'Sign in to see the numbers behind it.'; }
 }
 boot();
 })();
