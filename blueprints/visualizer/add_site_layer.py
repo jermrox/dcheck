@@ -33,3 +33,10 @@ open(page, "w").write(s)
 dst = os.path.join(os.path.dirname(os.path.abspath(page)), "obsidian", "lot2-site-data.js")
 os.makedirs(os.path.dirname(dst), exist_ok=True); shutil.copyfile(data, dst)
 print(f"{page}: site layer added; data -> {dst}")
+# hub page: launcher for designer / lot / AR / money / family, plus the plan files
+od = os.path.dirname(dst)
+files = sorted(f for f in os.listdir(od) if f.endswith(".home.json"))
+hub = open(os.path.join(here, "hub.html")).read().replace(
+    "<!--FILES-->", "".join(f'<li><a href="{f}" download>{f}</a></li>' for f in files))
+open(os.path.join(od, "index.html"), "w").write(hub)
+print(f"hub -> {os.path.join(od, 'index.html')} ({len(files)} plan files)")

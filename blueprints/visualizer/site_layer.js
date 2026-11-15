@@ -104,5 +104,25 @@
   addEventListener('load', () => { const b = document.getElementById('tb-vr'); if (b && typeof addXR === 'function') { window.enterVR(); } });
   const sv = window.setView;
   window.setView = function (v) { sv(v); apply(); };
-  if (new URLSearchParams(location.search).get('site') === '1') addEventListener('load', () => setTimeout(window.toggleSite, 300));
+  // ?site=1 opens the Obsidian floor with the lot around it (importing the plan on first visit); &floor=2 for the 2nd floor
+  async function openObsidian(q) {
+    const D = await load(), want = q.get('floor') === '2' ? 1 : 0;
+    const file = want ? 'obsidian-second-floor-spec.home.json' : 'obsidian-first-floor-spec.home.json';
+    const guard = 'site-open-' + file;
+    if (levelIndex(D) === want) { sessionStorage.removeItem(guard); return window.toggleSite(); }
+    const tag = 'site:' + file;
+    if (sessionStorage.getItem(guard)) { sessionStorage.removeItem(guard); return window.toggleSite(); }   // never loop
+    const have = listProjects().find(p => { try { return JSON.parse(localStorage.getItem(planKey(p.id)) || '{}').srcTag === tag; } catch (e) { return false; } });
+    let id = have && have.id;
+    if (!id) {
+      const j = await (await fetch('obsidian/' + file)).json(), plan = j.plan;
+      id = 'h' + Date.now().toString(36); plan.id = id; plan.srcTag = tag; delete plan.builtin;
+      localStorage.setItem(planKey(id), JSON.stringify(plan));
+      if (j.design) { const d = j.design; if (Array.isArray(d.library)) mergeLibrary(d.library); delete d.library; delete d.plan; localStorage.setItem(designKey(id), JSON.stringify(d)); }
+      saveProjectList(listProjects().concat([{ id, name: plan.name || 'Obsidian', sub: plan.sub || '' }]));
+    }
+    sessionStorage.setItem(guard, '1'); openHome(id);
+  }
+  const Q = new URLSearchParams(location.search);
+  if (Q.get('site') === '1') addEventListener('load', () => setTimeout(() => openObsidian(Q).catch(e => { toast('Could not open the Obsidian plan'); console.warn(e); }), 300));
 })();
