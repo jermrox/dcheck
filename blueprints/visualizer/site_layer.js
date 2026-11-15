@@ -113,7 +113,7 @@
     const file = want ? 'obsidian-second-floor-spec.home.json' : 'obsidian-first-floor-spec.home.json';
     const guard = 'site-open-' + file;
     if (levelIndex(D) === want) { sessionStorage.removeItem(guard); return window.toggleSite(); }
-    const tag = 'site:v5:' + file;
+    const tag = 'site:v7:' + file;
     if (sessionStorage.getItem(guard)) { sessionStorage.removeItem(guard); return window.toggleSite(); }   // never loop
     const have = listProjects().find(p => { try { return JSON.parse(localStorage.getItem(planKey(p.id)) || '{}').srcTag === tag; } catch (e) { return false; } });
     let id = have && have.id;
