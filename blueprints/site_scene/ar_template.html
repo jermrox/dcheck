@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Obsidian in AR</title>
+<script type="module" src="https://unpkg.com/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
+<style>
+  :root{--ink:#13202c;--sub:#4b5b69;--line:#cdd7e0;--accent:#2a5b8a;--bg:#eef3f7}
+  html,body{margin:0;height:100%;background:var(--bg);font:15px system-ui,sans-serif;color:var(--ink)}
+  model-viewer{width:100%;height:100%;--poster-color:transparent;background:linear-gradient(#bcd6ee,#eef3f7)}
+  #top{position:absolute;left:12px;right:12px;top:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;z-index:2}
+  #top h1{font-size:16px;margin:0 8px 0 0;background:rgba(255,255,255,.92);padding:7px 10px;border-radius:10px;border:1px solid var(--line)}
+  .seg{display:flex;background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .seg button{font:600 13px system-ui;border:0;background:none;padding:9px 12px;color:var(--accent);cursor:pointer}
+  .seg button.on{background:var(--accent);color:#fff}
+  #ar{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);font:700 15px system-ui;padding:13px 22px;border-radius:999px;border:0;background:var(--accent);color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.2)}
+  #note{position:absolute;left:12px;bottom:80px;max-width:360px;background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:12.5px;color:var(--sub)}
+  @media (max-width:520px){#note{right:12px;max-width:none}}
+</style></head><body>
+<model-viewer id="mv" src="obsidian-house.glb" ar ar-modes="webxr scene-viewer quick-look" ar-scale="auto" ar-placement="floor"
+  camera-controls touch-action="pan-y" shadow-intensity="1" exposure="1.05" environment-image="neutral" camera-orbit="25deg 70deg auto" alt="Obsidian 1899F house model">
+  <button slot="ar-button" id="ar">View in your space</button>
+</model-viewer>
+<div id="top"><h1>Obsidian 1899F · Lot 2</h1>
+  <div class="seg"><button data-src="obsidian-house.glb" class="on">House</button><button data-src="obsidian-site.glb">House + lot</button></div>
+  <div class="seg"><button data-scale="auto" class="on">Tabletop</button><button data-scale="fixed">Full size</button></div>
+</div>
+<div id="note"><b>Tabletop</b>: place a scale model on any table and pinch to resize. <b>Full size</b>: 1:1 — stand on the lot (or any open field) and walk around the real-size house. iPhone uses Quick Look, Android uses Scene Viewer. Models are in metres from the fitted plans; roof is inferred.</div>
+<script>
+const mv = document.getElementById('mv');
+document.querySelectorAll('[data-src]').forEach(b => b.onclick = () => { document.querySelectorAll('[data-src]').forEach(x => x.classList.toggle('on', x === b)); mv.src = b.dataset.src; });
+document.querySelectorAll('[data-scale]').forEach(b => b.onclick = () => { document.querySelectorAll('[data-scale]').forEach(x => x.classList.toggle('on', x === b)); mv.setAttribute('ar-scale', b.dataset.scale); });
+</script>
+</body></html>

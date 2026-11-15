@@ -1,0 +1,24 @@
+[
+ {
+  "open": "custom-obsidian-first-floor",
+  "name": "Custom Obsidian · First Floor",
+  "rooms": 28,
+  "walls": 50,
+  "items": 33,
+  "clashing": 0,
+  "clashes": [],
+  "file": "custom-obsidian-first-floor.home.json",
+  "errors": []
+ },
+ {
+  "open": "custom-obsidian-second-floor",
+  "name": "Custom Obsidian · Second Floor",
+  "rooms": 10,
+  "walls": 27,
+  "items": 23,
+  "clashing": 0,
+  "clashes": [],
+  "file": "custom-obsidian-second-floor.home.json",
+  "errors": []
+ }
+]

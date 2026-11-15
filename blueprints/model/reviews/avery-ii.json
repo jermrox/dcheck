@@ -1,0 +1,112 @@
+{
+ "base": "avery-ii",
+ "px_per_ft": 12.41,
+ "confidence": "high",
+ "measurements": [
+  {
+   "room": "Bedroom 2",
+   "printed": "13'-3\" x 13'-0\"",
+   "width_px": 164,
+   "height_px": 161,
+   "ppf_w": 12.38,
+   "ppf_h": 12.38,
+   "how": "rulers"
+  },
+  {
+   "room": "Den",
+   "printed": "12'-11\" x 13'-11\"",
+   "width_px": 161,
+   "height_px": 172,
+   "ppf_w": 12.46,
+   "ppf_h": 12.36,
+   "how": "rulers"
+  },
+  {
+   "room": "Bedroom 5",
+   "printed": "15'-0\" x 13'-7\"",
+   "width_px": 186,
+   "height_px": 169,
+   "ppf_w": 12.4,
+   "ppf_h": 12.44,
+   "how": "rulers"
+  },
+  {
+   "room": "Bedroom 3",
+   "printed": "12'-10\" x 12'-2\"",
+   "width_px": 160,
+   "height_px": 150,
+   "ppf_w": 12.47,
+   "ppf_h": 12.33,
+   "how": "rulers"
+  },
+  {
+   "room": "Bedroom 4",
+   "printed": "13'-3\" x 14'-0\"",
+   "width_px": 165,
+   "height_px": 173,
+   "ppf_w": 12.45,
+   "ppf_h": 12.36,
+   "how": "rulers"
+  },
+  {
+   "room": "Exercise Room",
+   "printed": "14'-8\" x 16'-4\"",
+   "width_px": 180,
+   "height_px": 200,
+   "ppf_w": 12.27,
+   "ppf_h": 12.24,
+   "how": "rulers"
+  },
+  {
+   "room": "Garage (full extents, pantry notch ignored)",
+   "printed": "24'-1\" x 30'-3\"",
+   "width_px": 299,
+   "height_px": 376,
+   "ppf_w": 12.42,
+   "ppf_h": 12.43,
+   "how": "rulers"
+  },
+  {
+   "room": "Overall width dimension string (first floor)",
+   "printed": "58'-8\"",
+   "width_px": 730,
+   "height_px": null,
+   "ppf_w": 12.43,
+   "ppf_h": null,
+   "how": "rulers"
+  },
+  {
+   "room": "Overall depth dimension string (first floor)",
+   "printed": "68'-4\"",
+   "width_px": null,
+   "height_px": 850,
+   "ppf_w": null,
+   "ppf_h": 12.43,
+   "how": "rulers"
+  }
+ ],
+ "spread_pct": 1.9,
+ "tracer_px_per_ft": 12.61,
+ "missing_walls": [
+  [
+   1632,
+   578,
+   145,
+   7
+  ],
+  [
+   1348,
+   1690,
+   72,
+   8
+  ],
+  [
+   320,
+   805,
+   12,
+   185
+  ]
+ ],
+ "extra_walls": [],
+ "notes": "All room sizes read from zoom-4 crops; wall faces read off crop rulers (about +/-1.5 px per face). span was not used for the scale because it measures to traced wall lines about 2-4 px beyond the interior faces and overshot through untraced/closet walls (Bedroom 5 height 222 vs 169, Bedroom 4 height 205 vs 173); span on Owner's Suite gives 239 px = 12.63 px/ft, which is likely how the tracer got 12.61. Printed sizes and both overall dimension strings agree at about 12.4 px/ft, so the tracer scale is about 1.6% high (about 3% in area). All three levels are at the same scale (rooms from first floor, second floor and lower level agree). Exercise Room is the low outlier (12.27/12.24), its left wall face is ambiguous by ~4 px. Missing walls: Bedroom 5 south wall and Owner's Suite south-west wall stub are confirmed by span passing through; the Bedroom 2 east / fireplace wall entry is from span passing through at y=850-930 although the overview appears to show red there, so treat it as uncertain. Span also passes through the Owner's Suite north wall at x=1450-1500 (not listed, overview shows red). No clear extra walls found; the red outlines on the lower level follow drawn unfinished-basement foundation walls. Great room north side is sliding glass and great room/kitchen is open with columns, so no walls are missing there."
+}

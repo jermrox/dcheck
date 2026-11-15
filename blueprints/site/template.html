@@ -1,0 +1,471 @@
+<title>AR Homes Blueprints</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a drafting-sheet index. Title block top right, filter strip, grid of plan cards,
+   and a full-screen detail sheet with a 3D massing study beside the plan data. */
+:root {
+  --bg:#EDF1F3; --surface:#F8FAFB; --ink:#10202C; --mute:#566673; --line:#C5D0D8; --grid:#DCE4E9;
+  --accent:#1F4FD8; --accent-ink:#FFFFFF; --stage:#DCE6EC; --ground:#C9D6DE; --scrim:rgba(16,32,44,.55);
+  --display:'Barlow Condensed','Arial Narrow',sans-serif; --body:'Barlow',system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg:#0A2342; --surface:#0F2E55; --ink:#E6F0FF; --mute:#8FAAC9; --line:#2A4D7C; --grid:#123559;
+  --accent:#7DD3FC; --accent-ink:#06223F; --stage:#08203B; --ground:#0D2B4D; --scrim:rgba(3,12,26,.7); color-scheme:dark; } }
+:root[data-theme="dark"] {
+  --bg:#0A2342; --surface:#0F2E55; --ink:#E6F0FF; --mute:#8FAAC9; --line:#2A4D7C; --grid:#123559;
+  --accent:#7DD3FC; --accent-ink:#06223F; --stage:#08203B; --ground:#0D2B4D; --scrim:rgba(3,12,26,.7); color-scheme:dark; }
+
+* { box-sizing:border-box; }
+[hidden] { display:none !important; }
+body { background-color:var(--bg); color:var(--ink); font:400 15px/1.45 var(--body);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:28px 28px; padding-block:24px 56px;
+  padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px)); }
+.page { max-width:1280px; margin:0 auto; display:grid; gap:20px; }
+button,select,input { font:inherit; color:inherit; }
+:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+
+header { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:20px 32px; align-items:end; }
+h1 { font:700 clamp(40px,7vw,84px)/.9 var(--display); text-transform:uppercase; letter-spacing:.01em; margin:0; text-wrap:balance; }
+h1 span { color:var(--accent); }
+.lede { max-width:56ch; color:var(--mute); margin:12px 0 0; }
+.tblock { border:1.5px solid var(--ink); background:var(--surface); font:400 11px/1.3 var(--mono); min-width:250px; }
+.tblock div { display:grid; grid-template-columns:84px 1fr; border-top:1px solid var(--line); }
+.tblock div:first-child { border-top:0; }
+.tblock b { font-weight:500; padding:6px 8px; color:var(--mute); text-transform:uppercase; letter-spacing:.06em; border-right:1px solid var(--line); }
+.tblock span { padding:6px 8px; overflow-wrap:anywhere; }
+@media (max-width:760px){ header{grid-template-columns:minmax(0,1fr);} .tblock{min-width:0;} }
+
+.bar { display:flex; flex-wrap:wrap; gap:10px; align-items:end; border:1px solid var(--line); background:var(--surface); padding:12px; }
+.f { display:grid; gap:4px; min-width:0; }
+.f label,.f .l { font:500 10px/1 var(--mono); text-transform:uppercase; letter-spacing:.08em; color:var(--mute); }
+.f input,.f select { background:var(--bg); border:1px solid var(--line); padding:8px 10px; min-height:38px; border-radius:2px; max-width:100%; }
+.f input[type=search]{ width:220px; }
+.seg { display:flex; border:1px solid var(--line); border-radius:2px; overflow:hidden; }
+.seg button { background:var(--bg); border:0; border-right:1px solid var(--line); padding:8px 12px; min-height:38px; cursor:pointer; }
+.seg button:last-child { border-right:0; }
+.seg button[aria-pressed=true] { background:var(--accent); color:var(--accent-ink); }
+.count { margin-left:auto; font:500 12px var(--mono); color:var(--mute); align-self:center; }
+.reset { background:none; border:1px solid var(--line); min-height:38px; padding:8px 12px; border-radius:2px; cursor:pointer; }
+
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:14px; }
+.card { text-align:left; background:var(--surface); border:1px solid var(--line); border-radius:3px; padding:12px; cursor:pointer;
+  display:grid; gap:10px; min-width:0; transition:border-color .15s, transform .15s; }
+.card:hover { border-color:var(--accent); transform:translateY(-2px); }
+.card .thumb { width:100%; height:240px; object-fit:contain; background:var(--bg); display:block; border-bottom:1px dashed var(--line); padding-bottom:8px; }
+.card svg { width:100%; height:auto; display:block; border-bottom:1px dashed var(--line); padding-bottom:8px; }
+.card h3 { font:600 24px/1 var(--display); text-transform:uppercase; letter-spacing:.02em; margin:0; overflow-wrap:anywhere; }
+.card .m { font:400 12px/1.4 var(--mono); color:var(--mute); font-variant-numeric:tabular-nums; }
+.tag { font:500 10px var(--mono); letter-spacing:.08em; text-transform:uppercase; color:var(--accent); }
+.empty { grid-column:1/-1; border:1px dashed var(--line); background:var(--surface); padding:36px 16px; text-align:center; color:var(--mute); }
+footer { color:var(--mute); font-size:13px; max-width:78ch; }
+
+.sheet { position:fixed; inset:0; z-index:20; background:var(--scrim); display:grid; place-items:center;
+  padding:max(12px,env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) max(12px,env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px)); }
+.panel { background:var(--bg); border:1.5px solid var(--ink); width:min(1120px,100%); max-height:100%; overflow:auto;
+  display:grid; grid-template-columns:minmax(0,1.35fr) minmax(0,1fr); }
+.stage { position:relative; background:var(--stage); min-height:min(70vh,560px); border-right:1px solid var(--line); touch-action:none; }
+.stage canvas { position:absolute; inset:0; width:100%; height:100%; display:block; cursor:grab; }
+.modes { position:absolute; left:12px; top:12px; z-index:3; display:flex; border:1px solid var(--ink); background:var(--surface); }
+.modes button { background:transparent; border:0; padding:8px 12px; min-height:36px; cursor:pointer; font:500 12px var(--mono); text-transform:uppercase; letter-spacing:.06em; }
+.modes button[aria-pressed=true] { background:var(--accent); color:var(--accent-ink); }
+.bp { position:absolute; inset:0; z-index:2; overflow:auto; background:var(--surface); padding:56px 12px 12px; touch-action:pan-x pan-y pinch-zoom; }
+.bp img { display:block; width:100%; max-width:none; margin:0 auto; cursor:zoom-in; background:#fff; }
+.bp.zoom img { width:220%; cursor:zoom-out; }
+.stage .hint { position:absolute; left:12px; bottom:10px; font:400 11px var(--mono); color:var(--mute); pointer-events:none; }
+.info { padding:18px; display:grid; gap:14px; align-content:start; min-width:0; }
+.info h2 { font:700 clamp(34px,5vw,52px)/.95 var(--display); text-transform:uppercase; margin:0; overflow-wrap:anywhere; }
+.specs { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); border:1px solid var(--line); background:var(--surface); }
+.specs div { padding:8px 10px; border-right:1px solid var(--line); border-bottom:1px solid var(--line); }
+.specs div:nth-child(3n) { border-right:0; } .specs div:nth-last-child(-n+3) { border-bottom:0; }
+.specs b { display:block; font:400 20px/1.1 var(--mono); font-variant-numeric:tabular-nums; }
+.specs small { font:500 10px var(--mono); text-transform:uppercase; letter-spacing:.08em; color:var(--mute); }
+.links, .nav { display:flex; flex-wrap:wrap; gap:8px; }
+.btn { display:inline-flex; align-items:center; min-height:40px; padding:8px 14px; border:1px solid var(--accent); background:var(--accent);
+  color:var(--accent-ink); text-decoration:none; font-weight:500; border-radius:2px; cursor:pointer; }
+.btn.ghost { background:transparent; color:var(--accent); }
+.note { font-size:13px; color:var(--mute); margin:0; }
+@media (max-width:820px){ .panel{ grid-template-columns:minmax(0,1fr);} .stage{ min-height:46vh; border-right:0; border-bottom:1px solid var(--line);} }
+@media (prefers-reduced-motion: reduce){ .card{transition:none;} .card:hover{transform:none;} }
+</style>
+
+<div class="page">
+  <header>
+    <div>
+      <h1>AR Homes <span>Blueprints</span></h1>
+      <p class="lede">Every AR Homes floor plan, available home, model home and built home collected from arhomes.com: the real blueprint, its published specs, walls traced into 3D from the drawing, and an exterior massing model. Pick a plan to open its sheet.</p>
+    </div>
+    <div class="tblock" aria-label="Sheet information">
+      <div><b>Project</b><span>AR Homes plan index</span></div>
+      <div><b>Source</b><span>arhomes.com</span></div>
+      <div><b>Plans</b><span id="tb-count"></span></div>
+      <div><b>Range</b><span id="tb-range"></span></div>
+      <div><b>Rev</b><span>__DATE__</span></div>
+    </div>
+  </header>
+
+  <section class="bar" aria-label="Filters">
+    <div class="f"><label for="q">Search</label><input id="q" type="search" placeholder="Plan name"></div>
+    <div class="f"><span class="l">Collection</span>
+      <div class="seg" id="coll"><button data-v="all" aria-pressed="true">All</button><button data-v="plan" aria-pressed="false">Plans</button><button data-v="ls" aria-pressed="false">Luxury Simplified</button><button data-v="avail" aria-pressed="false">Available homes</button><button data-v="model" aria-pressed="false">Model homes</button><button data-v="built" aria-pressed="false">Built homes</button></div></div>
+    <div class="f"><label for="bld">Builder</label><select id="bld"><option value="">Any</option></select></div>
+    <div class="f"><label for="beds">Bedrooms</label><select id="beds"><option value="0">Any</option><option value="3">3+</option><option value="4">4+</option><option value="5">5+</option><option value="6">6+</option></select></div>
+    <div class="f"><label for="baths">Bathrooms</label><select id="baths"><option value="0">Any</option><option value="3">3+</option><option value="4">4+</option><option value="5">5+</option></select></div>
+    <div class="f"><label for="st">Stories</label><select id="st"><option value="0">Any</option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></div>
+    <div class="f"><label for="min">Min sq ft</label><select id="min"><option value="0">Any</option><option>2000</option><option>3000</option><option>4000</option><option>5000</option></select></div>
+    <div class="f"><label for="max">Max sq ft</label><select id="max"><option value="0">Any</option><option>3000</option><option>4000</option><option>5000</option><option>6000</option></select></div>
+    <div class="f"><label for="sort">Sort</label><select id="sort"><option value="name">Name</option><option value="sa">Size, small first</option><option value="sd">Size, large first</option></select></div>
+    <button class="reset" id="reset" type="button">Reset</button>
+    <div class="count" id="count" aria-live="polite"></div>
+  </section>
+
+  <section class="grid" id="grid" aria-label="Plans"></section>
+
+  <footer>Floor plans and designs are copyrighted by AR Homes and are shown here from arhomes.com for private reference. The 3D shapes are massing studies built from square footage, stories and garage count, not copies of the real layouts.</footer>
+</div>
+
+<div class="sheet" id="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="d-name">
+  <div class="panel">
+    <div class="stage" id="stage"><div class="modes" id="modes"><button id="m-bp" type="button" aria-pressed="true">Blueprint</button><button id="m-w" type="button" aria-pressed="false">Walls 3D</button><button id="m-3d" type="button" aria-pressed="false">Exterior</button></div><div class="bp" id="bp"><img id="bp-img" alt=""></div><div class="hint">Drag to turn &middot; scroll or pinch to zoom</div></div>
+    <div class="info">
+      <div><span class="tag" id="d-tag"></span><h2 id="d-name"></h2></div>
+      <div class="specs" id="d-specs"></div>
+      <div class="links" id="d-links"></div>
+      <p class="note" id="d-note"></p>
+      <div class="nav"><button class="btn ghost" id="prev" type="button">Previous</button><button class="btn ghost" id="next" type="button">Next</button><button class="btn" id="close" type="button">Close</button></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const PLANS = /*DATA*/[];
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = n => n.toLocaleString('en-US');
+const KIND = { plan:'Plan', ls:'Luxury Simplified', avail:'Available home', model:'Model home', built:'Built home' };
+const label = p => KIND[p.k] + (p.city ? ' \u00b7 ' + p.city : '') + (p.bld ? ' \u00b7 ' + p.bld : '');
+const dash = v => (v == null ? '\u2014' : v);
+
+const S = { q:'', coll:'all', bld:'', beds:0, baths:0, st:0, min:0, max:0, sort:'name' };
+let view = [], openSlug = null;
+
+/* Footprint estimate shared by the card drawing and the 3D model. */
+function footprint(p) {
+  const area = (p.s / Math.max(1, p.st || 1));
+  const w = Math.sqrt(area * 1.45), d = area / w;
+  const gw = (p.g || 0) * 10.5, gd = 22;
+  return { w, d, gw, gd };
+}
+function schem(p) {
+  const f = footprint(p), W = f.w + f.gw, H = Math.max(f.d, f.gd);
+  const k = Math.min(150 / W, 78 / H), x0 = 45, y0 = 42;
+  const w = f.w * k, d = f.d * k, gw = f.gw * k, gd = f.gd * k;
+  const top = y0 - 12, rx = x0 + w + gw + 12;
+  return `<svg viewBox="0 0 240 142" role="img" aria-label="Footprint sketch of ${esc(p.n)}" fill="none" stroke="var(--ink)" stroke-width="1.4">
+    <rect x="${x0}" y="${y0}" width="${w}" height="${d}" fill="var(--bg)"/>
+    ${gw ? `<rect x="${x0 + w}" y="${y0 + d - gd}" width="${gw}" height="${gd}" fill="var(--bg)" stroke-dasharray="4 2"/>` : ''}
+    <g stroke="var(--accent)" stroke-width="1">
+      <line x1="${x0}" y1="${top}" x2="${x0 + w + gw}" y2="${top}"/><line x1="${x0}" y1="${top - 3}" x2="${x0}" y2="${top + 3}"/><line x1="${x0 + w + gw}" y1="${top - 3}" x2="${x0 + w + gw}" y2="${top + 3}"/>
+      <line x1="${rx}" y1="${y0}" x2="${rx}" y2="${y0 + d}"/><line x1="${rx - 3}" y1="${y0}" x2="${rx + 3}" y2="${y0}"/><line x1="${rx - 3}" y1="${y0 + d}" x2="${rx + 3}" y2="${y0 + d}"/>
+    </g>
+    <g fill="var(--mute)" stroke="none" font-family="IBM Plex Mono, monospace" font-size="8.5">
+      <text x="${x0 + (w + gw) / 2}" y="${top - 4}" text-anchor="middle">${Math.round(W)}'</text>
+      <text x="${rx + 6}" y="${y0 + d / 2 + 3}">${Math.round(f.d)}'</text>
+      <text x="${x0}" y="136">${p.st || 1} STORY \u00b7 EST. FOOTPRINT</text>
+    </g></svg>`;
+}
+
+function matches(p) {
+  if (S.q && !p.n.toLowerCase().includes(S.q)) return false;
+  if (S.coll !== 'all' && p.k !== S.coll) return false;
+  if (S.bld && p.bld !== S.bld) return false;
+  if (S.beds && (p.b || 0) < S.beds) return false;
+  if (S.baths && (p.ba || 0) < S.baths) return false;
+  if (S.st && (p.st || 0) !== S.st) return false;
+  if (S.min && p.s < S.min) return false;
+  if (S.max && p.s > S.max) return false;
+  return true;
+}
+function apply() {
+  view = PLANS.filter(matches);
+  const by = { name:(a, b) => a.n.localeCompare(b.n), sa:(a, b) => a.s - b.s, sd:(a, b) => b.s - a.s };
+  view.sort(by[S.sort]);
+  $('#count').textContent = `${view.length} of ${PLANS.length} plans`;
+  $('#grid').innerHTML = view.length ? view.map(p => `
+    <button class="card" data-slug="${esc(p.slug)}" type="button">
+      ${p.img ? `<img class="thumb" src="${esc(p.img)}" loading="lazy" decoding="async" alt="Floor plan of ${esc(p.n)}">` : schem(p)}
+      <span class="tag">${esc(label(p))}</span>
+      <h3>${esc(p.n)}</h3>
+      <span class="m">${fmt(p.s)} SF \u00b7 ${dash(p.b)} BD \u00b7 ${dash(p.ba)} BA \u00b7 ${dash(p.st)} ST</span>
+    </button>`).join('') : '<div class="empty">No plans match these filters. Reset them to see all plans.</div>';
+}
+
+/* ---------- 3D massing study (three.js r128) ---------- */
+let T = null;
+function cssColor(name) { return new THREE.Color(getComputedStyle(document.documentElement).getPropertyValue(name).trim()); }
+function initThree() {
+  const el = $('#stage'), r = new THREE.WebGLRenderer({ antialias:true });
+  r.setPixelRatio(Math.min(devicePixelRatio, 2)); el.prepend(r.domElement);
+  const scene = new THREE.Scene(), cam = new THREE.PerspectiveCamera(42, 1, 0.5, 700);
+  r.shadowMap.enabled = true; r.shadowMap.type = THREE.PCFSoftShadowMap;
+  r.toneMapping = THREE.ACESFilmicToneMapping; r.toneMappingExposure = 1.05; r.outputEncoding = THREE.sRGBEncoding;
+  const sky = document.createElement('canvas'); sky.width = 4; sky.height = 256; const sg = sky.getContext('2d');
+  const gr = sg.createLinearGradient(0, 0, 0, 256); gr.addColorStop(0, '#6fa8e0'); gr.addColorStop(.6, '#bcd9f0'); gr.addColorStop(1, '#eaf3fa');
+  sg.fillStyle = gr; sg.fillRect(0, 0, 4, 256); scene.background = new THREE.CanvasTexture(sky);
+  scene.fog = new THREE.Fog(0xdceaf5, 140, 420);
+  scene.add(new THREE.HemisphereLight(0xdfeeff, 0x6b7a55, 0.75));
+  const sun = new THREE.DirectionalLight(0xfff1dc, 1.25); sun.position.set(55, 85, 40); sun.castShadow = true;
+  sun.shadow.mapSize.set(2048, 2048); Object.assign(sun.shadow.camera, { left:-70, right:70, top:70, bottom:-70, near:10, far:260 }); sun.shadow.bias = -0.0004;
+  scene.add(sun);
+  const ground = new THREE.Mesh(new THREE.CircleGeometry(160, 64), new THREE.MeshStandardMaterial({ map: tex('grass', 36, 36), roughness: 1 }));
+  ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground); const gridH = null;
+  T = { r, scene, cam, ground, gridH, house:null, yaw:0.7, pitch:0.42, dist:40, tgt:new THREE.Vector3(0, 4, 0), auto:true, raf:0, ptrs:new Map(), pinch:0 };
+  const cv = r.domElement;
+  cv.addEventListener('pointerdown', e => { cv.setPointerCapture(e.pointerId); T.ptrs.set(e.pointerId, e); T.auto = false; cv.style.cursor = 'grabbing'; });
+  cv.addEventListener('pointerup', e => { T.ptrs.delete(e.pointerId); T.pinch = 0; cv.style.cursor = 'grab'; });
+  cv.addEventListener('pointercancel', e => { T.ptrs.delete(e.pointerId); T.pinch = 0; });
+  cv.addEventListener('pointermove', e => {
+    if (!T.ptrs.has(e.pointerId)) return;
+    const prev = T.ptrs.get(e.pointerId); T.ptrs.set(e.pointerId, e);
+    if (T.ptrs.size === 2) {
+      const [a, b] = [...T.ptrs.values()], d = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+      if (T.pinch) T.dist = Math.min(160, Math.max(14, T.dist * (T.pinch / d)));
+      T.pinch = d; return;
+    }
+    T.yaw -= (e.clientX - prev.clientX) * 0.008;
+    T.pitch = Math.min(1.45, Math.max(0.05, T.pitch + (e.clientY - prev.clientY) * 0.006));
+  });
+  cv.addEventListener('wheel', e => { e.preventDefault(); T.dist = Math.min(160, Math.max(14, T.dist * (1 + e.deltaY * 0.001))); }, { passive:false });
+  new ResizeObserver(() => { const b = el.getBoundingClientRect(); if (!b.width) return; r.setSize(b.width, b.height, false); cam.aspect = b.width / b.height; cam.updateProjectionMatrix(); }).observe(el);
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', recolor);
+  new MutationObserver(recolor).observe(document.documentElement, { attributes:true, attributeFilter:['data-theme'] });
+  recolor();
+}
+function recolor() {}
+/* Procedural textures (canvas) so the page needs no image files. */
+const TEX = {};
+function tex(kind, rx, ry, base) {
+  const key = kind + (base || '');
+  if (!TEX[key]) {
+    const c = document.createElement('canvas'); c.width = c.height = 256; const g = c.getContext('2d');
+    const noise = (n, a) => { for (let i = 0; i < n; i++) { g.fillStyle = `rgba(${Math.random() < .5 ? '0,0,0' : '255,255,255'},${Math.random() * a})`; g.fillRect(Math.random() * 256, Math.random() * 256, 1 + Math.random() * 2, 1 + Math.random() * 2); } };
+    if (kind === 'grass') { g.fillStyle = '#5b7f3a'; g.fillRect(0, 0, 256, 256); for (let i = 0; i < 1800; i++) { g.fillStyle = `hsl(${85 + Math.random() * 30},${35 + Math.random() * 25}%,${28 + Math.random() * 18}%)`; g.fillRect(Math.random() * 256, Math.random() * 256, 2, 4); } }
+    else if (kind === 'siding') { g.fillStyle = base; g.fillRect(0, 0, 256, 256); for (let y = 0; y < 256; y += 16) { g.fillStyle = 'rgba(0,0,0,.22)'; g.fillRect(0, y, 256, 2); g.fillStyle = 'rgba(255,255,255,.22)'; g.fillRect(0, y + 2, 256, 2); } noise(600, .06); }
+    else if (kind === 'stucco') { g.fillStyle = base; g.fillRect(0, 0, 256, 256); noise(5000, .10); }
+    else if (kind === 'shingle') { g.fillStyle = base; g.fillRect(0, 0, 256, 256); for (let y = 0; y < 256; y += 16) for (let x = (y / 16 % 2) * 12; x < 256; x += 24) { g.fillStyle = `rgba(0,0,0,${.08 + Math.random() * .16})`; g.fillRect(x, y, 23, 15); g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(x, y + 14, 24, 2); g.fillRect(x + 23, y, 1, 15); } noise(900, .08); }
+    else if (kind === 'brick') { g.fillStyle = '#8a4a36'; g.fillRect(0, 0, 256, 256); for (let y = 0; y < 256; y += 16) for (let x = (y / 16 % 2) * 16; x < 256; x += 32) { g.fillStyle = `hsl(${12 + Math.random() * 8},${40 + Math.random() * 15}%,${30 + Math.random() * 12}%)`; g.fillRect(x + 1, y + 1, 30, 14); } }
+    else if (kind === 'garage') { g.fillStyle = '#f2f1ec'; g.fillRect(0, 0, 256, 256); for (let y = 0; y < 256; y += 64) { g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = 3; g.strokeRect(6, y + 6, 244, 52); g.fillStyle = 'rgba(0,0,0,.06)'; g.fillRect(10, y + 10, 236, 44); } }
+    else if (kind === 'drive') { g.fillStyle = '#9b9a96'; g.fillRect(0, 0, 256, 256); noise(3000, .12); }
+    const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8; t.encoding = THREE.sRGBEncoding; TEX[key] = t;
+  }
+  const t = TEX[key].clone(); t.needsUpdate = true; t.repeat.set(rx, ry); return t;
+}
+const hashOf = str => [...str].reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 7) >>> 0;
+const WALLS = ['#efe9dc', '#d9d2c0', '#c9c1ae', '#e6dfd1', '#b9c4cc', '#d8cdb8', '#cfc6b6'];
+const ROOFS = ['#7a7e84', '#8a6f5c', '#6d7b85', '#9a8068', '#5f656b'];
+const DOORS = ['#2c4a6b', '#7a2e2a', '#2f5a45', '#1f1f1f', '#8a6a3a'];
+
+function hipRoof(w, d, h, mat) {            // proper hip roof: ridge along the long side, overhang included
+  const hw = w / 2, hd = d / 2, rl = Math.max(0.6, hw - hd * 0.9);
+  const V = [[-hw, 0, -hd], [hw, 0, -hd], [hw, 0, hd], [-hw, 0, hd], [-rl, h, 0], [rl, h, 0]];
+  const F = [[0, 1, 5, 4], [3, 4, 5, 2], [0, 4, 3], [1, 2, 5]];
+  const pos = [], uv = [];
+  const tri = (a, b, c) => { for (const i of [a, b, c]) { pos.push(...V[i]); uv.push(V[i][0] / 8, V[i][2] / 8 + V[i][1] / 6); } };
+  for (const f of F) { if (f.length === 4) { tri(f[0], f[1], f[2]); tri(f[0], f[2], f[3]); } else tri(f[0], f[1], f[2]); }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); g.computeVertexNormals();
+  return new THREE.Mesh(g, mat);
+}
+function buildHouse(p) {
+  const g = new THREE.Group(), FT = 0.3048, SH = 9 * FT, st = Math.max(1, p.st || 1), f = footprint(p), hs = hashOf(p.slug || p.n);
+  const w = f.w * FT, d = f.d * FT, gw = f.gw * FT, gd = f.gd * FT, OV = 1.6;
+  const wc = WALLS[hs % WALLS.length], useSiding = (hs >>> 3) % 2 === 0, rc = ROOFS[(hs >>> 5) % ROOFS.length], dc = DOORS[(hs >>> 7) % DOORS.length];
+  const wallM = new THREE.MeshStandardMaterial({ map: tex(useSiding ? 'siding' : 'stucco', Math.max(2, w / 6), SH / 6, wc), roughness: .9 });
+  const wallSide = new THREE.MeshStandardMaterial({ map: tex(useSiding ? 'siding' : 'stucco', Math.max(2, d / 6), SH / 6, wc), roughness: .9 });
+  const mats = [wallSide, wallSide, wallM, wallM, wallM, wallM];
+  const trim = new THREE.MeshStandardMaterial({ color: 0xf6f4ef, roughness: .6 }), roofM = new THREE.MeshLambertMaterial({ map: tex('shingle', 1, 1, rc), side: THREE.DoubleSide });
+  const glass = new THREE.MeshPhongMaterial({ color: 0x9cc3dd, specular: 0xffffff, shininess: 120, transparent: true, opacity: .6 });
+  const doorM = new THREE.MeshStandardMaterial({ color: dc, roughness: .5 }), garM = new THREE.MeshStandardMaterial({ map: tex('garage', 1, 1), roughness: .6 });
+  const add = (m) => { g.add(m); return m; };
+  for (let s = 0; s < st; s++) {
+    const b = add(new THREE.Mesh(new THREE.BoxGeometry(w, SH, d), mats)); b.position.set(w / 2, s * SH + SH / 2, 0);
+    if (s < st - 1) { const band = add(new THREE.Mesh(new THREE.BoxGeometry(w + .3, .35, d + .3), trim)); band.position.set(w / 2, (s + 1) * SH, 0); }
+    const n = Math.max(3, Math.round(w / 2.7));
+    for (let i = 0; i < n; i++) {                       // windows on front and back: frame, glass, mullions
+      for (const side of [1, -1]) {
+        const x = (i + .5) * (w / n), y = s * SH + SH * .58, z = side * (d / 2 + .05);
+        if (s === 0 && side === 1 && Math.abs(x - w / 2) < 1.6) continue;      // leave room for the front door
+        const fr = add(new THREE.Mesh(new THREE.BoxGeometry(1.15, 1.6, .14), trim)); fr.position.set(x, y, z);
+        const gl = add(new THREE.Mesh(new THREE.BoxGeometry(.92, 1.38, .16), glass)); gl.position.set(x, y, z + side * .02);
+        const mv = add(new THREE.Mesh(new THREE.BoxGeometry(.05, 1.38, .18), trim)); mv.position.set(x, y, z + side * .03);
+        const mh = add(new THREE.Mesh(new THREE.BoxGeometry(.92, .05, .18), trim)); mh.position.set(x, y, z + side * .03);
+      }
+    }
+  }
+  const rh = Math.min(w, d) * .3, roof = hipRoof(w + OV * 2, d + OV * 2, rh, roofM); roof.position.set(w / 2, st * SH, 0); add(roof);
+  const ch = add(new THREE.Mesh(new THREE.BoxGeometry(1.3, rh + 2, 1.3), new THREE.MeshStandardMaterial({ map: tex('brick', 1, 2), roughness: 1 })));
+  ch.position.set(w * .2, st * SH + rh * .55, -d * .12);
+  // entry: door, columns, small porch roof
+  const dr = add(new THREE.Mesh(new THREE.BoxGeometry(1.05, 2.15, .12), doorM)); dr.position.set(w / 2, 1.08, d / 2 + .07);
+  const pr = add(new THREE.Mesh(new THREE.BoxGeometry(4.4, .25, 2.4), trim)); pr.position.set(w / 2, 2.75, d / 2 + 1.2);
+  for (const dx of [-1.9, 1.9]) { const col = add(new THREE.Mesh(new THREE.CylinderGeometry(.14, .16, 2.75, 12), trim)); col.position.set(w / 2 + dx, 1.38, d / 2 + 2.2); }
+  const step = add(new THREE.Mesh(new THREE.BoxGeometry(4.6, .2, 2.6), new THREE.MeshStandardMaterial({ map: tex('drive', 2, 1), roughness: 1 }))); step.position.set(w / 2, .1, d / 2 + 1.3);
+  if (p.g) {                                           // attached garage + doors + driveway
+    const gx = w + gw / 2, gz = d / 2 - gd / 2;
+    const ga = add(new THREE.Mesh(new THREE.BoxGeometry(gw, SH, gd), mats)); ga.position.set(gx, SH / 2, gz);
+    const gro = hipRoof(gw + OV * 2 - .4, gd + OV * 2 - .4, Math.min(gw, gd) * .26, roofM); gro.position.set(gx, SH, gz); add(gro);
+    for (let i = 0; i < p.g; i++) { const gd1 = add(new THREE.Mesh(new THREE.BoxGeometry(2.6, 2.2, .1), garM)); gd1.position.set(w + 1.6 + i * 3.2, 1.1, d / 2 + .06); }
+    const dv = add(new THREE.Mesh(new THREE.BoxGeometry(gw, .08, 22), new THREE.MeshStandardMaterial({ map: tex('drive', gw / 5, 4), roughness: 1 }))); dv.position.set(gx, .04, d / 2 + 11);
+  }
+  const wk = add(new THREE.Mesh(new THREE.BoxGeometry(2.2, .06, 20), new THREE.MeshStandardMaterial({ map: tex('drive', 1, 5), roughness: 1 }))); wk.position.set(w / 2, .03, d / 2 + 12.5);
+  // shrubs + trees (placed deterministically from the plan name)
+  let seed = hs; const rnd = () => (seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296;
+  for (let i = 0; i < 7; i++) {
+    const ang = rnd() * Math.PI * 2, rad = Math.max(w, d) * .9 + 8 + rnd() * 20, x = w / 2 + Math.cos(ang) * rad, z = Math.sin(ang) * rad * .8;
+    if (z > d / 2 && Math.abs(x - w / 2) < 9) continue;
+    const tr = add(new THREE.Mesh(new THREE.CylinderGeometry(.35, .5, 5, 8), new THREE.MeshStandardMaterial({ color: 0x5a4330, roughness: 1 }))); tr.position.set(x, 2.5, z);
+    const hue = Math.round(95 + rnd() * 30), fo = new THREE.MeshStandardMaterial({ color: new THREE.Color(`hsl(${hue},45%,${Math.round(26 + rnd() * 10)}%)`), roughness: 1 });
+    for (let k = 0; k < 3; k++) { const cn = add(new THREE.Mesh(new THREE.ConeGeometry(3.4 - k * .8, 5, 10), fo)); cn.position.set(x, 6 + k * 2.6, z); }
+  }
+  for (let i = 0; i < 9; i++) { const sh = add(new THREE.Mesh(new THREE.SphereGeometry(.8 + rnd() * .5, 10, 8), new THREE.MeshStandardMaterial({ color: new THREE.Color(`hsl(${Math.round(100 + rnd() * 20)},40%,${Math.round(28 + rnd() * 8)}%)`), roughness: 1 })));
+    sh.position.set(.5 + rnd() * w, .6, d / 2 + 1 + rnd() * .8); if (Math.abs(sh.position.x - w / 2) < 3.2) sh.position.x += 5; }
+  g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = o.material !== roofM; } });
+  g.position.x = -(w + gw) / 2; g.userData.h = st * SH + rh; g.userData.span = Math.max(w + gw, d);
+  return g;
+}
+function loop() {
+  if (!T) return;
+  T.raf = requestAnimationFrame(loop);
+  if (T.auto) T.yaw += 0.004;
+  const c = Math.cos(T.pitch) * T.dist;
+  T.cam.position.set(T.tgt.x + Math.sin(T.yaw) * c, T.tgt.y + Math.sin(T.pitch) * T.dist, T.tgt.z + Math.cos(T.yaw) * c);
+  T.cam.lookAt(T.tgt); T.r.render(T.scene, T.cam);
+}
+
+/* ---------- Detail sheet ---------- */
+function openPlan(slug, fromHash) {
+  const p = PLANS.find(x => x.slug === slug); if (!p) return;
+  openSlug = slug;
+  $('#d-tag').textContent = label(p);
+  $('#d-name').textContent = p.n;
+  $('#d-specs').innerHTML = [[fmt(p.s), 'Sq ft'], [dash(p.b), 'Bedrooms'], [dash(p.ba), 'Baths'], [dash(p.h), 'Half baths'], [dash(p.st), 'Stories'], [dash(p.g), 'Garage']]
+    .map(([v, l]) => `<div><b>${v}</b><small>${l}</small></div>`).join('');
+  $('#d-links').innerHTML =
+    (p.img ? `<a class="btn" href="${esc(p.img)}" target="_blank" rel="noopener">Open blueprint</a>` : '') +
+    (p.pdf ? `<a class="btn ghost" href="${esc(p.pdf)}" target="_blank" rel="noopener">Floor plan PDF</a>` : '') +
+    (p.fp ? `<a class="btn ghost" href="${esc(p.fp)}" target="_blank" rel="noopener">Original on arhomes.com</a>` : '') +
+    `<a class="btn ghost" href="${esc(p.u)}" target="_blank" rel="noopener">Plan page</a>` +
+    (!p.pdf && !p.fp ? '<span class="note">This plan page has no floor plan file.</span>' : '');
+  $('#sheet').hidden = false; document.body.style.overflow = 'hidden';
+  if (!T) initThree();
+  if (T.house) T.scene.remove(T.house);
+  curPlan = p; T.house = buildHouse(p); T.scene.add(T.house);
+  T.tgt.set(0, T.house.userData.h / 2, 0); T.dist = T.house.userData.span * 2.1 + 12; T.yaw = 0.7; T.pitch = 0.42;
+  T.auto = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  cancelAnimationFrame(T.raf); loop();
+  const bp = $('#bp'); bp.classList.remove('zoom'); bp.scrollTop = 0;
+  $('#modes').hidden = !p.img;
+  if (p.img) { $('#bp-img').src = p.img; $('#bp-img').alt = 'Floor plan of ' + p.n; }
+  setMode(p.img ? 'bp' : '3d');
+  if (!fromHash) { try { history.replaceState(null, '', '#plan-' + slug); } catch (e) {} }
+  $('#close').focus();
+}
+/* ---------- traced interior walls (models.json, built by blueprints/model/trace_all.py) ---------- */
+let modelsP = null, curPlan = null;
+const loadModels = () => modelsP || (modelsP = fetch('models.json').then(r => r.ok ? r.json() : {}).catch(() => ({})));
+const modelKey = p => p.img ? p.img.replace(/^fp\//, '').replace(/\.[a-z]+$/, '') : null;
+function buildWalls(p, m) {
+  const g = new THREE.Group(), s = m.s * 0.3048, [W, H] = m.size, cx = W * s / 2, cz = H * s / 2, HT = 2.74;
+  const t = new THREE.TextureLoader().load(p.img); t.anisotropy = 8; t.encoding = THREE.sRGBEncoding;
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(W * s, H * s), new THREE.MeshBasicMaterial({ map: t, toneMapped: false }));
+  floor.rotation.x = -Math.PI / 2; floor.position.y = 0.03; g.add(floor);
+  const wallM = new THREE.MeshStandardMaterial({ color: 0xf4f1ea, roughness: .9 }), glass = new THREE.MeshPhongMaterial({ color: 0x8fc0e6, transparent: true, opacity: .45, shininess: 100 });
+  const box = (x, y, w, h, z0, z1, mat) => { const b = new THREE.Mesh(new THREE.BoxGeometry(w * s, z1 - z0, h * s), mat);
+    b.position.set((x + w / 2) * s - cx, (z0 + z1) / 2, (y + h / 2) * s - cz); b.castShadow = mat === wallM; g.add(b); };
+  for (const [x, y, w, h] of m.w) box(x, y, w, h, 0, HT, wallM);
+  for (const pl of m.p || []) {
+    const sh = new THREE.Shape(); for (let i = 0; i < pl.length; i += 2) sh[i ? 'lineTo' : 'moveTo'](pl[i] * s - cx, -(pl[i + 1] * s - cz));
+    const eg = new THREE.ExtrudeGeometry(sh, { depth: HT, bevelEnabled: false }); eg.rotateX(-Math.PI / 2);
+    const mm = new THREE.Mesh(eg, wallM); mm.castShadow = true; g.add(mm);
+  }
+  for (const [x, y, w, h, k] of m.o || []) {
+    if (k === 0) { box(x, y, w, h, 0, .9, wallM); box(x, y, w, h, 2.1, HT, wallM); box(x, y, w, h, .9, 2.1, glass); }
+    else box(x, y, w, h, 2.05, HT, wallM);
+  }
+  g.userData.span = Math.max(W, H) * s;
+  return g;
+}
+const SRC = { reviewed: 'REVIEWED SCALE: an AI reviewer read the printed room sizes off the sheet and they agree', mixed: 'REVIEWED, MIXED SCALE: the levels on this sheet are drawn at different scales; this model uses the first floor scale, so other levels are off', verified: 'VERIFIED SCALE: three or more printed dimensions on the sheet agree', rooms: 'GOOD SCALE: several printed dimensions agree', room: 'FAIR SCALE: one printed room size', conflict: 'SCALE NEEDS CHECKING: the printed dimensions and the published square footage disagree', area: 'ESTIMATED SCALE: published square footage against the traced outline', default: 'UNMEASURED SCALE: typical sheet value' };
+async function setMode(m) {
+  $('#bp').hidden = m !== 'bp';
+  for (const [id, v] of [['m-bp', 'bp'], ['m-w', 'w'], ['m-3d', '3d']]) $('#' + id).setAttribute('aria-pressed', String(m === v));
+  document.querySelector('.stage .hint').textContent = m === 'bp' ? 'Click the plan to zoom \u00b7 scroll to pan' : 'Drag to turn \u00b7 scroll or pinch to zoom';
+  const note = $('#d-note'), p = curPlan; if (!T || !p) return;
+  if (T.wallsG) { T.scene.remove(T.wallsG); T.wallsG = null; }
+  T.house.visible = m !== 'w'; T.ground.visible = m !== 'w';
+  if (m === 'w') {
+    note.textContent = 'Loading traced walls...';
+    const mdl = (await loadModels())[modelKey(p)];
+    if (curPlan !== p) return;
+    if (!mdl) { note.textContent = 'No traced walls for this plan yet.'; T.house.visible = T.ground.visible = true; return; }
+    T.wallsG = buildWalls(p, mdl); T.scene.add(T.wallsG);
+    T.tgt.set(0, 1, 0); T.dist = T.wallsG.userData.span * 1.3; T.pitch = 1.0; T.yaw = 0.5; T.auto = false;
+    note.textContent = `${SRC[mdl.src] || 'ESTIMATED SCALE'} (${(1 / mdl.s).toFixed(1)} px per foot). ` +
+      (mdl.rv && mdl.rv.n ? `${mdl.rv.n} measured room sides, ${mdl.rv.spread}% spread. ` : '') + (mdl.rv && (mdl.rv.added || mdl.rv.removed) ? `The reviewer added ${mdl.rv.added} missed walls and removed ${mdl.rv.removed} false ones (placement approximate). ` : '') +
+      (mdl.chk ? `Traced outline covers about ${Math.round(mdl.chk * 100)}% of the published living plus garage area. ` : '') +
+      `${mdl.w.length} wall pieces and ${mdl.o.length} window and door openings were traced automatically from this blueprint and stand 9 ft tall on the drawing. The trace is not hand-checked: some walls can be missing or extra, and AR Homes states its plan dimensions are approximate.`;
+  } else {
+    T.tgt.set(0, T.house.userData.h / 2, 0); T.dist = T.house.userData.span * 2.1 + 12; T.pitch = 0.42;
+    note.textContent = 'Exterior is a massing study: footprint from published square footage, one level per story, garage bays at 10.5 ft each. It is not the real elevation.';
+  }
+}
+function closeSheet() {
+  $('#sheet').hidden = true; document.body.style.overflow = ''; openSlug = null; curPlan = null;
+  if (T) cancelAnimationFrame(T.raf);
+  try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+}
+function step(dir) {
+  const list = view.length ? view : PLANS, i = list.findIndex(p => p.slug === openSlug);
+  openPlan(list[(i + dir + list.length) % list.length].slug);
+}
+
+/* ---------- Wiring ---------- */
+$('#grid').addEventListener('click', e => { const c = e.target.closest('.card'); if (c) openPlan(c.dataset.slug); });
+$('#q').addEventListener('input', e => { S.q = e.target.value.trim().toLowerCase(); apply(); });
+for (const id of ['beds', 'baths', 'st', 'min', 'max']) $('#' + id).addEventListener('change', e => { S[id] = +e.target.value; apply(); });
+$('#bld').addEventListener('change', e => { S.bld = e.target.value; apply(); });
+[...new Set(PLANS.map(p => p.bld).filter(Boolean))].sort().forEach(b => { const o = document.createElement('option'); o.value = b; o.textContent = b; $('#bld').append(o); });
+$('#sort').addEventListener('change', e => { S.sort = e.target.value; apply(); });
+$('#coll').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return; S.coll = b.dataset.v;
+  document.querySelectorAll('#coll button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+  apply();
+});
+$('#reset').addEventListener('click', () => {
+  Object.assign(S, { q:'', coll:'all', bld:'', beds:0, baths:0, st:0, min:0, max:0, sort:'name' });
+  $('#q').value = ''; for (const id of ['beds', 'baths', 'st', 'min', 'max']) $('#' + id).value = '0'; $('#sort').value = 'name'; $('#bld').value = '';
+  document.querySelectorAll('#coll button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.v === 'all')));
+  apply();
+});
+$('#close').addEventListener('click', closeSheet);
+$('#m-bp').addEventListener('click', () => setMode('bp'));
+$('#m-3d').addEventListener('click', () => setMode('3d'));
+$('#m-w').addEventListener('click', () => setMode('w'));
+$('#bp-img').addEventListener('click', () => $('#bp').classList.toggle('zoom'));
+$('#prev').addEventListener('click', () => step(-1));
+$('#next').addEventListener('click', () => step(1));
+$('#sheet').addEventListener('click', e => { if (e.target.id === 'sheet') closeSheet(); });
+addEventListener('keydown', e => {
+  if ($('#sheet').hidden) return;
+  if (e.key === 'Escape') closeSheet(); else if (e.key === 'ArrowLeft') step(-1); else if (e.key === 'ArrowRight') step(1);
+});
+addEventListener('hashchange', () => { const m = location.hash.match(/^#plan-([a-z0-9-]+)$/); if (m) openPlan(m[1], true); else if (!$('#sheet').hidden) closeSheet(); });
+
+const sizes = PLANS.map(p => p.s);
+$('#tb-count').textContent = PLANS.length + ' sheets \u00b7 ' + PLANS.filter(p => p.img).length + ' blueprints';
+$('#tb-range').textContent = sizes.length ? fmt(Math.min(...sizes)) + ' \u2013 ' + fmt(Math.max(...sizes)) + ' SF' : '\u2014';
+apply();
+{ const m = location.hash.match(/^#plan-([a-z0-9-]+)$/); if (m) openPlan(m[1], true); }
+</script>

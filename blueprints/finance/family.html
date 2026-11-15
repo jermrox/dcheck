@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Obsidian Family Plan</title>
+<style>
+:root{--bg:#f4f6f8;--card:#fff;--ink:#14202b;--sub:#56656f;--line:#d9e0e6;--accent:#2a5b8a;--good:#1f7a4d;--warn:#a5641a;--bad:#b23a3a;--chip:#eef3f8;
+  --s0:#d7a35a;--s1:#e6c27a;--s2:#6d9cc7;--s3:#2a5b8a;--s4:#1f7a4d;--s5:#8a6bb8}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f151b;--card:#17212a;--ink:#e6edf3;--sub:#9fb0bf;--line:#2a3742;--accent:#7fb0e0;--good:#58c08b;--warn:#e0a85a;--bad:#ef7b7b;--chip:#1e2a35}}
+:root[data-theme="dark"]{--bg:#0f151b;--card:#17212a;--ink:#e6edf3;--sub:#9fb0bf;--line:#2a3742;--accent:#7fb0e0;--good:#58c08b;--warn:#e0a85a;--bad:#ef7b7b;--chip:#1e2a35}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+header{padding:18px 16px 8px;max-width:1240px;margin:0 auto;display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;justify-content:space-between}
+header h1{margin:0;font-size:22px} header p{margin:2px 0 0;color:var(--sub)}
+nav a{color:var(--accent);text-decoration:none;font-weight:600;margin-left:12px;font-size:13px}
+main{max-width:1240px;margin:0 auto;padding:0 16px 40px;display:grid;grid-template-columns:380px 1fr;gap:16px}
+@media (max-width:900px){main{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:14px}
+.card h2{font-size:15px;margin:0 0 8px} .note{font-size:12px;color:var(--sub)}
+label.f{display:grid;grid-template-columns:1fr 150px;gap:8px;align-items:center;margin:5px 0;font-size:13px}
+label.f small{display:block;color:var(--sub);font-size:11px}
+input,select{width:100%;font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+input[inputmode]{text-align:right}
+.kid{border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin:8px 0;background:var(--bg)}
+.kid header{padding:0;display:flex;justify-content:space-between;align-items:center}
+button{font:600 13px system-ui;padding:6px 12px;border-radius:8px;border:1px solid var(--accent);background:var(--card);color:var(--accent);cursor:pointer}
+button.x{border:0;background:none;color:var(--sub);padding:2px 6px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px} .kpi b{display:block;font-size:22px;font-variant-numeric:tabular-nums} .kpi span{color:var(--sub);font-size:12px}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums} th,td{padding:5px 7px;border-bottom:1px solid var(--line);text-align:right;font-size:12.5px;vertical-align:top}
+th:first-child,td:first-child{text-align:left} thead th{color:var(--sub);font-weight:600}
+td.l,th.l{text-align:left}
+.stage{display:inline-block;padding:1px 7px;border-radius:999px;font-size:11px;font-weight:700;color:#fff}
+.tag{display:inline-block;padding:1px 7px;border-radius:999px;font-size:11px;font-weight:700;background:var(--chip);color:var(--sub)}
+.tag.good{color:var(--good)} .tag.warn{color:var(--warn)}
+ul.l{margin:0;padding-left:18px} ul.l li{margin:5px 0}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
+.school{border:1px solid var(--line);border-radius:10px;padding:10px 12px} .school b{font-size:14px} .school .note{margin-top:4px}
+svg text{fill:var(--sub);font-size:11px} .src{font-size:11px;color:var(--sub)} .src a{color:var(--sub)}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;color:var(--sub)} .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px}
+</style></head><body>
+<header><div><h1>Obsidian 1899F · Family plan</h1><p>Children, childcare from the first weeks, Wake County schools year by year, military family benefits, and what it all costs, linked to the money plan.</p></div>
+<nav><a href="index.html">Money plan</a><a href="../lot2-site.html">Lot 3D</a><a href="../../interactive_interior_visualizer.html">Designer</a></nav></header>
+<main>
+<aside>
+  <div class="card"><h2>Children</h2><p class="note">Add each child, including planned ones (use the due date). Stages follow the NC rule: kindergarten if 5 by August 31.</p>
+    <div id="kids"></div><button id="add">+ Add a child</button> <button id="addplan">+ Plan a baby</button></div>
+  <div class="card"><h2>Household</h2><div id="hh"></div></div>
+</aside>
+<section>
+  <div class="kpis" id="kpis"></div>
+  <div class="card"><h2>Year by year</h2><p class="note">School years run Aug-Jun. Costs are after military fee assistance (DoD parent fee by income, provider cap $2,000/mo), free NC Pre-K for service families, and the tax breaks you selected, in today's dollars plus the growth rate you set.</p><div id="years"></div></div>
+  <div class="card"><h2>Cost by year</h2><div id="chart"></div></div>
+  <div class="card"><h2>Assigned schools for Shinleaf Estates</h2><div id="schools"></div></div>
+  <div class="card"><h2>Infant care and daycare nearby</h2><div id="care"></div></div>
+  <div class="card"><h2>Having a baby in the military</h2><div id="baby"></div></div>
+  <div class="card"><h2>Military childcare help</h2><div id="mil"></div></div>
+  <div class="card"><h2>Tax breaks and savings for kids</h2><div id="money"></div></div>
+  <div class="card"><h2>Around the neighborhood</h2><div id="near"></div></div>
+  <div class="card"><h2>Sources</h2><div id="sources" class="src"></div></div>
+</section>
+</main>
+<script>
+const FAM = /*FAM*/{};
+const KEY = 'obsidian-family-v1';
+const $ = n => (n < 0 ? '−$' : '$') + Math.round(Math.abs(n)).toLocaleString();
+const today = new Date(FAM.today || Date.now());
+const thisSY = today.getMonth() >= 7 ? today.getFullYear() : today.getFullYear() - 1;       // school year starting August
+let st; try { st = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) {}
+st = st || { kids: [{ name: 'Baby 1', date: `${thisSY + 1}-06-01`, care: 'center', center: 0, school: 'public', priv: 0 }],
+  hh: { mccyn: 'yes', military: 'active', dcfsa: 'yes', marg: 22, growth: 4, horizon: 20, agi: 180000 } };
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {} };
+const CARE = [['center', 'Daycare center'], ['nanny', 'Nanny'], ['share', 'Nanny share'], ['aupair', 'Au pair'], ['home', 'Parent / family at home']];
+const SCH = [['public', 'Public (assigned)'], ['charter', 'Charter'], ['private', 'Private']];
+function kidsUI() {
+  const el = document.getElementById('kids'); el.innerHTML = '';
+  st.kids.forEach((k, i) => {
+    const d = document.createElement('div'); d.className = 'kid';
+    const centers = (FAM.daycare || []).map((c, j) => `<option value="${j}" ${+k.center === j ? 'selected' : ''}>${c.name}</option>`).join('') + `<option value="-1" ${+k.center === -1 ? 'selected' : ''}>Wake County average</option>`;
+    const privs = (FAM.private || []).map((c, j) => `<option value="${j}" ${+k.priv === j ? 'selected' : ''}>${c.name}</option>`).join('');
+    d.innerHTML = `<header><b>${k.name || 'Child'}</b><button class="x" title="Remove">✕</button></header>
+      <label class="f"><span>Name</span><input data-k="name" value="${k.name}"></label>
+      <label class="f"><span>Birth or due date</span><input type="date" data-k="date" value="${k.date}"></label>
+      <label class="f"><span>Care before kindergarten</span><select data-k="care">${CARE.map(([v, t]) => `<option value="${v}" ${k.care === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
+      <label class="f"><span>Daycare</span><select data-k="center">${centers}</select></label>
+      <label class="f"><span>K-12 path</span><select data-k="school">${SCH.map(([v, t]) => `<option value="${v}" ${k.school === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
+      <label class="f"><span>Private school</span><select data-k="priv">${privs}</select></label>`;
+    d.querySelector('.x').onclick = () => { st.kids.splice(i, 1); save(); kidsUI(); render(); };
+    d.querySelectorAll('[data-k]').forEach(inp => inp.addEventListener('change', () => { k[inp.dataset.k] = inp.value; save(); if (inp.dataset.k === 'name') kidsUI(); render(); }));
+    el.append(d);
+  });
+}
+document.getElementById('add').onclick = () => { st.kids.push({ name: 'Child ' + (st.kids.length + 1), date: `${thisSY - 2}-03-01`, care: 'center', center: 0, school: 'public', priv: 0 }); save(); kidsUI(); render(); };
+document.getElementById('addplan').onclick = () => { const last = st.kids.map(k => k.date).sort().at(-1) || `${thisSY}-06-01`; const d = new Date(last); d.setFullYear(d.getFullYear() + 2);
+  st.kids.push({ name: 'Baby ' + (st.kids.length + 1), date: d.toISOString().slice(0, 10), care: 'center', center: 0, school: 'public', priv: 0 }); save(); kidsUI(); render(); };
+const HH = [['military', 'Service status', 'sel', [['active', 'Active duty'], ['guard', 'Guard/Reserve on orders'], ['veteran', 'Veteran / separated']]], ['mccyn', 'Military fee assistance (MCCYN)', 'sel', [['yes', 'Use it'], ['no', 'No']]],
+  ['dcfsa', 'Dependent Care FSA', 'sel', [['yes', 'Use it'], ['no', 'No']]], ['marg', 'Marginal tax rate (fed+state)', '%'], ['agi', 'Household AGI (yearly)', '$'],
+  ['growth', 'Tuition growth per year', '%'], ['horizon', 'Years to show', 'yr']];
+function hhUI() {
+  document.getElementById('hh').innerHTML = HH.map(([k, t, u, opts]) => `<label class="f"><span>${t}</span>${u === 'sel'
+    ? `<select data-h="${k}">${opts.map(([v, x]) => `<option value="${v}" ${st.hh[k] === v ? 'selected' : ''}>${x}</option>`).join('')}</select>`
+    : `<input inputmode="decimal" data-h="${k}" value="${st.hh[k]}">`}</label>`).join('');
+  document.querySelectorAll('[data-h]').forEach(i => i.addEventListener('input', () => { st.hh[i.dataset.h] = i.tagName === 'SELECT' ? i.value : (parseFloat(i.value) || 0); save(); render(); }));
+}
+// age in years on Sep 1 of a school year, and stage
+const ageOn = (date, y, m = 8, d = 1) => { const b = new Date(date + 'T00:00'); const t = new Date(y, m, d); let a = t.getFullYear() - b.getFullYear(); if (t < new Date(t.getFullYear(), b.getMonth(), b.getDate())) a--; return a + (t - b) / 3.15576e10 - Math.floor((t - b) / 3.15576e10); };
+function stageFor(k, sy) {
+  const b = new Date(k.date + 'T00:00');
+  const kYear = b.getFullYear() + (b <= new Date(b.getFullYear(), 7, 31) ? 5 : 6);       // 5 on or before Aug 31 of the K year
+  const g = sy - kYear;                                                                       // -1 pre-K, 0 K, 1..12
+  const months = (new Date(sy, 8, 1) - b) / 2.63e9;
+  if (months < -9) return null;
+  if (g >= 13) return { key: 'done', label: 'Graduated', band: 'done' };
+  if (g >= 0) { const band = g <= 5 ? 'elem' : g <= 8 ? 'middle' : 'high'; return { key: 'g' + g, label: g === 0 ? 'Kindergarten' : 'Grade ' + g, band, g }; }
+  if (g === -1) return { key: 'prek', label: 'Pre-K (4)', band: 'prek' };
+  if (months < 0) return { key: 'born', label: 'Born this school year', band: 'infant', partial: Math.min(1, (10 + months) / 10) };
+  if (months < 12) return { key: 'infant', label: 'Infant', band: 'infant' };
+  if (months < 24) return { key: 'toddler', label: 'Toddler', band: 'toddler' };
+  if (months < 36) return { key: 'twos', label: "Two's", band: 'twos' };
+  return { key: 'threes', label: "Three's", band: 'threes' };
+}
+const BANDCOL = { infant: 'var(--s0)', toddler: 'var(--s0)', twos: 'var(--s1)', threes: 'var(--s1)', prek: 'var(--s1)', elem: 'var(--s2)', middle: 'var(--s3)', high: 'var(--s4)', done: 'var(--s5)' };
+function careCost(k, band) {      // yearly, before help
+  const m = FAM.market || {}, c = (FAM.daycare || [])[+k.center];
+  const r = key => (c && c[key]) || m[key] || 0;
+  if (k.care === 'home') return 0;
+  if (k.care === 'nanny') return (FAM.nanny_hr || 22) * 45 * 50;
+  if (k.care === 'share') return (FAM.nannyshare_hr || 15) * 45 * 50;
+  if (k.care === 'aupair') return FAM.aupair_yr || 22000;
+  const map = { infant: 'infant_mo', toddler: 'toddler_mo', twos: 'twos_mo', threes: 'threes_mo', prek: 'prek_mo' };
+  return r(map[band]) * 12;
+}
+function mccynFee(inc) {   // DoD parent fee (full-time, basic area) by total family income, linear between published tiers
+  const T = FAM.mccyn_fees || [[45000, 234], [175000, 1023]];
+  if (inc <= T[0][0]) return T[0][1];
+  for (let i = 1; i < T.length; i++) if (inc <= T[i][0]) { const [a, fa] = T[i - 1], [b, fb] = T[i]; return fa + (fb - fa) * (inc - a) / (b - a); }
+  return T.at(-1)[1];
+}
+function schoolFor(band) { const s = FAM.schools || {}; return band === 'elem' ? s.elem : band === 'middle' ? s.middle : band === 'high' ? s.high : null; }
+function render() {
+  const H = Math.max(1, Math.round(st.hh.horizon)), years = [], gr = 1 + st.hh.growth / 100;
+  let dcfsaUsed = 0;
+  for (let i = 0; i < H; i++) {
+    const sy = thisSY + i, row = { sy, kids: [], total: 0, care: 0 };
+    let careYear = 0;
+    st.kids.forEach(k => {
+      const s = stageFor(k, sy); if (!s) { row.kids.push(null); return; }
+      let cost = 0, where = '';
+      if (['infant', 'toddler', 'twos', 'threes', 'prek'].includes(s.band)) {
+        cost = careCost(k, s.band) * (s.partial ?? 1);
+        if (s.band === 'prek' && FAM.prek_free && k.school === 'public') where = FAM.prek_note || '';
+        const mil = st.hh.military !== 'veteran';
+        if (s.band === 'prek' && FAM.prek_free && mil && k.school !== 'private') { cost = 0; where = 'NC Pre-K (free for active-duty families)'; }
+        else if (k.care === 'center' && st.hh.mccyn === 'yes' && mil) { const mo = cost / 12; cost = (mccynFee(st.hh.agi) + Math.max(0, mo - (FAM.mccyn_cap || 2000))) * 12 * (s.partial ?? 1); }
+        where = where || (k.care === 'center' ? ((FAM.daycare || [])[+k.center] || { name: 'Wake County average' }).name : CARE.find(c => c[0] === k.care)[1]);
+        careYear += cost;
+      } else if (s.band === 'elem' || s.band === 'middle' || s.band === 'high') {
+        if (k.school === 'private') { const p = (FAM.private || [])[+k.priv]; cost = p ? (p.tuition_by_band?.[s.band] ?? p.tuition) : 0; where = p ? p.name : 'Private'; }
+        else if (k.school === 'charter') { where = (FAM.charter || [])[0]?.name || 'Charter'; cost = FAM.school_misc || 600; }
+        else { const sc = schoolFor(s.band); where = sc ? sc.name : 'Assigned school'; cost = FAM.school_misc || 600; }
+        if (s.band === 'elem' || s.band === 'middle') careYear += (FAM.afterschool_yr || 0) * (k.care === 'home' ? 0 : 1);
+        cost += (s.band === 'elem' || s.band === 'middle') && k.care !== 'home' ? (FAM.afterschool_yr || 0) : 0;
+      }
+      cost *= Math.pow(gr, i);
+      row.kids.push({ s, cost, where }); row.total += cost;
+    });
+    // tax help on care (dependent-care FSA first, then the credit on what's left), child tax credit
+    const careAdj = careYear * Math.pow(gr, i);
+    const fsa = st.hh.dcfsa === 'yes' ? Math.min(careAdj, FAM.dcfsa_limit || 7500) : 0;
+    const fsaSave = fsa * st.hh.marg / 100;
+    const kidsUnder13 = row.kids.filter(x => x && x.s.band !== 'high' && x.s.band !== 'done' && !(x.s.g >= 8)).length;
+    const cdccBase = Math.max(0, Math.min(careAdj - fsa, kidsUnder13 >= 2 ? 6000 : kidsUnder13 ? 3000 : 0));
+    const cdcc = cdccBase * (st.hh.agi > 150000 ? 0.2 : st.hh.agi > 75000 ? 0.35 : 0.5);
+    const kidsUnder17 = row.kids.filter(x => x && x.s.band !== 'done' && !(x.s.g >= 11)).length;
+    const ctc = kidsUnder17 * (FAM.ctc || 2200) * (st.hh.agi > (FAM.ctc_phaseout || 400000) ? 0.5 : 1);
+    row.help = fsaSave + cdcc + ctc; row.net = row.total - row.help;
+    years.push(row);
+  }
+  const first = years[0], next5 = years.slice(0, 5).reduce((a, r) => a + r.net, 0), all = years.reduce((a, r) => a + r.net, 0);
+  const peak = years.reduce((a, r) => r.net > a.net ? r : a, years[0]);
+  const monthlyNow = Math.max(0, first.net / 12);
+  const peak3 = years.slice(0, 3).reduce((a, r) => r.total > a.total ? r : a, years[0]);   // what a lender sees: the heaviest of the next 3 years
+  try { localStorage.setItem('obsidian-family-monthly', JSON.stringify({ monthly: Math.round(peak3.total / 12), sy: peak3.sy })); } catch (e) {}
+  document.getElementById('kpis').innerHTML = [
+    ['This school year', first.net < 0 ? '+' + $(-first.net) : $(first.net), first.net < 0 ? 'tax credits exceed costs' : `${$(monthlyNow)}/mo after help`], ['Next 5 years', $(next5), 'net of fee assistance and tax breaks'],
+    ['Peak year', `${peak.sy}-${String(peak.sy + 1).slice(2)}`, $(peak.net)], [`${H}-year total`, $(all), 'childcare + school + after-school'],
+  ].map(([a, b, c]) => `<div class="kpi"><span>${a}</span><b>${b}</b><span>${c}</span></div>`).join('');
+  // table
+  const head = `<tr><th class="l">School year</th>${st.kids.map(k => `<th class="l">${k.name}</th>`).join('')}<th>Cost</th><th>Help</th><th>Net</th></tr>`;
+  const body = years.map(r => `<tr><td>${r.sy}-${String(r.sy + 1).slice(2)}</td>${r.kids.map(x => x ? `<td class="l"><span class="stage" style="background:${BANDCOL[x.s.band]}">${x.s.label}</span><br><span class="note">${x.where}</span></td>` : '<td class="l note">—</td>').join('')}<td>${$(r.total)}</td><td>${$(r.help)}</td><td><b>${$(r.net)}</b></td></tr>`).join('');
+  document.getElementById('years').innerHTML = `<div style="overflow-x:auto"><table><thead>${head}</thead><tbody>${body}</tbody></table></div>`;
+  // chart
+  const W = 760, Hc = 220, pad = 50, mx = Math.max(...years.map(r => r.total), 1) * 1.08, bw = (W - pad - 10) / years.length;
+  let svg = `<svg viewBox="0 0 ${W} ${Hc}" width="100%" role="img" aria-label="Family cost per school year">`;
+  for (let t = 0; t <= 4; t++) { const v = mx * t / 4, y = Hc - 22 - v / mx * (Hc - 36); svg += `<line x1="${pad}" x2="${W - 10}" y1="${y}" y2="${y}" stroke="var(--line)"/><text x="${pad - 6}" y="${y + 4}" text-anchor="end">$${Math.round(v / 1000)}k</text>`; }
+  years.forEach((r, i) => { let y0 = Hc - 22; const x = pad + i * bw + 2;
+    r.kids.forEach(k => { if (!k || !k.cost) return; const h = k.cost / mx * (Hc - 36); svg += `<rect x="${x}" y="${y0 - h}" width="${bw - 4}" height="${h}" fill="${BANDCOL[k.s.band]}"><title>${k.s.label}: ${$(k.cost)}</title></rect>`; y0 -= h; });
+    const yn = Hc - 22 - r.net / mx * (Hc - 36); svg += `<line x1="${x}" x2="${x + bw - 4}" y1="${yn}" y2="${yn}" stroke="var(--ink)" stroke-width="2"/>`;
+    if (i % 2 === 0) svg += `<text x="${x + bw / 2}" y="${Hc - 6}" text-anchor="middle">${String(r.sy).slice(2)}-${String(r.sy + 1).slice(2)}</text>`; });
+  svg += '</svg>';
+  document.getElementById('chart').innerHTML = svg + `<div class="legend"><span><i style="background:var(--s0)"></i>Infant & toddler care</span><span><i style="background:var(--s1)"></i>2s, 3s, pre-K</span><span><i style="background:var(--s2)"></i>Elementary</span><span><i style="background:var(--s3)"></i>Middle</span><span><i style="background:var(--s4)"></i>High</span><span><i style="background:var(--ink)"></i>Net after help</span></div>`;
+  // static sections from facts
+  const S = FAM.schools || {};
+  const card = sc => sc ? `<div class="school"><b>${sc.name}</b> <span class="tag">${sc.grades || ''}</span>${sc.verify ? ' <span class="tag warn">verify</span>' : ''}<div class="note">${sc.detail || ''}</div>${sc.url ? `<div class="src"><a href="${sc.url}" target="_blank" rel="noopener">${sc.url}</a></div>` : ''}</div>` : '';
+  document.getElementById('schools').innerHTML = `<div class="grid2">${card(S.elem)}${card(S.middle)}${card(S.high)}</div><p class="note">${S.note || ''}</p>
+    ${(FAM.charter || []).length ? `<h3 class="note">Charter & magnet</h3><ul class="l">${FAM.charter.map(c => `<li><b>${c.name}</b>: ${c.detail || ''}</li>`).join('')}</ul>` : ''}
+    ${(FAM.private || []).length ? `<h3 class="note">Private</h3><table><thead><tr><th class="l">School</th><th class="l">Grades</th><th>Tuition / yr</th></tr></thead><tbody>${FAM.private.map(p => `<tr><td class="l">${p.url ? `<a href="${p.url}" target="_blank" rel="noopener">${p.name}</a>` : p.name}</td><td class="l">${p.grades || ''}</td><td>${p.tuition_text || $(p.tuition || 0)}</td></tr>`).join('')}</tbody></table>` : ''}`;
+  const dc = FAM.daycare || [], mk = FAM.market || {};
+  document.getElementById('care').innerHTML = `<div style="overflow-x:auto"><table><thead><tr><th class="l">Center</th><th class="l">Area</th><th class="l">NC rating</th><th>Infant /mo</th><th>Toddler</th><th>2s</th><th>3s</th><th>Pre-K</th></tr></thead><tbody>
+    ${dc.map(c => `<tr><td class="l">${c.url ? `<a href="${c.url}" target="_blank" rel="noopener">${c.name}</a>` : c.name}</td><td class="l">${c.area || ''}</td><td class="l">${c.stars || ''}</td>${['infant_mo', 'toddler_mo', 'twos_mo', 'threes_mo', 'prek_mo'].map(f => `<td>${c[f] ? $(c[f]) : '<span class="note">ask</span>'}</td>`).join('')}</tr>`).join('')}
+    <tr><td class="l"><b>Wake County market rate</b></td><td class="l">${mk.source || ''}</td><td></td>${['infant_mo', 'toddler_mo', 'twos_mo', 'threes_mo', 'prek_mo'].map(f => `<td><b>${mk[f] ? $(mk[f]) : ''}</b></td>`).join('')}</tr></tbody></table></div>
+    <p class="note">${FAM.care_note || ''} Nanny ≈ ${$(FAM.nanny_hr || 0)}/hr, nanny share ≈ ${$(FAM.nannyshare_hr || 0)}/hr per family, au pair ≈ ${$(FAM.aupair_yr || 0)}/yr.</p>`;
+  const list = (id, arr) => document.getElementById(id).innerHTML = `<ul class="l">${(arr || []).map(w => `<li><b>${w[0]}</b>: ${w[1]}</li>`).join('')}</ul>`;
+  list('baby', FAM.baby); list('mil', FAM.military); list('money', FAM.money); list('near', FAM.near);
+  document.getElementById('sources').innerHTML = (FAM.sources || []).map(s => `<div>${s[0]} <a href="${s[1]}" target="_blank" rel="noopener">${s[1]}</a></div>`).join('') + `<p>Facts as of ${FAM.asof || ''}. Confirm school assignment with the WCPSS address lookup and rates with each center.</p>`;
+}
+kidsUI(); hhUI(); render();
+</script>
+</body></html>

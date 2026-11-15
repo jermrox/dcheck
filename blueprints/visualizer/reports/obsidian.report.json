@@ -1,0 +1,75 @@
+{
+ "base": "obsidian",
+ "px_per_ft": 12.45,
+ "scale_sides": 16,
+ "scale_spread_pct": 2.4,
+ "scale_rederived": 12.45,
+ "levels": [
+  {
+   "level": "First Floor",
+   "walls": 44,
+   "openings": 36,
+   "rooms": 27,
+   "room_size_checks": 9,
+   "room_size_err_median_pct": 2.0,
+   "room_size_worst": [
+    [
+     "Porch",
+     10.4,
+     "15.6x13.9 printed vs 14.0x13.5 modelled"
+    ],
+    [
+     "Porch (Casual Dining)",
+     10.2,
+     "17.3x12.4 printed vs 15.6x11.7 modelled"
+    ],
+    [
+     "Great Room",
+     4.8,
+     "14.7x19.7 printed vs 14.0x19.9 modelled"
+    ]
+   ],
+   "room_overlaps": [],
+   "room_overlap_count": 0,
+   "room_edges_on_walls_pct": 81.1,
+   "modelled_living_sqft": 2484,
+   "printed_living_sqft": 2587,
+   "living_area_diff_pct": -4.0,
+   "main_door": true,
+   "file": "obsidian-first-floor.home.json"
+  },
+  {
+   "level": "Second Floor",
+   "walls": 29,
+   "openings": 13,
+   "rooms": 10,
+   "room_size_checks": 4,
+   "room_size_err_median_pct": 1.4,
+   "room_size_worst": [
+    [
+     "Finished Storage",
+     28.9,
+     "17.1x29.2 printed vs 16.9x20.8 modelled"
+    ],
+    [
+     "Bedroom 3",
+     1.8,
+     "12.1x14.1 printed vs 11.9x13.9 modelled"
+    ],
+    [
+     "Bonus Room",
+     0.9,
+     "14.3x19.8 printed vs 14.2x19.8 modelled"
+    ]
+   ],
+   "room_overlaps": [],
+   "room_overlap_count": 0,
+   "room_edges_on_walls_pct": 88.9,
+   "modelled_living_sqft": 1630,
+   "printed_living_sqft": 1694,
+   "living_area_diff_pct": -3.8,
+   "main_door": true,
+   "file": "obsidian-second-floor.home.json"
+  }
+ ]
+}

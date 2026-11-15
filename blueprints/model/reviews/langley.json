@@ -1,0 +1,28 @@
+{
+  "base": "langley",
+  "px_per_ft": 12.54,
+  "confidence": "high",
+  "measurements": [
+    {"room": "Bedroom 2", "printed": "12'-1\" x 12'-1\"", "width_px": 152, "height_px": 152.5,
+     "ppf_w": 12.58, "ppf_h": 12.62, "how": "rulers"},
+    {"room": "Bedroom 4", "printed": "12'-8\" x 12'-3\"", "width_px": 158, "height_px": 153,
+     "ppf_w": 12.47, "ppf_h": 12.49, "how": "rulers"},
+    {"room": "Bedroom 3", "printed": "13'-0\" x 12'-3\"", "width_px": 164, "height_px": 154,
+     "ppf_w": 12.62, "ppf_h": 12.57, "how": "span"},
+    {"room": "Exercise", "printed": "13'-1\" x 16'-9\"", "width_px": 163, "height_px": 208,
+     "ppf_w": 12.46, "ppf_h": 12.42, "how": "span"},
+    {"room": "Owner's Suite", "printed": "13'-7\" x 16'-10\"", "width_px": 171, "height_px": 210.5,
+     "ppf_w": 12.59, "ppf_h": 12.51, "how": "rulers"},
+    {"room": "Garage", "printed": "21'-9\" x 31'-3\"", "width_px": 268.5, "height_px": 389,
+     "ppf_w": 12.34, "ppf_h": 12.45, "how": "rulers"},
+    {"room": "Overall width (edge dimension string)", "printed": "58'-6\"", "width_px": 737, "height_px": null,
+     "ppf_w": 12.6, "ppf_h": null, "how": "rulers"},
+    {"room": "Overall depth of house (edge dimension string)", "printed": "84'-0\"", "width_px": null, "height_px": 1056.5,
+     "ppf_w": null, "ppf_h": 12.58, "how": "rulers"}
+  ],
+  "spread_pct": 2.2,
+  "tracer_px_per_ft": 12.39,
+  "missing_walls": [[1695, 937, 120, 8]],
+  "extra_walls": [],
+  "notes": "Scale is the median of 14 side measurements (6 rectangular rooms, both sides each, plus the 58'-6\" and 84'-0\" edge strings); range 12.34 to 12.62. All printed sizes were read from zoom-4 crops (garage at zoom 2) and are clear. The tracer's 12.39 is 1.2% below this and sits inside the measured range, so the room sizes do not show a large scale error; any disagreement with published square footage is not explained by scale alone. Both levels are drawn at the same scale (lower-level rooms agree with first-floor rooms). Garage is the weakest measurement: read at zoom 2 and its left side is thin garage-door lines, not a wall. Bedroom 3 width from rulers was 164, matching span; Exercise width read 163 by span but about 167 off the crop rulers, span value used. Rooms skipped: Den, Card Room, Bonus, Great Room, Casual Dining, Porch (not plain closed rectangles). Wall check was done mainly from the overview, which is too coarse to judge small interior partitions, so it is not exhaustive. The one missing wall (Bedroom 4 / Bath 3 partition) is inferred from span passing through it at x=1735 (down=126 from y=880) while the zoom-4 crop shows a solid wall at y about 937 to 945; its x extent is approximate. No extra walls were seen: pool, stairs and furniture are not traced, and the red outlines on the lower level (under the garage and the box above the Exercise room) follow real dark foundation lines. The garage's left side has no traced wall, which matches the drawing (two garage doors with a pier between)."
+}

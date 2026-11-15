@@ -1,0 +1,29 @@
+{
+  "base": "summit",
+  "px_per_ft": 13.53,
+  "confidence": "high",
+  "measurements": [
+    {"room": "Owner's Suite", "printed": "13'-6\" x 18'-2\"", "width_px": 183, "height_px": 246, "ppf_w": 13.56, "ppf_h": 13.54, "how": "span"},
+    {"room": "Bedroom 2", "printed": "11'-11\" x 17'-6\"", "width_px": 161, "height_px": 236, "ppf_w": 13.51, "ppf_h": 13.49, "how": "span"},
+    {"room": "Bedroom 3", "printed": "13'-7\" x 11'-1\"", "width_px": 151, "height_px": 183, "ppf_w": 13.62, "ppf_h": 13.47, "how": "span"},
+    {"room": "Bedroom 4", "printed": "13'-6\" x 12'-7\"", "width_px": 169, "height_px": 183, "ppf_w": 13.43, "ppf_h": 13.56, "how": "rulers"},
+    {"room": "Rec Room", "printed": "20'-10\" x 17'-6\"", "width_px": 282, "height_px": 237, "ppf_w": 13.54, "ppf_h": 13.54, "how": "span"},
+    {"room": "Garage", "printed": "24'-4\" x 22'-6\"", "width_px": 326, "height_px": 302, "ppf_w": 13.40, "ppf_h": 13.42, "how": "rulers"}
+  ],
+  "spread_pct": 1.6,
+  "tracer_px_per_ft": 18.21,
+  "missing_walls": [
+    [456, 620, 10, 265],
+    [460, 872, 150, 10],
+    [1326, 905, 14, 250],
+    [1590, 1596, 120, 10],
+    [1532, 1500, 8, 110],
+    [147, 141, 8, 260],
+    [150, 140, 135, 8],
+    [150, 392, 135, 8],
+    [1465, 623, 8, 75],
+    [1465, 800, 8, 80]
+  ],
+  "extra_walls": [],
+  "notes": "Tracer scale 18.21 is about 35% too high; six rooms on two levels agree on 13.4-13.6 px/ft (median of the 12 side values 13.53). Bedroom 3 and Bedroom 4 are printed with the vertical side first (13'-7\" and 13'-6\" are the heights; Bedroom 4 height is to the closet front wall, which the tracer missed, so span overshot and rulers were used; span also ran through its west wall). Garage width span returned None (door side untraced), height is from span, width from crop rulers; garage has a small notch at lower left but full extents are clear. Loft (13' x 14'-6\") was left out of the scale because of its ladder nook: rulers give 171 x 193 px below the nook = 13.15 / 13.31 px/ft, slightly low but consistent, so all three levels are drawn at the same scale. Overall dimensions 79' and 54'-6\" are printed loose near (1500,1180) with no extension lines; rough overview extents (about 1069 px wide, 732 px deep on the main level) give 13.5 and 13.4 px/ft, supporting the result but not used. Missing walls are mostly window walls and the garage door side (great room west and south-west, loft west end, owner's bath east), plus the Bedroom 4 closet front and west wall; loft and owner's bath rectangles were located from the overview only (approximate). No clear extra walls seen: fireplace/chimney boxes and the lower-level foundation outlines are drawn as real walls."
+}

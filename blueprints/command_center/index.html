@@ -1,0 +1,316 @@
+<title>Obsidian Build HQ</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a finished build plan read top to bottom - the answer, what was decided, what was verified, what is left, what is coming. */
+:root{
+  --paper:#f6f6f3; --card:#ffffff; --ink:#15171c; --mute:#5d636e; --line:#e2e1dc;
+  --trim:#1d1f24; --lawn:#2f6b4f; --lawn-soft:#e3efe8; --brick:#efeeea;
+  --warn:#a86a10; --warn-soft:#f8ecd7; --bad:#b03a2e; --bad-soft:#f7e1de;
+  --f-display:"Archivo",system-ui,sans-serif; --f-body:"Inter",system-ui,sans-serif; --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#121417; --card:#1a1d22; --ink:#e9ebee; --mute:#9aa1ab; --line:#2a2e35;
+  --trim:#e9ebee; --lawn:#7cc39d; --lawn-soft:#1b2d24; --brick:#20242a;
+  --warn:#e2a64a; --warn-soft:#33281a; --bad:#ef8a7f; --bad-soft:#3a201d; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#121417; --card:#1a1d22; --ink:#e9ebee; --mute:#9aa1ab; --line:#2a2e35;
+  --trim:#e9ebee; --lawn:#7cc39d; --lawn-soft:#1b2d24; --brick:#20242a;
+  --warn:#e2a64a; --warn-soft:#33281a; --bad:#ef8a7f; --bad-soft:#3a201d; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--paper);color:var(--ink);font:15px/1.55 var(--f-body)}
+.wrap{max-width:980px;margin:0 auto;padding-block:20px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:28px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0}
+h1{font-size:clamp(28px,4.4vw,40px);font-weight:800;letter-spacing:-.015em}
+h2{font-size:20px;font-weight:700}
+.eyebrow{font:500 11px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+.muted{color:var(--mute)}
+.note{font-size:13px;color:var(--mute)}
+button,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--lawn);outline-offset:2px}
+.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+
+.mast{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:end;padding-bottom:16px;border-bottom:3px solid var(--trim)}
+.mast .sub{margin:6px 0 0;color:var(--mute);max-width:64ch}
+.score{display:flex;gap:20px;flex-wrap:wrap}
+.score b{display:block;font:600 26px/1.1 var(--f-mono)}
+.score span{font-size:12px;color:var(--mute)}
+@media(max-width:640px){.mast{grid-template-columns:1fr}}
+
+section{display:grid;gap:12px}
+.sec-h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.count{font:500 12px var(--f-mono);color:var(--mute)}
+
+/* the answer */
+.answer{background:var(--card);border:2px solid var(--trim);border-radius:14px;padding:20px;display:grid;gap:14px}
+.answer h2{font-size:clamp(20px,3vw,26px)}
+.paths{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media(max-width:640px){.paths{grid-template-columns:1fr}}
+.path{border:1px solid var(--line);border-radius:10px;padding:12px;display:grid;gap:2px;font-size:13px}
+.path.best{border:2px solid var(--lawn);background:var(--lawn-soft)}
+.path b{font-family:var(--f-display);font-size:14.5px;margin-bottom:4px}
+.path .v{font:600 18px var(--f-mono);font-variant-numeric:tabular-nums;margin-bottom:4px}
+.bar{display:flex;height:12px;border-radius:4px;overflow:hidden;background:var(--brick)}
+.bar i{display:block;height:100%}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--mute)}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px}
+
+/* findings */
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media(max-width:700px){.cards{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:grid;gap:6px;align-content:start;min-width:0}
+.card .t{font-weight:600}
+.card .d{font-size:14px;color:var(--ink);white-space:pre-wrap;overflow-wrap:anywhere}
+.chip{justify-self:start;font:500 10.5px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;padding:4px 7px;border-radius:5px}
+.chip.ok{background:var(--lawn-soft);color:var(--lawn)}
+.chip.you{background:var(--warn-soft);color:var(--warn)}
+.card.you{border-left:4px solid var(--warn)}
+.card .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.btn{border:1px solid var(--line);background:transparent;border-radius:8px;padding:5px 12px;font-size:13px;font-weight:600}
+.btn.dark{background:var(--trim);border-color:var(--trim);color:var(--paper)}
+
+/* design */
+.dgroup{display:grid;gap:8px;margin-top:6px}
+.dgroup h3{font-size:14px;color:var(--mute);text-transform:uppercase;letter-spacing:.08em;font-family:var(--f-mono);font-weight:500}
+.drow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:0;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.drow>div{padding:12px 14px;min-width:0}
+.drow .brian{background:var(--brick)}
+.drow .rec{white-space:pre-wrap;font-size:14px}
+.drow .t{font-weight:600;margin-bottom:4px}
+.tag{display:inline-block;font:500 10.5px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;padding:4px 7px;border-radius:5px;margin-bottom:6px}
+.tag.rec-yes{background:var(--lawn-soft);color:var(--lawn)}
+.tag.rec-price{background:var(--warn-soft);color:var(--warn)}
+@media(max-width:700px){.drow{grid-template-columns:1fr}}
+/* timeline */
+.steps{display:grid;gap:0;counter-reset:s;border-left:2px solid var(--line);margin-left:8px}
+.step{position:relative;padding:4px 0 14px 20px}
+.step::before{content:"";position:absolute;left:-7px;top:9px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--trim)}
+.step.done::before{background:var(--lawn);border-color:var(--lawn)}
+.step .t{font-weight:600}
+
+/* ask */
+.ask{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:grid;gap:10px}
+.chat{display:grid;gap:8px;max-height:50vh;overflow-y:auto}
+.msg{padding:10px 14px;border-radius:12px;white-space:pre-wrap;overflow-wrap:anywhere;max-width:78ch}
+.msg.me{justify-self:end;background:var(--trim);color:var(--paper)}
+.msg.ai{background:var(--brick)}
+.msg.sys{font-size:12.5px;color:var(--mute);padding:0 4px}
+.composer{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}
+.composer textarea{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-height:46px;resize:vertical;width:100%}
+.banner{padding:10px 14px;border-radius:10px;background:var(--warn-soft);font-size:13.5px}
+</style>
+
+<div class="wrap">
+  <header class="mast">
+    <div>
+      <div class="eyebrow">Obsidian 1899F · new build plan</div>
+      <h1>Build HQ</h1>
+      <p class="sub">The money answer, the decisions made, the facts checked, and the short list of steps only you can take.</p>
+    </div>
+    <div class="score" aria-live="polite">
+      <div><b id="s-done">–</b><span>handled</span></div>
+      <div><b id="s-you">–</b><span>need you</span></div>
+      <div><b id="s-next">–</b><span>upcoming milestones</span></div>
+    </div>
+  </header>
+
+  <div id="conn" class="banner" hidden></div>
+
+  <section>
+    <div class="answer" id="answer">
+      <div class="eyebrow">The money answer</div>
+      <h2 id="ans-h">Loading your numbers…</h2>
+      <p id="ans-p" class="muted" style="margin:0"></p>
+      <div class="paths" id="paths"></div>
+      <div id="ans-bar"></div>
+      <p class="note" id="ans-src" style="margin:0"></p>
+    </div>
+  </section>
+
+  <section id="loan-sec" hidden>
+    <div class="sec-h"><h2>Construction loan: build phase, then the permanent loan</h2></div>
+    <p class="muted" id="loan-intro" style="margin:0"></p>
+    <div class="paths" id="build"></div>
+    <div class="sec-h" style="margin-top:6px"><h3 style="font-size:16px">After the build: three ways to structure it</h3></div>
+    <div class="paths" id="loanopts"></div>
+    <p class="note" id="loan-note" style="margin:0"></p>
+  </section>
+
+  <section id="src-sec" hidden>
+    <div class="sec-h"><h2>Where every rate and percentage comes from</h2></div>
+    <ol class="note" id="sources" style="margin:0;padding-left:20px;display:grid;gap:4px"></ol>
+  </section>
+
+  <section>
+    <div class="sec-h"><h2>Needs you</h2><span class="count" id="c-you"></span></div>
+    <p class="note" style="margin:0">Only things that need your login, your signature or the builder's answer. Each card has the exact steps.</p>
+    <div class="cards" id="you"></div>
+  </section>
+
+  <section id="design-sec">
+    <div class="sec-h"><h2>Obsidian design changes</h2><span class="count" id="c-design"></span></div>
+    <p class="note" style="margin:0" id="design-intro">Brian's notes from the Wednesday session, each with a recommendation for the Discovery meeting.</p>
+    <div id="design"><div class="note">Loading…</div></div>
+  </section>
+
+  <section id="reply-sec" hidden>
+    <div class="sec-h"><h2>Reply to John</h2><button class="btn" id="reply-copy">Copy</button></div>
+    <div class="card"><div class="d" id="reply"></div></div>
+  </section>
+
+  <section>
+    <div class="sec-h"><h2>Decided</h2><span class="count" id="c-dec"></span></div>
+    <div class="cards" id="decided"></div>
+  </section>
+
+  <section>
+    <div class="sec-h"><h2>Checked and confirmed</h2><span class="count" id="c-ver"></span></div>
+    <div class="cards" id="verified"></div>
+  </section>
+
+  <section>
+    <div class="sec-h"><h2>Build timeline</h2></div>
+    <div class="steps" id="steps"></div>
+  </section>
+
+  <section>
+    <div class="ask" id="ask">
+      <div class="sec-h"><h2>Ask about the plan</h2></div>
+      <div class="chat" id="chat" aria-live="polite"></div>
+      <div class="composer"><textarea id="q" aria-label="Question" placeholder="Ask anything about the build, the loan or the family plan"></textarea><button class="btn dark" id="q-send">Ask</button></div>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+const $ = id => document.getElementById(id);
+const fmt = n => (n < 0 ? '−$' : '$') + Math.round(Math.abs(n)).toLocaleString('en-US');
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+let db = null, user = null, sample = null, mcp = null, items = [], money = null, canWrite = true;
+
+function banner(t) { $('conn').hidden = !t; $('conn').textContent = t || ''; }
+
+/* ---------- money answer (numbers live in the viewer's private space) ---------- */
+const pmt = (P, r, n = 360) => { r /= 1200; return r ? P * r / (1 - Math.pow(1 + r, -n)) : P / n; };
+function calc(m) {
+  const sale = m.wVal * (1 - m.commission / 100 - 0.002) - m.closing;      // commission, NC excise $2/$1,000, other closing
+  const keepLoan = (m.price - m.otherDown) * (1 + m.fee / 100), sellLoan = (m.price - m.otherDown - sale) * (1 + m.fee / 100);
+  const keepPI = pmt(keepLoan, m.rate), sellPI = pmt(sellLoan, m.rate);
+  const profit = rent => { const y = rent * 12; return (y - m.wTax - m.wHoa * 12 - m.wIns - y * (m.vac + m.maint + m.pm) / 100) / 12; };
+  const rents = [m.rentLow, m.rentHigh].map(r => ({rent: r, profit: profit(r), net: keepPI - sellPI - profit(r)}));
+  return {sale, keepLoan, sellLoan, keepPI, sellPI, extra: keepPI - sellPI, rents, newTax: m.price * m.newTaxPct / 100 / 12};
+}
+function renderAnswer() {
+  if (!money) return;
+  const m = money, c = calc(m), lo = c.rents[0], hi = c.rents[1];
+  $('ans-h').textContent = 'Sell Wendell and put the proceeds down.';
+  $('ans-p').textContent = `Keeping Wendell means borrowing ${fmt(c.sale)} more on the new home, which adds ${fmt(c.extra)}/mo of principal and interest at ${m.rate}%. At today's Wendell market rent of ${fmt(lo.rent)}–${fmt(hi.rent)}, the rental clears only ${fmt(lo.profit)}–${fmt(hi.profit)}/mo after tax, HOA, insurance, vacancy, upkeep and a manager. Net, keeping costs about ${fmt(hi.net)}–${fmt(lo.net)} a month, roughly ${fmt(hi.net * 12)}–${fmt(lo.net * 12)} a year. Wendell-area prices are also falling right now, so the house is not growing fast enough to make up for it. Keeping only wins long-term if you would spend, not invest, the money selling frees up. The lower sell-path payment only happens if the permanent loan is sized after Wendell sells. VA loans cannot be recast, so a VA one-time-close set at the start keeps the higher payment; see the construction-loan section below.`;
+  const P = [
+    {name: 'Sell Wendell · ' + fmt(m.otherDown + c.sale) + ' down', rows: [['VA loan (incl. ' + m.fee + '% fee)', fmt(c.sellLoan)], ['Principal & interest', fmt(c.sellPI) + '/mo'], ['Wendell rent profit', '—'], ['Effective cost', fmt(c.sellPI) + '/mo']], best: true},
+    {name: 'Keep Wendell · ' + fmt(m.otherDown) + ' down', rows: [['VA loan (incl. ' + m.fee + '% fee)', fmt(c.keepLoan)], ['Principal & interest', fmt(c.keepPI) + '/mo'], ['Wendell rent profit', '+' + fmt(lo.profit) + ' to +' + fmt(hi.profit)], ['Effective cost', fmt(c.keepPI - hi.profit) + '–' + fmt(c.keepPI - lo.profit).replace('$', '') + '/mo']]},
+    {name: 'What keeping costs you', rows: [['Extra borrowed', fmt(c.sale)], ['Extra P&I', fmt(c.extra) + '/mo'], ['Net extra cost', fmt(hi.net) + '–' + fmt(lo.net).replace('$', '') + '/mo'], ['Per year', fmt(hi.net * 12) + '–' + fmt(lo.net * 12).replace('$', '')]]},
+  ];
+  $('paths').innerHTML = P.map(p => `<div class="path ${p.best ? 'best' : ''}"><b>${p.name}</b>${p.rows.map(([k, v]) => `<span>${k}</span><span class="v">${v}</span>`).join('')}</div>`).join('');
+  let alt = '';
+  if (m.plans && m.plans.length) {
+    const rows = m.plans.map(pl => { const loan = (pl.price - m.otherDown - c.sale) * (1 + m.fee / 100); return {pl, loan, pi: pmt(loan, m.rate), tax: pl.price * m.newTaxPct / 100 / 12}; });
+    alt = `<div style="overflow-x:auto;margin-bottom:10px"><table style="width:100%;border-collapse:collapse;font-size:13.5px"><thead><tr>${['Plan (sell Wendell)', 'Price', 'Sq ft', '$/sq ft', 'VA loan', 'P&I', 'Tax'].map(h => `<th style="text-align:left;padding:6px 4px;border-bottom:1px solid var(--line)">${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r => `<tr>${[r.pl.name, fmt(r.pl.price), r.pl.sqft.toLocaleString('en-US'), fmt(r.pl.price / r.pl.sqft), fmt(r.loan), fmt(r.pi) + '/mo', fmt(r.tax) + '/mo'].map((v, i) => `<td style="padding:6px 4px;border-bottom:1px solid var(--line)${i ? ';font-family:var(--f-mono);font-variant-numeric:tabular-nums' : ';font-weight:600'}">${v}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+  }
+  $('ans-bar').innerHTML = alt + `<div class="note">Same for both paths and not in the comparison: new-home property tax about ${fmt(c.newTax)}/mo at Wake's ${m.newTaxPct}%, plus homeowners insurance and HOA. Sale nets about ${fmt(c.sale)} from a ${fmt(m.wVal)} price after ${m.commission}% commission, NC excise tax and ${fmt(m.closing)} other costs.</div>`;
+  $('ans-src').textContent = m.note || '';
+  renderLoan(m);
+}
+const cardOf = o => `<div class="path ${o.best ? 'best' : ''}"><b>${esc(o.name)}</b>${(o.rows || []).map(([k, v]) => `<span>${esc(k)}</span><span class="v">${esc(v)}</span>`).join('')}${o.note ? `<span class="note" style="margin-top:4px">${esc(o.note)}</span>` : ''}</div>`;
+function renderLoan(m) {
+  if (m.build) { $('loan-sec').hidden = false; $('loan-intro').textContent = m.build.intro || ''; $('build').innerHTML = (m.build.cards || []).map(cardOf).join(''); }
+  if (m.loanOptions) { $('loanopts').innerHTML = m.loanOptions.map(cardOf).join(''); $('loan-note').textContent = m.loanNote || ''; }
+  if (m.sources && m.sources.length) { $('src-sec').hidden = false; $('sources').innerHTML = m.sources.map(x => `<li><b>${esc(x.what)}</b>: ${esc(x.value)} · <a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.src)}</a>${x.date ? ', ' + esc(x.date) : ''}</li>`).join(''); }
+}
+
+/* ---------- plan sections from the tracker ---------- */
+function renderPlan() {
+  const isYou = i => i.kind !== 'milestone' && i.status !== 'done';
+  const you = items.filter(isYou).sort((a, b) => (a.order || 0) - (b.order || 0));
+  const dec = items.filter(i => i.kind === 'decision' && i.status === 'done');
+  const ver = items.filter(i => i.kind !== 'decision' && i.kind !== 'milestone' && i.status === 'done');
+  const ms = items.filter(i => i.kind === 'milestone').sort((a, b) => (a.order || 0) - (b.order || 0));
+  const card = (i, mine) => `<div class="card ${mine ? 'you' : ''}" data-id="${esc(i.id)}"><span class="chip ${mine ? 'you' : 'ok'}">${mine ? 'Your step' : 'Done'}</span><div class="t">${esc(i.title)}</div>${i.detail ? `<div class="d">${esc(i.detail.replace(/^(DONE|DECIDED)[.:]\s*/, ''))}</div>` : ''}${mine && canWrite ? `<div class="row"><button class="btn" data-act="done">Mark done</button></div>` : ''}</div>`;
+  $('you').innerHTML = you.length ? you.map(i => card(i, true)).join('') : '<div class="card"><div class="t">Nothing left for you right now.</div></div>';
+  $('decided').innerHTML = dec.map(i => card(i, false)).join('') || '<div class="note">No decisions recorded yet.</div>';
+  $('verified').innerHTML = ver.map(i => card(i, false)).join('') || '<div class="note">Nothing verified yet.</div>';
+  $('steps').innerHTML = ms.map(i => `<div class="step ${i.status === 'done' ? 'done' : ''}"><div class="t">${esc(i.title)}${i.due ? ` <span class="note num">${esc(i.due)}</span>` : ''}</div>${i.detail ? `<div class="note">${esc(i.detail)}</div>` : ''}</div>`).join('');
+  $('c-you').textContent = you.length + ' left'; $('c-dec').textContent = dec.length; $('c-ver').textContent = ver.length;
+  $('s-done').textContent = dec.length + ver.length; $('s-you').textContent = you.length; $('s-next').textContent = ms.filter(i => i.status !== 'done').length;
+}
+$('you').onclick = async e => {
+  const b = e.target.closest('[data-act="done"]'); if (!b || !db) return;
+  b.disabled = true;
+  try { await db.collection('items').doc(b.closest('.card').dataset.id).update({status: 'done', updatedAt: new Date().toISOString()}); }
+  catch (err) { b.disabled = false; banner('That did not save. Try again.'); }
+};
+
+/* ---------- design changes ---------- */
+let design = [];
+function renderDesign() {
+  const groups = [['home', 'Home design'], ['outdoor', 'Outdoor living'], ['elevation', 'Elevation']];
+  $('design').innerHTML = design.length ? groups.map(([g, t]) => {
+    const rows = design.filter(d => d.group === g).sort((a, b) => (a.order || 0) - (b.order || 0));
+    return rows.length ? `<div class="dgroup"><h3>${t}</h3>${rows.map(d => `<div class="drow"><div class="brian"><div class="t">${esc(d.title)}</div><div class="note">${esc(d.brian || '')}</div></div><div><span class="tag ${d.call === 'price' ? 'rec-price' : 'rec-yes'}">${esc(d.callLabel || 'Recommendation')}</span><div class="rec">${esc(d.rec || '')}</div></div></div>`).join('')}</div>` : '';
+  }).join('') : '<div class="note">No design notes yet.</div>';
+  $('c-design').textContent = design.length ? design.length + ' items' : '';
+}
+$('reply-copy').onclick = async () => { const t = $('reply').textContent; try { await navigator.clipboard.writeText(t); $('reply-copy').textContent = 'Copied'; } catch (e) { const r = document.createRange(); r.selectNodeContents($('reply')); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); } };
+
+/* ---------- ask ---------- */
+const turns = [];
+function msg(who, t) { const el = document.createElement('div'); el.className = 'msg ' + who; el.textContent = t; $('chat').append(el); $('chat').scrollTop = $('chat').scrollHeight; return el; }
+function context() {
+  const t = items.map(i => `- [${i.status}] (${i.kind}) ${i.title}${i.detail ? ': ' + i.detail.slice(0, 400) : ''}`).join('\n');
+  let m = '';
+  if (money) { const c = calc(money); m = `\nMoney: new home ${fmt(money.price)}, ${fmt(money.otherDown)} down from other funds, VA ${money.rate}% with ${money.fee}% fee. Wendell (paid off) worth ~${fmt(money.wVal)}, nets ~${fmt(c.sale)} if sold; market rent ${fmt(money.rentLow)}-${fmt(money.rentHigh)}. Sell path P&I ${fmt(c.sellPI)}/mo vs keep ${fmt(c.keepPI)}/mo. ${money.note || ''}`; }
+  const dz = design.map(d => `- ${d.title}: ${d.rec || ''}`.slice(0, 500)).join('\n');
+  return `You are the planner for a military family building an Obsidian 1899F in north Raleigh / Wake County, NC with VA financing. Answer directly with the decision and the numbers; do not ask the family to fill anything in. Be brief.\n\nPlan:\n${t}${m}\n\nDesign changes:\n${dz}`;
+}
+async function ask() {
+  const text = $('q').value.trim(); if (!text || !sample) return;
+  $('q').value = ''; msg('me', text); turns.push({role: 'user', content: text});
+  const out = msg('ai', 'Thinking…'); $('q-send').disabled = true;
+  try { const r = await sample([{role: 'user', content: context()}, ...turns.slice(-10)], {cache: false, onText: ({text}) => { out.textContent = text; }}); turns.push({role: 'assistant', content: r.text}); }
+  catch (e) { turns.pop(); out.textContent = e.text || ''; if (!e.text) out.remove(); if (e.code !== 'cancelled') msg('sys', {not_granted: 'Asking Claude is turned off for this page.', rate_limited: 'Too many questions right now. Try again in a minute.'}[e.code] || 'The answer was interrupted. Try again.'); }
+  finally { $('q-send').disabled = false; }
+}
+$('q-send').onclick = ask;
+$('q').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); ask(); } });
+
+/* ---------- boot ---------- */
+async function boot() {
+  const C = window.claude;
+  if (!C || !C.use) { banner('Open this page in Claude to load the plan.'); return; }
+  [db, user, sample] = await Promise.all(['db', 'user', 'sample'].map(n => C.use(n).catch(() => null)));
+  if (!sample) $('ask').hidden = true;
+  if (!db) { banner('Sign in to Claude to load the plan.'); return; }
+  if (user) { const w = await user.can('data.write').catch(() => null); if (w === false) canWrite = false; }
+  let loaded = false;
+  const timer = setTimeout(() => { if (!loaded) banner('The plan cannot be reached yet. It will appear when the connection returns.'); }, 10000);
+  db.collection('items').onSnapshot(s => {
+    items = s.docs.map(d => Object.assign({id: d.id}, d.data()));
+    if (!s.metadata.fromCache) { loaded = true; clearTimeout(timer); banner(''); }
+    renderPlan();
+  }, () => { clearTimeout(timer); banner('The plan stopped updating. Reload to reconnect.'); });
+  db.collection('design').onSnapshot(s => { design = s.docs.map(d => Object.assign({id: d.id}, d.data())); renderDesign(); }, () => {});
+  db.doc('notes/reply').onSnapshot(s => { if (s.exists) { $('reply').textContent = s.data().text || ''; $('reply-sec').hidden = !s.data().text; } }, () => {});
+  const uid = user ? await user.id().catch(() => null) : null;
+  if (uid) {
+    db.doc('data/users/' + uid + '/money').get().then(s => {
+      if (s.exists) { money = s.data(); renderAnswer(); }
+      else { $('ans-h').textContent = 'Sell Wendell and put the proceeds down.'; $('ans-p').textContent = 'Your detailed numbers are kept privately for the owner of this plan.'; }
+    }).catch(() => {});
+  } else { $('ans-h').textContent = 'Sell Wendell and put the proceeds down.'; $('ans-p').textContent = 'Sign in to see the numbers behind it.'; }
+}
+boot();
+})();
+</script>

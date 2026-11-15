@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AR Homes Blueprint Viewer</title>
+<style>
+  :root { --bg:#10141a; --panel:#1a2029; --fg:#e8edf3; --mute:#8b97a6; --acc:#4cc2ff; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:14px/1.4 system-ui,sans-serif;
+         display:grid; grid-template-columns:300px 1fr; height:100vh; }
+  #side { background:var(--panel); overflow:auto; padding:12px; }
+  #side input { width:100%; padding:8px; margin-bottom:8px; background:#0e1217; color:var(--fg);
+                border:1px solid #2a3340; border-radius:6px; }
+  .plan { padding:8px; border-radius:6px; cursor:pointer; }
+  .plan:hover, .plan.sel { background:#252e3a; }
+  .plan small { color:var(--mute); display:block; }
+  #main { position:relative; }
+  canvas { display:block; width:100%; height:100%; }
+  #info { position:absolute; left:12px; top:12px; background:#000a; padding:10px 12px;
+          border-radius:8px; max-width:320px; }
+  #info h2 { margin:0 0 4px; font-size:16px; }
+  #info a { color:var(--acc); }
+  #info img { width:100%; max-height:220px; object-fit:contain; margin-top:8px; border-radius:4px; background:#fff; }
+  #ar { position:absolute; right:12px; bottom:12px; }
+  #ar button, #ar a { background:var(--acc); color:#04121c; border:0; padding:10px 14px;
+                      border-radius:8px; font-weight:600; cursor:pointer; }
+  @media (max-width:700px){ body{grid-template-columns:1fr; grid-template-rows:180px 1fr;} }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div id="side"><input id="q" placeholder="Search plans…"><div id="list"></div></div>
+<div id="main">
+  <div id="info"></div>
+  <div id="ar"></div>
+</div>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { VRButton } from 'three/addons/webxr/VRButton.js';
+import { ARButton } from 'three/addons/webxr/ARButton.js';
+
+const FT = 0.3048;                       // feet -> metres
+const STORY_H = 9 * FT;                  // 9 ft ceilings
+const main = document.getElementById('main');
+
+const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true });
+renderer.setPixelRatio(devicePixelRatio);
+renderer.xr.enabled = true;
+main.prepend(renderer.domElement);
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x10141a);
+const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 500);
+camera.position.set(18, 14, 22);
+const controls = new OrbitControls(camera, renderer.domElement);
+scene.add(new THREE.HemisphereLight(0xffffff, 0x334455, 1.1));
+const sun = new THREE.DirectionalLight(0xffffff, 1.4);
+sun.position.set(20, 30, 10); scene.add(sun);
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(200, 200),
+  new THREE.MeshStandardMaterial({ color:0x1e2a22 }));
+ground.rotation.x = -Math.PI/2; scene.add(ground);
+
+let house = null;
+
+/** Build a massing model from plan metadata (sqft, stories, garages, beds). */
+function buildHouse(p) {
+  const g = new THREE.Group();
+  const stories = Math.max(1, p.stories || 1);
+  const livingSqft = p.sqft || 2500;
+  const footprint = (livingSqft / stories) * FT * FT;   // m^2 of ground floor
+  const ratio = 1.45;                                   // width : depth
+  const w = Math.sqrt(footprint * ratio), d = footprint / w;
+  const wall = new THREE.MeshStandardMaterial({ color:0xe9e2d3 });
+  const roofM = new THREE.MeshStandardMaterial({ color:0x4a4f57 });
+  const glass = new THREE.MeshStandardMaterial({ color:0x7fb7d6, metalness:.3, roughness:.2 });
+
+  for (let s = 0; s < stories; s++) {                    // one slab per story
+    const b = new THREE.Mesh(new THREE.BoxGeometry(w, STORY_H - 0.05, d), wall);
+    b.position.y = s * STORY_H + STORY_H/2; g.add(b);
+    const n = Math.max(3, Math.round(w / 2.2));          // simple window rhythm
+    for (let i = 0; i < n; i++) {
+      const win = new THREE.Mesh(new THREE.BoxGeometry(0.9, 1.2, 0.06), glass);
+      win.position.set(-w/2 + (i + .5) * (w / n), s * STORY_H + STORY_H*0.55, d/2 + 0.03);
+      g.add(win);
+    }
+  }
+  const cone = new THREE.Mesh(new THREE.ConeGeometry(1, 1, 4), roofM);
+  cone.rotation.y = Math.PI/4;                          // square base aligned to walls
+  const roof = new THREE.Group(); roof.add(cone);
+  const rh = Math.min(w, d) * 0.28;
+  roof.scale.set((w + 1.2) / Math.SQRT2, rh, (d + 1.2) / Math.SQRT2);
+  roof.position.y = stories * STORY_H + rh / 2; g.add(roof);
+  g.userData.size = Math.max(w, d);
+
+  const bays = p.garages || 0;                           // attached garage wing
+  if (bays) {
+    const gw = bays * 3.2, gd = 6.5, gh = STORY_H;
+    const gar = new THREE.Mesh(new THREE.BoxGeometry(gw, gh, gd), wall);
+    gar.position.set(w/2 + gw/2, gh/2, d/2 - gd/2); g.add(gar);
+    for (let i = 0; i < bays; i++) {
+      const door = new THREE.Mesh(new THREE.BoxGeometry(2.6, 2.2, 0.06),
+        new THREE.MeshStandardMaterial({ color:0xb8bec6 }));
+      door.position.set(w/2 + 1.6 + i*3.2, 1.1, d/2 + 0.03); g.add(door);
+    }
+  }
+  g.position.x = -w/2;                                   // roughly centre
+  return g;
+}
+
+function select(p) {
+  if (house) scene.remove(house);
+  house = buildHouse(p); scene.add(house);
+  const k = house.userData.size * 1.6 + 6;
+  camera.position.set(k * 0.9, k * 0.55, k * 1.1); controls.target.set(0, 3, 0);
+  const fp = (p.floorplan_images || [])[0], pdf = (p.floorplan_pdfs || [])[0];
+  document.getElementById('info').innerHTML =
+    `<h2>${p.name}</h2>${p.sqft?.toLocaleString() ?? '?'} sq ft · ${p.bedrooms ?? '?'} bd · ` +
+    `${p.bathrooms ?? '?'} ba · ${p.stories ?? '?'} st · ${p.garages ?? 0} garage<br>` +
+    `<a href="${p.url}" target="_blank" rel="noopener">source page</a>` +
+    (pdf ? ` · <a href="${pdf}" target="_blank" rel="noopener">floor-plan PDF</a>` : '') +
+    (fp ? `<img src="${fp}" alt="floor plan" referrerpolicy="no-referrer">` : '');
+  document.querySelectorAll('.plan').forEach(e => e.classList.toggle('sel', e.dataset.u === p.url));
+}
+
+function resize() {
+  const r = main.getBoundingClientRect();
+  renderer.setSize(r.width, r.height); camera.aspect = r.width / r.height;
+  camera.updateProjectionMatrix();
+}
+addEventListener('resize', resize); resize();
+renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
+
+const arBox = document.getElementById('ar');
+if (navigator.xr) {
+  arBox.append(ARButton.createButton(renderer));
+  arBox.append(VRButton.createButton(renderer));
+  arBox.querySelectorAll('button,a').forEach(b => b.style.cssText += ';position:static;margin-left:8px');
+}
+
+const res = await fetch('../blueprints.json');
+const plans = (await res.json()).plans.filter(p => p.sqft);
+const list = document.getElementById('list');
+function render(f='') {
+  list.innerHTML = '';
+  plans.filter(p => p.name.toLowerCase().includes(f.toLowerCase())).forEach(p => {
+    const el = document.createElement('div');
+    el.className = 'plan'; el.dataset.u = p.url;
+    el.innerHTML = `${p.name}<small>${p.sqft.toLocaleString()} sq ft · ${p.bedrooms} bd · ${p.bathrooms} ba</small>`;
+    el.onclick = () => select(p); list.append(el);
+  });
+}
+document.getElementById('q').oninput = e => render(e.target.value);
+render(); if (plans[0]) select(plans[0]);
+window.__ready = true;
+</script>
+</body>
+</html>

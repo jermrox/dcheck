@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Obsidian Money Plan</title>
+<style>
+:root{--bg:#f4f6f8;--card:#fff;--ink:#14202b;--sub:#56656f;--line:#d9e0e6;--accent:#2a5b8a;--good:#1f7a4d;--warn:#a5641a;--bad:#b23a3a;--chip:#eef3f8;--bar1:#2a5b8a;--bar2:#6d9cc7;--bar3:#a9c4dd;--bar4:#d7a35a;--bar5:#8a6bb8}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f151b;--card:#17212a;--ink:#e6edf3;--sub:#9fb0bf;--line:#2a3742;--accent:#7fb0e0;--good:#58c08b;--warn:#e0a85a;--bad:#ef7b7b;--chip:#1e2a35}}
+:root[data-theme="dark"]{--bg:#0f151b;--card:#17212a;--ink:#e6edf3;--sub:#9fb0bf;--line:#2a3742;--accent:#7fb0e0;--good:#58c08b;--warn:#e0a85a;--bad:#ef7b7b;--chip:#1e2a35}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+header{padding:18px 16px 8px;max-width:1240px;margin:0 auto;display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;justify-content:space-between}
+header h1{margin:0;font-size:22px} header p{margin:2px 0 0;color:var(--sub)}
+nav a{color:var(--accent);text-decoration:none;font-weight:600;margin-left:12px;font-size:13px}
+main{max-width:1240px;margin:0 auto;padding:0 16px 40px;display:grid;grid-template-columns:360px 1fr;gap:16px}
+@media (max-width:900px){main{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:14px}
+.card h2{font-size:15px;margin:0 0 8px} .card h3{font-size:13px;margin:12px 0 6px;color:var(--sub);text-transform:uppercase;letter-spacing:.04em}
+label.f{display:grid;grid-template-columns:1fr 132px;gap:8px;align-items:center;margin:5px 0;font-size:13px}
+label.f span small{display:block;color:var(--sub);font-size:11px}
+input,select{width:100%;font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);text-align:right}
+select{text-align:left}
+details>summary{cursor:pointer;font-weight:700;font-size:14px;padding:4px 0}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.kpi b{display:block;font-size:22px;font-variant-numeric:tabular-nums} .kpi span{color:var(--sub);font-size:12px}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right;font-size:13px}
+th:first-child,td:first-child{text-align:left} thead th{color:var(--sub);font-weight:600;font-size:12px}
+tr.tot td{font-weight:700} tr.sec td{color:var(--sub);font-size:11px;text-transform:uppercase;letter-spacing:.04em;padding-top:12px}
+.best{outline:2px solid var(--good);outline-offset:-2px;border-radius:6px}
+.tag{display:inline-block;padding:1px 7px;border-radius:999px;font-size:11px;font-weight:700;background:var(--chip);color:var(--sub)}
+.tag.good{color:var(--good)} .tag.warn{color:var(--warn)} .tag.bad{color:var(--bad)}
+.bar{display:flex;height:22px;border-radius:6px;overflow:hidden;margin:6px 0}
+.bar div{height:100%} .legend{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;color:var(--sub)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+.src{font-size:11px;color:var(--sub)} .src a{color:var(--sub)}
+ul.ways{margin:0;padding-left:18px} ul.ways li{margin:6px 0}
+.note{font-size:12px;color:var(--sub)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.tabs button{font:600 13px system-ui;padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.tabs button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.timeline{display:grid;gap:8px} .step{display:grid;grid-template-columns:92px 1fr auto;gap:10px;align-items:baseline;border-left:3px solid var(--accent);padding:2px 0 2px 10px}
+.step b{font-variant-numeric:tabular-nums}
+svg text{fill:var(--sub);font-size:11px}
+</style></head><body>
+<header><div><h1>Obsidian 1899F · Money plan</h1><p>Build price, VA and other loan options, and what to do with the current house (sell, rent, or keep), all in one place. Everything recalculates as you type and stays on this device.</p></div>
+<nav><a href="family.html">Family plan</a><a href="../lot2-site.html">Lot 3D</a><a href="../../interactive_interior_visualizer.html">Designer</a><a href="../ar/index.html">AR</a></nav></header>
+<main>
+<aside>
+  <div class="card"><h2>Your numbers</h2><p class="note">Defaults are public estimates for Shinleaf Homesite 2 (sources at the bottom). Replace them with your builder contract, LES and statements.</p>
+  <details open><summary>New home</summary><div id="g-new"></div></details>
+  <details open><summary>Service &amp; income</summary><div id="g-mil"></div></details>
+  <details open><summary>Current house</summary><div id="g-old"></div></details>
+  <details><summary>Cash &amp; savings</summary><div id="g-cash"></div></details>
+  <details><summary>Rates &amp; assumptions</summary><div id="g-rate"></div></details>
+  <p class="note"><button id="reset" style="font:inherit;padding:4px 10px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer">Reset to defaults</button></p>
+  </div>
+</aside>
+<section>
+  <div class="kpis" id="kpis"></div>
+  <div class="card"><h2>Total price to build</h2><div id="price"></div></div>
+  <div class="card"><h2>Compare the paths</h2><p class="note">Each column is a full plan for the new home and the current house. The highlighted column leaves you the most net worth after the horizon you set, while still passing VA's debt-to-income and residual-income checks.</p><div id="cmp"></div></div>
+  <div class="card"><h2>Monthly payment, chosen path</h2><div class="tabs" id="tabs"></div><div id="pay"></div></div>
+  <div class="card"><h2>Net worth over time</h2><div id="chart"></div></div>
+  <div class="card"><h2>Cash timeline: contract to move-in</h2><div id="tl" class="timeline"></div></div>
+  <div class="card"><h2>Every way to fund it</h2><div id="ways"></div></div>
+  <div class="card"><h2>Rules that decide this</h2><div id="rules"></div></div>
+  <div class="card"><h2>Sources</h2><div id="sources" class="src"></div></div>
+</section>
+</main>
+<script>
+/* ===== facts (filled from current public sources; see FACTS.sources) ===== */
+const FACTS = /*FACTS*/{};
+/* ===== inputs ===== */
+const F = (id, label, def, opt = {}) => ({ id, label, def, ...opt });
+const GROUPS = {
+  'g-new': [
+    F('base', 'Base house price', FACTS.base_price, { hint: 'from your builder contract' }),
+    F('lot', 'Lot price', FACTS.lot_price, { hint: 'Shinleaf Lot 2' }),
+    F('options', 'Options & upgrades', FACTS.options, { hint: 'change orders, selections' }),
+    F('pool', 'Pool', FACTS.pool),
+    F('site', 'Site work, septic, well/water', FACTS.site_work),
+    F('allow', 'Allowance overages', 0, { hint: 'overage ÷ 0.85 per the spec' }),
+    F('months', 'Build time (months)', 12, { unit: 'mo' }),
+    F('appr', 'Appraised value at completion', FACTS.appraised, { hint: 'VA lends on this, not the cost' }),
+  ],
+  'g-mil': [
+    F('status', 'Status', 'active', { sel: [['active', 'Active duty'], ['veteran', 'Veteran'], ['guard', 'Guard / Reserve']] }),
+    F('disab', 'VA disability rating', 0, { unit: '%', hint: '10%+ waives the funding fee' }),
+    F('firstuse', 'Used VA loan before?', 'yes', { sel: [['no', 'No, first use'], ['yes', 'Yes']] }),
+    F('vaold', 'Current house is a VA loan?', 'yes', { sel: [['yes', 'Yes'], ['no', 'No']] }),
+    F('pay', 'Monthly gross pay (base + special)', 9000),
+    F('bah', 'BAH (monthly)', 2500, { hint: 'counts as income for VA' }),
+    F('bas', 'BAS (monthly)', 460),
+    F('other', 'Other income (spouse, VA comp)', 0),
+    F('debts', 'Monthly debts (cars, cards, loans)', 900),
+    F('childcare', 'Childcare (monthly)', (() => { try { return JSON.parse(localStorage.getItem('obsidian-family-monthly') || '{}').monthly || 0; } catch (e) { return 0; } })(), { hint: 'from the family plan; VA counts it' }),
+    F('family', 'Family size', 4, { unit: 'ppl' }),
+    F('fico', 'Credit score', 740),
+  ],
+  'g-old': [
+    F('oval', 'Value today', 450000),
+    F('obal', 'Mortgage balance', 280000),
+    F('oorig', 'Original loan amount', 310000, { hint: 'sets the VA entitlement still in use' }),
+    F('orate', 'Mortgage rate', 3.25, { unit: '%' }),
+    F('opiti', 'Payment incl. tax & insurance', 2300),
+    F('obought', 'Purchase price (basis)', 320000),
+    F('oyears', 'Years you lived in it', 4, { unit: 'yr' }),
+    F('orent', 'Expected rent', 2600),
+    F('opm', 'Property manager', 9, { unit: '%' }),
+    F('oappr', 'Yearly appreciation', 3, { unit: '%' }),
+  ],
+  'g-cash': [
+    F('cash', 'Cash savings', 60000),
+    F('reserve', 'Emergency fund to keep', 20000),
+    F('tsp', 'TSP balance', 80000),
+    F('tsploan', 'TSP loan to take', 0, { hint: 'residential loan, up to $50k' }),
+    F('deposit', 'Builder deposit', FACTS.deposit),
+  ],
+  'g-rate': [
+    F('rva', 'VA 30-yr rate', FACTS.rate_va, { unit: '%' }),
+    F('rconv', 'Conventional 30-yr rate', FACTS.rate_conv, { unit: '%' }),
+    F('rjumbo', 'Jumbo 30-yr rate', FACTS.rate_jumbo, { unit: '%' }),
+    F('rcons', 'Construction loan rate', FACTS.rate_cons, { unit: '%' }),
+    F('tax', 'Property tax rate (county+fire)', FACTS.tax_rate, { unit: '%', hint: 'per $100 → %' }),
+    F('ins', 'Home insurance (yearly)', FACTS.insurance),
+    F('hoa', 'HOA (monthly)', FACTS.hoa),
+    F('cc', 'Buyer closing costs', 1.5, { unit: '%' }),
+    F('sellc', 'Selling costs (commission+fees)', 6.5, { unit: '%' }),
+    F('napp', 'New-home appreciation', 3, { unit: '%' }),
+    F('horizon', 'Horizon', 10, { unit: 'yr' }),
+  ],
+};
+const KEY = 'obsidian-money-v1';
+let saved = {}; try { saved = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
+const V = {};
+for (const [g, fields] of Object.entries(GROUPS)) {
+  const el = document.getElementById(g);
+  for (const f of fields) {
+    V[f.id] = saved[f.id] ?? f.def;
+    const lab = document.createElement('label'); lab.className = 'f';
+    lab.innerHTML = `<span>${f.label}${f.hint ? `<small>${f.hint}</small>` : ''}</span>` + (f.sel
+      ? `<select data-id="${f.id}">${f.sel.map(([v, t]) => `<option value="${v}" ${v === V[f.id] ? 'selected' : ''}>${t}</option>`).join('')}</select>`
+      : `<input data-id="${f.id}" inputmode="decimal" value="${V[f.id]}">`);
+    el.append(lab);
+  }
+}
+document.querySelectorAll('[data-id]').forEach(i => i.addEventListener('input', () => {
+  const v = i.tagName === 'SELECT' ? i.value : parseFloat(String(i.value).replace(/[$,%\s]/g, ''));
+  V[i.dataset.id] = (i.tagName === 'SELECT' || !isNaN(v)) ? v : 0; try { localStorage.setItem(KEY, JSON.stringify(V)); } catch (e) {} render();
+}));
+document.getElementById('reset').onclick = () => { try { localStorage.removeItem(KEY); } catch (e) {} location.reload(); };
+
+/* ===== math ===== */
+const $ = n => (n < 0 ? '−$' : '$') + Math.round(Math.abs(n)).toLocaleString();
+const pmt = (P, r, n = 360) => { const i = r / 1200; return P <= 0 ? 0 : i ? P * i / (1 - Math.pow(1 + i, -n)) : P / n; };
+const bal = (P, r, k, n = 360) => { const i = r / 1200; if (P <= 0) return 0; return i ? P * Math.pow(1 + i, k) - pmt(P, r, n) * (Math.pow(1 + i, k) - 1) / i : P - P / n * k; };
+function fundingFee(down, subsequent) {
+  if (V.disab >= 10) return 0;
+  const T = FACTS.ff; const pct = down >= 0.10 ? T.d10 : down >= 0.05 ? T.d5 : (subsequent ? T.sub : T.first);
+  return pct / 100;
+}
+function residualNeed(fam) { const t = FACTS.residual_south; return fam <= 5 ? t[fam - 1] : t[4] + (fam - 5) * FACTS.residual_extra; }
+function scenario(kind) {
+  const cost = V.base + V.lot + V.options + V.pool + V.site + V.allow;
+  const value = Math.max(V.appr, 1);
+  const income = V.pay + V.bah + V.bas + V.other;
+  const s = { kind, cost, value, note: [] };
+  const sellNow = kind === 'sell' || kind === 'conv';
+  const keep = !sellNow;
+  const saleNet = (val, b) => val * (1 - V.sellc / 100) - val * FACTS.excise - b;
+  s.sellNet = sellNow ? saleNet(V.oval, V.obal) : 0;
+  s.rentNet = keep ? V.orent * (1 - V.opm / 100 - FACTS.vacancy) - V.opiti - V.oval * FACTS.maint / 12 : 0;
+  const cash0 = V.cash + V.tsploan - V.reserve + s.sellNet;
+  s.cc = value * V.cc / 100;
+  if (kind === 'conv') {
+    s.type = 'Conventional';
+    const want = cost * 0.2, can = Math.max(cost * 0.05, Math.min(want, cash0 - s.cc));
+    s.down = Math.min(cost, Math.max(can, cost * 0.05)); s.loan = cost - s.down; s.ff = 0;
+    s.rate = s.loan > FACTS.conforming ? V.rjumbo : V.rconv; if (s.loan > FACTS.conforming) { s.type = 'Jumbo'; s.down = Math.max(s.down, cost * 0.1); s.loan = cost - s.down; }
+  } else {
+    s.type = 'VA';
+    const L = Math.min(cost, value);                     // VA lends on the lesser of cost and appraised value
+    let maxNoDown = Infinity;
+    if (keep && V.vaold === 'yes') {                     // existing VA loan stays: only remaining entitlement
+      const remain = Math.max(0, FACTS.county_limit * 0.25 - V.oorig * 0.25);
+      maxNoDown = remain * 4; s.remainEnt = remain; s.note.push('partial entitlement');
+    }
+    const downVA = L > maxNoDown ? 0.25 * (L - maxNoDown) : 0;
+    s.down = downVA + Math.max(0, cost - value);
+    const base = L - downVA;
+    s.ff = fundingFee(downVA / L, V.firstuse === 'yes') * base;
+    s.loan = base + s.ff; s.rate = V.rva;
+  }
+  s.carry = (s.loan - s.ff) * FACTS.avg_draw * V.rcons / 100 / 12 * V.months;
+  s.cashToClose = s.down + s.cc;
+  s.cashLeft = cash0 - s.cashToClose - s.carry;
+  if (s.cashLeft < 0) s.note.push('short ' + $(-s.cashLeft));
+  s.pi = pmt(s.loan, s.rate);
+  const taxable = V.disab >= 100 ? Math.max(0, value - FACTS.nc_vet_exclusion) : value;
+  s.tax = taxable * V.tax / 100 / 12; s.ins = V.ins / 12; s.hoa = V.hoa;
+  s.pmi = kind === 'conv' && s.down / cost < 0.2 ? s.loan * FACTS.pmi / 12 : 0;
+  s.piti = s.pi + s.tax + s.ins + s.pmi + s.hoa;
+  // VA-style underwriting: 75% of lease rent offsets the old payment when you keep it
+  const rentCredit = keep ? V.orent * 0.75 - V.opiti : 0;
+  const debts = V.debts + V.childcare + Math.max(0, -rentCredit), inc = income + Math.max(0, rentCredit);
+  s.needInc = (s.piti + debts) / 0.41 - Math.max(0, rentCredit);
+  s.dti = (s.piti + debts) / inc;
+  const taxes = (V.pay + (V.status === 'active' ? 0 : 0)) * FACTS.tax_withhold_pct;   // BAH/BAS and VA comp are tax-free
+  s.residual = inc - taxes - s.piti - debts - FACTS.sqft * 0.14;
+  s.residualNeed = residualNeed(Math.max(1, Math.round(V.family)));
+  s.residualOK = s.residual >= s.residualNeed;
+  s.passes = s.cashLeft >= 0 && (s.dti <= 0.41 ? s.residualOK : s.residual >= s.residualNeed * 1.2);
+  // net worth path
+  const H = Math.max(1, Math.round(V.horizon)); s.nw = [];
+  let soldAt = null;
+  for (let y = 0; y <= H; y++) {
+    const newEq = value * Math.pow(1 + V.napp / 100, y) - bal(s.loan, s.rate, y * 12);
+    let oldEq = 0, flow = 0;
+    if (keep) {
+      if (kind === 'sell3' && y >= 3) { if (soldAt == null) soldAt = saleNet(V.oval * Math.pow(1 + V.oappr / 100, 3), bal(V.obal, V.orate, 36)); oldEq = soldAt; flow = s.rentNet * 36; }
+      else { oldEq = V.oval * Math.pow(1 + V.oappr / 100, y) - bal(V.obal, V.orate, y * 12); flow = s.rentNet * 12 * y; }
+    }
+    s.nw.push(newEq + oldEq + flow + s.cashLeft);
+  }
+  const gainNow = V.oval * (1 - V.sellc / 100) - V.obought;
+  s.gain = gainNow;
+  return s;
+}
+const PATHS = [
+  ['sell', 'Sell old, VA new', 'Sell before or at closing; full VA entitlement comes back; equity goes to the build.'],
+  ['rent', 'Rent old, VA new', 'Keep the low-rate loan; the house is rented; remaining VA entitlement used for the new home.'],
+  ['sell3', 'Rent now, sell within 3 yrs', 'Rent it while the market and the build settle, then sell inside the tax-free window.'],
+  ['conv', 'Sell old, conventional', 'Sell the old house; conventional or jumbo loan with 5-20% down; PMI under 20%. Saves the VA entitlement for later.'],
+];
+let chosen = 'sell';
+function render() {
+  const S = Object.fromEntries(PATHS.map(([k]) => [k, scenario(k)]));
+  const passing = PATHS.map(p => p[0]).filter(k => S[k].passes);
+  const best = (passing.length ? passing : PATHS.map(p => p[0])).sort((a, b) => S[b].nw.at(-1) - S[a].nw.at(-1))[0];
+  const qualifies = passing.length > 0;
+  const s = S[chosen];
+  // KPIs
+  document.getElementById('kpis').innerHTML = [
+    ['All-in cost', $(s.cost), 'house, lot, options, pool, site'],
+    [qualifies ? 'Best path' : 'Highest net worth (not yet qualifying)', PATHS.find(p => p[0] === best)[1], qualifies ? `${$(S[best].nw.at(-1))} net worth in ${V.horizon} yrs` : 'enter your real income and cash: no path passes VA checks with the numbers shown'],
+    ['New payment', $(S[chosen].piti) + '/mo', PATHS.find(p => p[0] === chosen)[1]],
+    ['Cash left after move-in', $(s.cashLeft), 'after down payment, closing, build interest'],
+    ['Income to qualify (41% DTI)', $(s.needInc) + '/mo', `you entered ${$(V.pay + V.bah + V.bas + V.other)}/mo`],
+  ].map(([a, b, c]) => `<div class="kpi"><span>${a}</span><b>${b}</b><span>${c}</span></div>`).join('');
+  // price
+  const items = [['Base house (Obsidian 1899F)', V.base], ['Lot', V.lot], ['Options & upgrades', V.options], ['Pool', V.pool], ['Site work, septic, water', V.site], ['Allowance overages', V.allow]];
+  const tot = items.reduce((a, b) => a + b[1], 0);
+  document.getElementById('price').innerHTML = `<table><tbody>${items.map(([n, v]) => `<tr><td>${n}</td><td>${$(v)}</td><td>${tot ? Math.round(v / tot * 100) : 0}%</td></tr>`).join('')}
+    <tr class="tot"><td>Total</td><td>${$(tot)}</td><td>${$(tot / FACTS.sqft)}/sq ft heated</td></tr>
+    <tr><td>Appraised value at completion</td><td>${$(V.appr)}</td><td><span class="tag ${V.appr >= tot ? 'good' : 'warn'}">${V.appr >= tot ? 'covers cost' : 'gap ' + $(tot - V.appr) + ' paid in cash'}</span></td></tr></tbody></table>
+    <p class="note">${FACTS.price_note || ''}</p>`;
+  // compare
+  const rows = [
+    ['sec', 'New home'], ['Loan type', k => S[k].type + (S[k].note.length ? ` <span class="tag">${S[k].note.join(', ')}</span>` : '')],
+    ['Down payment', k => $(S[k].down)], ['VA funding fee (financed)', k => $(S[k].ff)], ['Loan amount', k => $(S[k].loan)], ['Rate', k => S[k].rate.toFixed(2) + '%'],
+    ['Monthly payment (PITI+HOA)', k => $(S[k].piti)], ['Interest during the build', k => $(S[k].carry)],
+    ['sec', 'Current house'], ['Cash from selling it', k => $(S[k].sellNet)], ['Monthly rent cash flow', k => (k === 'sell' || k === 'conv') ? '—' : $(S[k].rentNet)],
+    ['sec', 'Qualifying'], ['Debt-to-income (VA guide 41%)', k => `<span class="tag ${S[k].dti <= 0.41 ? 'good' : S[k].residualOK ? 'warn' : 'bad'}">${(S[k].dti * 100).toFixed(0)}%</span>`],
+    ['Residual income vs VA minimum', k => `<span class="tag ${S[k].residualOK ? 'good' : 'bad'}">${$(S[k].residual)} / ${$(S[k].residualNeed)}</span>`],
+    ['sec', 'Outcome'], ['Cash left after move-in', k => $(S[k].cashLeft)], [`Net worth in ${V.horizon} yrs`, k => `<b>${$(S[k].nw.at(-1))}</b>`],
+  ];
+  document.getElementById('cmp').innerHTML = `<div style="overflow-x:auto"><table><thead><tr><th></th>${PATHS.map(([k, n]) => `<th class="${k === best ? 'best' : ''}">${n}${k === best ? `<br><span class="tag ${qualifies ? 'good' : 'warn'}">${qualifies ? 'best' : 'best if it qualified'}</span>` : ''}</th>`).join('')}</tr></thead><tbody>
+    ${rows.map(r => r[0] === 'sec' ? `<tr class="sec"><td colspan="5">${r[1]}</td></tr>` : `<tr><td>${r[0]}</td>${PATHS.map(([k]) => `<td>${r[1](k)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+    <p class="note">${PATHS.map(([k, n, d]) => `<b>${n}:</b> ${d}`).join(' ')}</p>`;
+  // payment
+  document.getElementById('tabs').innerHTML = PATHS.map(([k, n]) => `<button data-k="${k}" class="${k === chosen ? 'on' : ''}">${n}</button>`).join('');
+  document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => { chosen = b.dataset.k; render(); });
+  const parts = [['Principal & interest', s.pi, 'var(--bar1)'], ['Property tax', s.tax, 'var(--bar2)'], ['Insurance', s.ins, 'var(--bar3)'], ['PMI', s.pmi, 'var(--bar4)'], ['HOA', s.hoa, 'var(--bar5)']].filter(p => p[1] > 0.5);
+  document.getElementById('pay').innerHTML = `<div class="bar">${parts.map(([n, v, c]) => `<div title="${n} ${$(v)}" style="width:${v / s.piti * 100}%;background:${c}"></div>`).join('')}</div>
+    <div class="legend">${parts.map(([n, v, c]) => `<span><i style="background:${c}"></i>${n} ${$(v)}</span>`).join('')}</div>
+    <p class="note">Take-home check: pay + BAH + BAS + other = ${$(V.pay + V.bah + V.bas + V.other)}/mo; housing would be ${((s.piti) / (V.pay + V.bah + V.bas + V.other) * 100).toFixed(0)}% of it${s.rentNet ? `, and the rental adds ${$(s.rentNet)}/mo after manager, vacancy and upkeep` : ''}.</p>`;
+  // chart
+  const W = 760, Hh = 240, pad = 46, all = PATHS.flatMap(([k]) => S[k].nw), mn = Math.min(0, ...all), mx = Math.max(...all) * 1.05;
+  const X = i => pad + i / V.horizon * (W - pad - 10), Y = v => Hh - 24 - (v - mn) / (mx - mn) * (Hh - 40);
+  const cols = ['var(--bar1)', 'var(--good)', 'var(--bar4)', 'var(--bar5)'];
+  let svg = `<svg viewBox="0 0 ${W} ${Hh}" width="100%" role="img" aria-label="Net worth by path">`;
+  for (let t = 0; t <= 4; t++) { const v = mn + (mx - mn) * t / 4; svg += `<line x1="${pad}" x2="${W - 10}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${pad - 6}" y="${Y(v) + 4}" text-anchor="end">${v >= 1e6 ? '$' + (v / 1e6).toFixed(1) + 'M' : '$' + Math.round(v / 1e3) + 'k'}</text>`; }
+  for (let i = 0; i <= V.horizon; i += Math.max(1, Math.round(V.horizon / 10))) svg += `<text x="${X(i)}" y="${Hh - 6}" text-anchor="middle">yr ${i}</text>`;
+  PATHS.forEach(([k, n], j) => { svg += `<polyline fill="none" stroke="${cols[j]}" stroke-width="${k === best ? 3 : 1.8}" points="${S[k].nw.map((v, i) => X(i) + ',' + Y(v)).join(' ')}"/>`; });
+  svg += '</svg>';
+  document.getElementById('chart').innerHTML = svg + `<div class="legend">${PATHS.map(([k, n], j) => `<span><i style="background:${cols[j]}"></i>${n}</span>`).join('')}</div>
+    <p class="note">Net worth = equity in the new home + equity in the old one (if kept) + rental cash flow + cash left. Uses your appreciation and rate inputs; not a forecast.</p>`;
+  // timeline
+  const m = V.months;
+  const tl = [
+    ['Contract', 'Builder deposit and lot (cash, HELOC on the current house, or a construction loan that buys the lot)', V.deposit],
+    ['Month 0-1', `Construction loan closes (${chosen === 'conv' ? 'construction-to-permanent' : 'VA one-time-close if your lender offers it'}); appraisal "subject to completion"`, s.cc],
+    [`Months 1-${m}`, `Draws as framing, roof, mechanicals, finish complete; you pay interest on what's drawn (≈${$(s.carry / Math.max(m, 1))}/mo average)`, s.carry],
+    [`Month ${m - 2}`, chosen === 'sell' ? 'List the current house so it closes near move-in (or rent-back from the buyer)' : 'Line up a tenant and property manager; lease signed for move-out date', 0],
+    [`Month ${m}`, 'Final inspection, certificate of occupancy, loan converts to permanent; occupy within 60 days (VA)', s.down],
+    ['Move-in', chosen === 'sell' ? `Sale proceeds ${$(s.sellNet)} land` : `Rent starts: ${$(V.orent)}/mo`, 0],
+  ];
+  document.getElementById('tl').innerHTML = tl.map(([a, b, c]) => `<div class="step"><b>${a}</b><span>${b}</span><b>${c ? $(c) : ''}</b></div>`).join('');
+  // ways + rules from facts
+  document.getElementById('ways').innerHTML = `<ul class="ways">${(FACTS.ways || []).map(w => `<li><b>${w[0]}</b>: ${w[1]}</li>`).join('')}</ul>`;
+  document.getElementById('rules').innerHTML = `<ul class="ways">${(FACTS.rules || []).map(w => `<li><b>${w[0]}</b>: ${w[1]}</li>`).join('')}</ul>`;
+  document.getElementById('sources').innerHTML = (FACTS.sources || []).map(s => `<div>${s[0]} <a href="${s[1]}" target="_blank" rel="noopener">${s[1]}</a></div>`).join('') + `<p>Facts as of ${FACTS.asof || ''}. Planning tool, not a loan offer; confirm with a VA-approved construction lender, your builder, and a tax professional.</p>`;
+}
+render();
+</script>
+</body></html>
