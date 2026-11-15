@@ -72,6 +72,18 @@ section{display:grid;gap:12px}
 .btn{border:1px solid var(--line);background:transparent;border-radius:8px;padding:5px 12px;font-size:13px;font-weight:600}
 .btn.dark{background:var(--trim);border-color:var(--trim);color:var(--paper)}
 
+/* design */
+.dgroup{display:grid;gap:8px;margin-top:6px}
+.dgroup h3{font-size:14px;color:var(--mute);text-transform:uppercase;letter-spacing:.08em;font-family:var(--f-mono);font-weight:500}
+.drow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:0;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.drow>div{padding:12px 14px;min-width:0}
+.drow .brian{background:var(--brick)}
+.drow .rec{white-space:pre-wrap;font-size:14px}
+.drow .t{font-weight:600;margin-bottom:4px}
+.tag{display:inline-block;font:500 10.5px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;padding:4px 7px;border-radius:5px;margin-bottom:6px}
+.tag.rec-yes{background:var(--lawn-soft);color:var(--lawn)}
+.tag.rec-price{background:var(--warn-soft);color:var(--warn)}
+@media(max-width:700px){.drow{grid-template-columns:1fr}}
 /* timeline */
 .steps{display:grid;gap:0;counter-reset:s;border-left:2px solid var(--line);margin-left:8px}
 .step{position:relative;padding:4px 0 14px 20px}
@@ -122,6 +134,17 @@ section{display:grid;gap:12px}
     <div class="sec-h"><h2>Needs you</h2><span class="count" id="c-you"></span></div>
     <p class="note" style="margin:0">Only things that need your login, your signature or the builder's answer. Each card has the exact steps.</p>
     <div class="cards" id="you"></div>
+  </section>
+
+  <section id="design-sec">
+    <div class="sec-h"><h2>Obsidian design changes</h2><span class="count" id="c-design"></span></div>
+    <p class="note" style="margin:0" id="design-intro">Brian's notes from the Wednesday session, each with a recommendation for the Discovery meeting.</p>
+    <div id="design"><div class="note">Loading…</div></div>
+  </section>
+
+  <section id="reply-sec" hidden>
+    <div class="sec-h"><h2>Reply to John</h2><button class="btn" id="reply-copy">Copy</button></div>
+    <div class="card"><div class="d" id="reply"></div></div>
   </section>
 
   <section>
@@ -209,6 +232,18 @@ $('you').onclick = async e => {
   catch (err) { b.disabled = false; banner('That did not save. Try again.'); }
 };
 
+/* ---------- design changes ---------- */
+let design = [];
+function renderDesign() {
+  const groups = [['home', 'Home design'], ['outdoor', 'Outdoor living'], ['elevation', 'Elevation']];
+  $('design').innerHTML = design.length ? groups.map(([g, t]) => {
+    const rows = design.filter(d => d.group === g).sort((a, b) => (a.order || 0) - (b.order || 0));
+    return rows.length ? `<div class="dgroup"><h3>${t}</h3>${rows.map(d => `<div class="drow"><div class="brian"><div class="t">${esc(d.title)}</div><div class="note">${esc(d.brian || '')}</div></div><div><span class="tag ${d.call === 'price' ? 'rec-price' : 'rec-yes'}">${esc(d.callLabel || 'Recommendation')}</span><div class="rec">${esc(d.rec || '')}</div></div></div>`).join('')}</div>` : '';
+  }).join('') : '<div class="note">No design notes yet.</div>';
+  $('c-design').textContent = design.length ? design.length + ' items' : '';
+}
+$('reply-copy').onclick = async () => { const t = $('reply').textContent; try { await navigator.clipboard.writeText(t); $('reply-copy').textContent = 'Copied'; } catch (e) { const r = document.createRange(); r.selectNodeContents($('reply')); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); } };
+
 /* ---------- ask ---------- */
 const turns = [];
 function msg(who, t) { const el = document.createElement('div'); el.className = 'msg ' + who; el.textContent = t; $('chat').append(el); $('chat').scrollTop = $('chat').scrollHeight; return el; }
@@ -216,7 +251,8 @@ function context() {
   const t = items.map(i => `- [${i.status}] (${i.kind}) ${i.title}${i.detail ? ': ' + i.detail.slice(0, 400) : ''}`).join('\n');
   let m = '';
   if (money) { const c = calc(money); m = `\nMoney: new home ${fmt(money.price)}, ${fmt(money.otherDown)} down from other funds, VA ${money.rate}% with ${money.fee}% fee. Wendell (paid off) worth ~${fmt(money.wVal)}, nets ~${fmt(c.sale)} if sold; market rent ${fmt(money.rentLow)}-${fmt(money.rentHigh)}. Sell path P&I ${fmt(c.sellPI)}/mo vs keep ${fmt(c.keepPI)}/mo. ${money.note || ''}`; }
-  return `You are the planner for a military family building an Obsidian 1899F in north Raleigh / Wake County, NC with VA financing. Answer directly with the decision and the numbers; do not ask the family to fill anything in. Be brief.\n\nPlan:\n${t}${m}`;
+  const dz = design.map(d => `- ${d.title}: ${d.rec || ''}`.slice(0, 500)).join('\n');
+  return `You are the planner for a military family building an Obsidian 1899F in north Raleigh / Wake County, NC with VA financing. Answer directly with the decision and the numbers; do not ask the family to fill anything in. Be brief.\n\nPlan:\n${t}${m}\n\nDesign changes:\n${dz}`;
 }
 async function ask() {
   const text = $('q').value.trim(); if (!text || !sample) return;
@@ -244,6 +280,8 @@ async function boot() {
     if (!s.metadata.fromCache) { loaded = true; clearTimeout(timer); banner(''); }
     renderPlan();
   }, () => { clearTimeout(timer); banner('The plan stopped updating. Reload to reconnect.'); });
+  db.collection('design').onSnapshot(s => { design = s.docs.map(d => Object.assign({id: d.id}, d.data())); renderDesign(); }, () => {});
+  db.doc('notes/reply').onSnapshot(s => { if (s.exists) { $('reply').textContent = s.data().text || ''; $('reply-sec').hidden = !s.data().text; } }, () => {});
   const uid = user ? await user.id().catch(() => null) : null;
   if (uid) {
     db.doc('data/users/' + uid + '/money').get().then(s => {
