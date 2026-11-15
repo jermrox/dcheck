@@ -159,32 +159,26 @@ function banner(t) { $('conn').hidden = !t; $('conn').textContent = t || ''; }
 
 /* ---------- money answer (numbers live in the viewer's private space) ---------- */
 const pmt = (P, r, n = 360) => { r /= 1200; return r ? P * r / (1 - Math.pow(1 + r, -n)) : P / n; };
-function calc(m, keepOld) {
-  const allIn = m.base + m.lot + m.opts, basis = Math.min(allIn, m.appr || allIn), gap = Math.max(0, allIn - basis);
-  let cap = Infinity, down = 0;
-  if (keepOld && m.orig > 0) { cap = Math.max(0, (m.limit * 0.25 - m.orig * 0.25) * 4); if (basis > cap) down = 0.25 * (basis - cap); }
-  const dp = basis ? down / basis : 0;
-  const feePct = m.exempt ? 0 : dp >= 0.10 ? 1.25 : dp >= 0.05 ? 1.5 : (m.first ? 2.15 : 3.3);
-  const loan = (basis - down) * (1 + feePct / 100);
-  const tax = allIn * m.tax / 100 / 12, ins = m.ins / 12, pi = pmt(loan, m.varate), total = pi + tax + ins + m.hoa;
-  const rentNet = m.orent * 0.75 - m.opay;
-  const income = (total + m.debt + (keepOld ? Math.max(0, -rentNet) : 0)) / 0.41;
-  const cvDown = allIn * 0.2, cvTotal = pmt(allIn - cvDown, m.cvrate) + tax + ins + m.hoa;
-  return {allIn, basis, gap, cap, down, feePct, loan, pi, tax, ins, total, income, cash: down + gap, cvDown, cvTotal, cvIncome: (cvTotal + m.debt) / 0.41, sellNet: m.oval * 0.93 - m.obal};
+function calc(m) {
+  const sale = m.wVal * (1 - m.commission / 100 - 0.002) - m.closing;      // commission, NC excise $2/$1,000, other closing
+  const keepLoan = (m.price - m.otherDown) * (1 + m.fee / 100), sellLoan = (m.price - m.otherDown - sale) * (1 + m.fee / 100);
+  const keepPI = pmt(keepLoan, m.rate), sellPI = pmt(sellLoan, m.rate);
+  const profit = rent => { const y = rent * 12; return (y - m.wTax - m.wHoa * 12 - m.wIns - y * (m.vac + m.maint + m.pm) / 100) / 12; };
+  const rents = [m.rentLow, m.rentHigh].map(r => ({rent: r, profit: profit(r), net: keepPI - sellPI - profit(r)}));
+  return {sale, keepLoan, sellLoan, keepPI, sellPI, extra: keepPI - sellPI, rents, newTax: m.price * m.newTaxPct / 100 / 12};
 }
 function renderAnswer() {
   if (!money) return;
-  const m = money, s = calc(m, false), k = calc(m, true);
+  const m = money, c = calc(m), lo = c.rents[0], hi = c.rents[1];
+  $('ans-h').textContent = 'Sell Wendell and put the proceeds down.';
+  $('ans-p').textContent = `Keeping Wendell means borrowing ${fmt(c.sale)} more on the new home, which adds ${fmt(c.extra)}/mo of principal and interest at ${m.rate}%. At today's Wendell market rent of ${fmt(lo.rent)}–${fmt(hi.rent)}, the rental clears only ${fmt(lo.profit)}–${fmt(hi.profit)}/mo after tax, HOA, insurance, vacancy, upkeep and a manager. Net, keeping costs about ${fmt(hi.net)}–${fmt(lo.net)} a month, roughly ${fmt(hi.net * 12)}–${fmt(lo.net * 12)} a year. Wendell-area prices are also falling right now, so the house is not growing fast enough to make up for it. Keeping only wins long-term if you would spend, not invest, the money selling frees up.`;
   const P = [
-    {name: 'Sell current house · VA $0 down', cash: s.cash, pay: s.total, inc: s.income, best: true},
-    {name: 'Keep & rent it · VA partial', cash: k.cash, pay: k.total, inc: k.income},
-    {name: 'Conventional · 20% down', cash: s.cvDown, pay: s.cvTotal, inc: s.cvIncome},
+    {name: 'Sell Wendell · ' + fmt(m.otherDown + c.sale) + ' down', rows: [['VA loan (incl. ' + m.fee + '% fee)', fmt(c.sellLoan)], ['Principal & interest', fmt(c.sellPI) + '/mo'], ['Wendell rent profit', '—'], ['Effective cost', fmt(c.sellPI) + '/mo']], best: true},
+    {name: 'Keep Wendell · ' + fmt(m.otherDown) + ' down', rows: [['VA loan (incl. ' + m.fee + '% fee)', fmt(c.keepLoan)], ['Principal & interest', fmt(c.keepPI) + '/mo'], ['Wendell rent profit', '+' + fmt(lo.profit) + ' to +' + fmt(hi.profit)], ['Effective cost', fmt(c.keepPI - hi.profit) + '–' + fmt(c.keepPI - lo.profit).replace('$', '') + '/mo']]},
+    {name: 'What keeping costs you', rows: [['Extra borrowed', fmt(c.sale)], ['Extra P&I', fmt(c.extra) + '/mo'], ['Net extra cost', fmt(hi.net) + '–' + fmt(lo.net).replace('$', '') + '/mo'], ['Per year', fmt(hi.net * 12) + '–' + fmt(lo.net * 12).replace('$', '')]]},
   ];
-  $('ans-h').textContent = 'Sell the current house and use VA at $0 down.';
-  $('ans-p').textContent = `It needs the least cash: ${fmt(s.cash)} at closing, which is the amount the build runs over the ${fmt(m.appr)} appraisal (the pool). Keeping the house ties up part of your VA entitlement and needs ${fmt(k.cash)}; conventional needs ${fmt(s.cvDown)}. Selling should net about ${fmt(s.sellNet)}, which covers it. To qualify, household gross income needs to be about ${fmt(s.income)}/mo (base pay, BAH and VA compensation all count). A VA disability rating of 10% or more waives the ${s.feePct}% funding fee: ${fmt(s.loan - s.basis)} saved.`;
-  $('paths').innerHTML = P.map(p => `<div class="path ${p.best ? 'best' : ''}"><b>${p.name}</b><span>Cash to close</span><span class="v">${fmt(p.cash)}</span><span>Monthly payment</span><span class="v">${fmt(p.pay)}</span><span>Income needed (41% DTI)</span><span class="v">${fmt(p.inc)}/mo</span></div>`).join('');
-  const parts = [['Principal & interest', s.pi, 'var(--trim)'], ['Property tax', s.tax, 'var(--lawn)'], ['Insurance', s.ins, 'var(--warn)'], ['HOA', m.hoa, 'var(--mute)']];
-  $('ans-bar').innerHTML = `<div class="note" style="margin-bottom:6px">Where the ${fmt(s.total)} monthly payment goes</div><div class="bar">${parts.map(([, v, c]) => `<i style="width:${(v / s.total * 100).toFixed(2)}%;background:${c}"></i>`).join('')}</div><div class="legend" style="margin-top:6px">${parts.map(([t, v, c]) => `<span><i style="background:${c}"></i>${t} ${fmt(v)}</span>`).join('')}</div>`;
+  $('paths').innerHTML = P.map(p => `<div class="path ${p.best ? 'best' : ''}"><b>${p.name}</b>${p.rows.map(([k, v]) => `<span>${k}</span><span class="v">${v}</span>`).join('')}</div>`).join('');
+  $('ans-bar').innerHTML = `<div class="note">Same for both paths and not in the comparison: new-home property tax about ${fmt(c.newTax)}/mo at Wake's ${m.newTaxPct}%, plus homeowners insurance and HOA. Sale nets about ${fmt(c.sale)} from a ${fmt(m.wVal)} price after ${m.commission}% commission, NC excise tax and ${fmt(m.closing)} other costs.</div>`;
   $('ans-src').textContent = m.note || '';
 }
 
@@ -216,7 +210,7 @@ function msg(who, t) { const el = document.createElement('div'); el.className = 
 function context() {
   const t = items.map(i => `- [${i.status}] (${i.kind}) ${i.title}${i.detail ? ': ' + i.detail.slice(0, 400) : ''}`).join('\n');
   let m = '';
-  if (money) { const s = calc(money, false); m = `\nMoney: all-in ${fmt(s.allIn)}, appraisal ${fmt(money.appr)}, VA ${money.varate}%, sell-path payment ${fmt(s.total)}/mo, cash to close ${fmt(s.cash)}, income needed ${fmt(s.income)}/mo. ${money.note || ''}`; }
+  if (money) { const c = calc(money); m = `\nMoney: new home ${fmt(money.price)}, ${fmt(money.otherDown)} down from other funds, VA ${money.rate}% with ${money.fee}% fee. Wendell (paid off) worth ~${fmt(money.wVal)}, nets ~${fmt(c.sale)} if sold; market rent ${fmt(money.rentLow)}-${fmt(money.rentHigh)}. Sell path P&I ${fmt(c.sellPI)}/mo vs keep ${fmt(c.keepPI)}/mo. ${money.note || ''}`; }
   return `You are the planner for a military family building an Obsidian 1899F in north Raleigh / Wake County, NC with VA financing. Answer directly with the decision and the numbers; do not ask the family to fill anything in. Be brief.\n\nPlan:\n${t}${m}`;
 }
 async function ask() {
@@ -249,9 +243,9 @@ async function boot() {
   if (uid) {
     db.doc('data/users/' + uid + '/money').get().then(s => {
       if (s.exists) { money = s.data(); renderAnswer(); }
-      else { $('ans-h').textContent = 'Sell the current house and use VA at $0 down.'; $('ans-p').textContent = 'Your detailed numbers are kept privately for the owner of this plan.'; }
+      else { $('ans-h').textContent = 'Sell Wendell and put the proceeds down.'; $('ans-p').textContent = 'Your detailed numbers are kept privately for the owner of this plan.'; }
     }).catch(() => {});
-  } else { $('ans-h').textContent = 'Sell the current house and use VA at $0 down.'; $('ans-p').textContent = 'Sign in to see the numbers behind it.'; }
+  } else { $('ans-h').textContent = 'Sell Wendell and put the proceeds down.'; $('ans-p').textContent = 'Sign in to see the numbers behind it.'; }
 }
 boot();
 })();
