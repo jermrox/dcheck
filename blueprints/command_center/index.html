@@ -178,7 +178,12 @@ function renderAnswer() {
     {name: 'What keeping costs you', rows: [['Extra borrowed', fmt(c.sale)], ['Extra P&I', fmt(c.extra) + '/mo'], ['Net extra cost', fmt(hi.net) + '–' + fmt(lo.net).replace('$', '') + '/mo'], ['Per year', fmt(hi.net * 12) + '–' + fmt(lo.net * 12).replace('$', '')]]},
   ];
   $('paths').innerHTML = P.map(p => `<div class="path ${p.best ? 'best' : ''}"><b>${p.name}</b>${p.rows.map(([k, v]) => `<span>${k}</span><span class="v">${v}</span>`).join('')}</div>`).join('');
-  $('ans-bar').innerHTML = `<div class="note">Same for both paths and not in the comparison: new-home property tax about ${fmt(c.newTax)}/mo at Wake's ${m.newTaxPct}%, plus homeowners insurance and HOA. Sale nets about ${fmt(c.sale)} from a ${fmt(m.wVal)} price after ${m.commission}% commission, NC excise tax and ${fmt(m.closing)} other costs.</div>`;
+  let alt = '';
+  if (m.plans && m.plans.length) {
+    const rows = m.plans.map(pl => { const loan = (pl.price - m.otherDown - c.sale) * (1 + m.fee / 100); return {pl, loan, pi: pmt(loan, m.rate), tax: pl.price * m.newTaxPct / 100 / 12}; });
+    alt = `<div style="overflow-x:auto;margin-bottom:10px"><table style="width:100%;border-collapse:collapse;font-size:13.5px"><thead><tr>${['Plan (sell Wendell)', 'Price', 'Sq ft', '$/sq ft', 'VA loan', 'P&I', 'Tax'].map(h => `<th style="text-align:left;padding:6px 4px;border-bottom:1px solid var(--line)">${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r => `<tr>${[r.pl.name, fmt(r.pl.price), r.pl.sqft.toLocaleString('en-US'), fmt(r.pl.price / r.pl.sqft), fmt(r.loan), fmt(r.pi) + '/mo', fmt(r.tax) + '/mo'].map((v, i) => `<td style="padding:6px 4px;border-bottom:1px solid var(--line)${i ? ';font-family:var(--f-mono);font-variant-numeric:tabular-nums' : ';font-weight:600'}">${v}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+  }
+  $('ans-bar').innerHTML = alt + `<div class="note">Same for both paths and not in the comparison: new-home property tax about ${fmt(c.newTax)}/mo at Wake's ${m.newTaxPct}%, plus homeowners insurance and HOA. Sale nets about ${fmt(c.sale)} from a ${fmt(m.wVal)} price after ${m.commission}% commission, NC excise tax and ${fmt(m.closing)} other costs.</div>`;
   $('ans-src').textContent = m.note || '';
 }
 
